@@ -16,7 +16,7 @@ type IProps = {
 } & LocationProps;
 
 function menuOptions(pathname: string, isHome: boolean): MenuOption[] {
-  const appUrl = 'https://app.shieldex.io/u/';
+  const appUrl = 'https://app.fufuture.io/u/';
 
   return [
     {
