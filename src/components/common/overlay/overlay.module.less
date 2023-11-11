@@ -1,0 +1,249 @@
+@arrowHeight: 10px;
+@arrowBorder: -1.25px;
+
+@borderColor: #eeeeee;
+@backgroundColor: #ffffff;
+
+@borderRadius: 4px;
+
+.overlayBase(@borderColor, @backgroundColor) {
+  position: absolute;
+  background-color: transparent;
+  line-height: 0;
+
+  animation: grow-down 200ms forwards;
+  animation-timing-function: cubic-bezier(0.7, 0.3, 0.1, 1);
+
+  z-index: 100;
+
+  &.bottomStart {
+    transform-origin: 0 0;
+  }
+
+  &.bottom {
+    transform-origin: 50% 0;
+  }
+
+  &.bottomEnd {
+    transform-origin: 100% 0;
+  }
+
+  &.right {
+    transform-origin: 0 50%;
+  }
+
+  &.rightStart {
+    transform-origin: 0 0;
+  }
+
+  &.rightEnd {
+    transform-origin: 0 100%;
+  }
+
+  &.left {
+    transform-origin: 100% 50%;
+  }
+
+  &.leftStart {
+    transform-origin: 100% 0;
+  }
+
+  &.leftEnd {
+    transform-origin: 100% 100%;
+  }
+
+  &.top {
+    transform-origin: 50% 100%;
+  }
+
+  &.topStart {
+    transform-origin: 0 100%;
+  }
+
+  &.topEnd {
+    transform-origin: 100% 100%;
+  }
+
+  .content {
+    display: block;
+    line-height: 1.5;
+    background-color: @backgroundColor;
+    border-radius: @borderRadius;
+
+    &.border {
+      border: 1px solid @borderColor;
+    }
+
+    &.toTop {
+      margin-top: @arrowHeight;
+    }
+
+    &.toLeft {
+      margin-left: @arrowHeight;
+    }
+
+    &.toRight {
+      margin-right: @arrowHeight;
+    }
+
+    &.toBottom {
+      margin-bottom: @arrowHeight;
+    }
+  }
+}
+
+.overlayBaseLight {
+  .overlayBase(@borderColor, @backgroundColor);
+}
+
+// ---------------------------------------------------------------
+
+.arrow(@borderColor, @backgroundColor) {
+  position: absolute;
+  width: @arrowHeight;
+  height: @arrowHeight;
+  background-color: transparent;
+  line-height: 0;
+  box-sizing: border-box;
+
+  &.noArrow {
+    display: none;
+  }
+
+  .toTop {
+    width: @arrowHeight;
+    height: (@arrowHeight / 2);
+    margin-top: (@arrowHeight / 2);
+
+    border-top: none;
+    border-left: (@arrowHeight / 2) solid transparent;
+    border-right: (@arrowHeight / 2) solid transparent;
+    border-bottom: (@arrowHeight / 2) solid @borderColor;
+
+    .inner {
+      position: absolute;
+      width: @arrowHeight;
+      height: (@arrowHeight / 2);
+      left: 0;
+      bottom: 0;
+
+      border-top: none;
+      border-left: (@arrowHeight / 2) solid transparent;
+      border-right: (@arrowHeight / 2) solid transparent;
+      border-bottom: (@arrowHeight / 2) solid @backgroundColor;
+
+      &.border {
+        bottom: @arrowBorder;
+      }
+    }
+  }
+
+  .toLeft {
+    width: (@arrowHeight / 2);
+    height: @arrowHeight;
+    margin-left: (@arrowHeight / 2);
+
+    border-right: (@arrowHeight / 2) solid @borderColor;
+    border-top: (@arrowHeight / 2) solid transparent;
+    border-bottom: (@arrowHeight / 2) solid transparent;
+    border-left: none;
+
+    .inner {
+      position: absolute;
+      width: (@arrowHeight / 2);
+      height: @arrowHeight;
+      top: 0;
+      right: 0;
+
+      border-right: (@arrowHeight / 2) solid @backgroundColor;
+      border-top: (@arrowHeight / 2) solid transparent;
+      border-bottom: (@arrowHeight / 2) solid transparent;
+      border-left: none;
+
+      &.border {
+        right: @arrowBorder;
+      }
+    }
+  }
+
+  .toRight {
+    width: (@arrowHeight / 2);
+    height: @arrowHeight;
+
+    border-left: (@arrowHeight / 2) solid @borderColor;
+    border-top: (@arrowHeight / 2) solid transparent;
+    border-bottom: (@arrowHeight / 2) solid transparent;
+    border-right: none;
+
+    .inner {
+      position: absolute;
+      width: (@arrowHeight / 2);
+      height: @arrowHeight;
+      top: 0;
+      left: 0;
+
+      border-left: (@arrowHeight / 2) solid @backgroundColor;
+      border-top: (@arrowHeight / 2) solid transparent;
+      border-bottom: (@arrowHeight / 2) solid transparent;
+      border-right: none;
+
+      &.border {
+        left: @arrowBorder;
+      }
+    }
+  }
+
+  .toBottom {
+    width: @arrowHeight;
+    height: (@arrowHeight / 2);
+
+    border-bottom: none;
+    border-top: (@arrowHeight / 2) solid @borderColor;
+    border-right: (@arrowHeight / 2) solid transparent;
+    border-left: (@arrowHeight / 2) solid transparent;
+
+    .inner {
+      position: absolute;
+      width: @arrowHeight;
+      height: (@arrowHeight / 2);
+      left: 0;
+      top: 0;
+
+      border-bottom: none;
+      border-top: (@arrowHeight / 2) solid @backgroundColor;
+      border-right: (@arrowHeight / 2) solid transparent;
+      border-left: (@arrowHeight / 2) solid transparent;
+
+      &.border {
+        top: @arrowBorder;
+      }
+    }
+  }
+}
+
+.arrowLight {
+  .arrow(@borderColor, @backgroundColor);
+}
+
+@keyframes grow-down {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.mask {
+  display: block;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  z-index: 99;
+  background-color: rgb(0 0 0 / 45%);
+  backdrop-filter: blur(10px);
+}

@@ -1,0 +1,45 @@
+@import '../../../../shield-option-common/common';
+
+.wrapperOpen {
+  .title {
+    .font(14);
+    color: @color-desc;
+  }
+
+  .form {
+    border-bottom: 1px solid fade(@color-divider2, 30%);
+    border-radius: 0;
+    height: 64px;
+    background-color: transparent;
+
+    &:global(.sld_dec_num_input_error) {
+      border-color: @color-error;
+      background-color: fade(@color-error, 10%);
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
+  }
+
+  .input {
+    .font(24);
+    padding: 0;
+
+    &::placeholder {
+      .font(22);
+      color: @color-font-placeholder;
+    }
+  }
+
+  .suffix {
+    .font(14);
+    background-color: @color-bg;
+    padding: 8px;
+    border-radius: @border-radius-btn2;
+    color: @color-desc;
+    cursor: pointer;
+
+    &:hover {
+      color: @color-normal-font;
+    }
+  }
+}

@@ -1,0 +1,16 @@
+@import '../../../../shield-option-common/common';
+@import '../trade-common.module';
+
+.wrapperPools {
+  max-width: @max-width;
+  margin: 80px auto 0 auto;
+  display: grid;
+  grid-template-columns: 1fr @right-width;
+  grid-column-gap: 20px;
+
+  &.mobile {
+    grid-template-columns: 1fr;
+    grid-row-gap: 60px;
+    margin-top: 60px;
+  }
+}

@@ -1,0 +1,60 @@
+@import '../../../../shield-option-common/common';
+
+.wrapperOpen {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-row-gap: 20px;
+
+  background-color: @color-white;
+  padding: 30px 20px;
+  border-radius: @border-radius-btn2;
+
+  &.mobile {
+    padding: 24px 16px;
+  }
+
+  .price {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    .font(14);
+    align-items: center;
+
+    .text {
+      line-height: 1;
+      display: flex;
+    }
+
+    .setting {
+      line-height: 0;
+      cursor: pointer;
+    }
+  }
+
+  .feesLabel {
+    display: flex;
+    column-gap: 4px;
+    align-items: center;
+  }
+
+  .openBtnLong {
+    border-radius: @border-radius-btn2 !important;
+    background-color: @color-long;
+    .font(16, @color-white);
+
+    &:global(.sld_button_disabled) {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .openBtnShort {
+    border-radius: @border-radius-btn2 !important;
+    background-color: @color-short;
+    .font(16, @color-white);
+
+    &:global(.sld_button_disabled) {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

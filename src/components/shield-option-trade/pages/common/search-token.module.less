@@ -1,0 +1,68 @@
+@import '../../../shield-option-common/common';
+
+.wrapperSearch {
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  align-items: center;
+  width: 100%;
+  border: @border-width-form solid @color-border;
+  border-radius: @border-radius-btn2;
+  height: 50px;
+  cursor: pointer;
+  padding-left: 8px;
+
+  transition-property: border;
+  transition-duration: 300ms;
+  transition-timing-function: ease-in-out;
+
+  .dropdown {
+    .flexCenter();
+  }
+
+  &:hover {
+    border-color: fade(@color-highlight, 30%);
+  }
+
+  .placeholder {
+    .font(16, @color-font-placeholder);
+  }
+}
+
+.tokenOptionList {
+  border-top: 1px solid @color-divider2;
+  margin: 0 -30px 0 -30px;
+  padding: 20px 0;
+  max-height: 400px;
+  overflow-x: visible;
+  overflow-y: auto;
+
+  &.mobile {
+    margin: 0;
+    max-height: 200px;
+  }
+
+  .tokenItem {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    height: 50px;
+    align-items: center;
+    cursor: default;
+    padding: 0 30px;
+    border-radius: @border-radius-btn2;
+
+    &.mobile {
+      border-bottom: 1px solid @color-divider;
+      margin: 0;
+      padding: 0 16px;
+      border-radius: 0;
+    }
+
+    &:hover {
+      background-color: @color-bg-f5;
+    }
+
+    .balance {
+      .font(16, @color-light-font);
+    }
+  }
+}

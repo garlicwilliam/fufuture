@@ -1,0 +1,12 @@
+<svg viewBox="0 0 26 26" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g id="page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="group">
+      <circle id="oval" fill="#4A54C7" cx="13" cy="13" r="13"/>
+      <g id="group-4" transform="translate(9.069767, 7.255814)" fill="#FFFFFF" fill-rule="nonzero">
+        <path
+          d="M0.135673412,5.41855192 L3.81016159,3.91583612 L7.37158858,5.45694248 L3.80450855,0 L0.135673412,5.41855192 Z M0.146979527,7.08579864 L3.81581467,9.14791961 L7.55813953,7.08579864 L3.84973298,12.0930233 L0.146979527,7.08579864 Z M3.82712079,4.65074093 L7.54683341,6.25765964 L3.82712079,8.27590571 L0,6.21378474 L3.82712079,4.65074093 Z"
+          id="Shape"/>
+      </g>
+    </g>
+  </g>
+</svg>

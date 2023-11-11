@@ -1,0 +1,120 @@
+@import '../../css/var';
+@import '../../common';
+
+.menu(@dark: false) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  font-size: 16px;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  color: if(@dark, @white, @color-normal-font);
+  height: 70px;
+
+  &.mobile {
+    height: 50px;
+    justify-content: start;
+    border-bottom: 1px solid @color-divider;
+  }
+
+  &:hover {
+    color: if(@dark, fade(@white, 80%), fade(@color-highlight, 80%));
+  }
+}
+
+.mobDropBtn(@dark: false) {
+  font-size: 20px;
+  height: 100%;
+  color: if(@dark, @white, @color-normal-font);
+}
+
+// mobile ----------------------
+.mobileBtnLight {
+  .mobDropBtn(false);
+}
+
+.mobileBtnDark {
+  .mobDropBtn(true);
+}
+
+// desktop ---------------------
+
+.dark {
+  :global {
+    .sld-menu-list-ellipsis {
+      color: @white;
+    }
+
+    .sld-menu {
+      .menu(true);
+    }
+  }
+}
+
+.light {
+  :global {
+    .sld-menu-list-ellipsis {
+      color: @color-normal-font;
+    }
+
+    .sld-menu {
+      .menu(false);
+    }
+
+    .sld-menu-active {
+      color: @color-highlight;
+    }
+  }
+}
+
+:global {
+  .sld-menu-list-outer-desk {
+    .sld-menu-list-wrapper {
+      .sld-menu-list {
+        height: 70px;
+
+        .sld-menu-link {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+  .sld-menu-list-ellipsis-overlay-content,
+  .sld-menu-list-mobile-overlay-content {
+    padding: 0;
+    border-radius: 8px !important;
+    overflow: hidden;
+
+    .sld-menu-list-in-overlay {
+      .sld-menu-link {
+        text-decoration: none;
+      }
+
+      .sld-menu {
+        .menu(false);
+      }
+
+      .sld-menu-active {
+        color: @color-highlight;
+        border-color: @color-highlight !important;
+      }
+
+      .sld-menu-list-mobile-sub-group {
+        .sld-menu {
+          padding-left: 36px;
+        }
+      }
+    }
+  }
+  .sld-menu-sub-overlay {
+    background-color: transparent !important;
+  }
+}
+
+.menuOverlayContent {
+  box-shadow: 0 0 10px #dfdfdf;
+  min-width: 150px;
+}

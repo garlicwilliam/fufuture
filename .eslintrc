@@ -1,0 +1,43 @@
+{
+  "extends": [
+    "react-app", // auto load eslint-config-react-app
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended", // find plugin config object [recommended] values
+    "plugin:prettier/recommended" // prettier plugin already include prettier config which disabled all format rules of eslint
+  ],
+  "parserOptions": {
+    //指定ESLint可以解析JSX语法
+    "ecmaFeatures": {
+      "legacyDecorators": true
+    },
+    "sourceType": "module"
+  },
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"], // auto load <name>/eslint-plugin
+  "globals": {
+    "d3": true,
+    "WriteItJS": true,
+    "TradingView": true,
+    "PendingOrderCacheKey": true
+  },
+  "rules": {
+    "no-empty": 1,
+    "no-case-declarations": 1,
+    "prettier/prettier": 0,
+    "no-unused-expressions": 1,
+    "jsx-a11y/anchor-is-valid": 0,
+    "array-callback-return": 0,
+    "no-script-url": 0,
+    "@typescript-eslint/explicit-module-boundary-types": 0,
+    "@typescript-eslint/no-empty-function": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/no-non-null-asserted-optional-chain": 0,
+    "@typescript-eslint/no-this-alias": 0,
+    "@typescript-eslint/no-empty-interface": 0,
+    "@typescript-eslint/no-var-requires": 0,
+    "import/no-anonymous-default-export": 0,
+    "@typescript-eslint/no-inferrable-types": 0,
+    "@typescript-eslint/ban-ts-comment": 0,
+    "@typescript-eslint/ban-types": 0
+  }
+}

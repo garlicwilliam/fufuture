@@ -1,0 +1,25 @@
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  width: 100%;
+
+  &.left {
+    justify-items: start;
+  }
+
+  &.right {
+    justify-items: end;
+  }
+
+  &.center {
+    justify-items: center;
+  }
+
+  .label {
+    display: flex;
+  }
+  .value {
+    display: flex;
+  }
+}

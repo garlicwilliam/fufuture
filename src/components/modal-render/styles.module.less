@@ -1,0 +1,110 @@
+@border-radius-modal: 30px;
+
+.modal {
+  &.noPadding {
+    :global {
+      .ant-modal-content {
+        .ant-modal-body {
+          padding: 0;
+        }
+      }
+    }
+  }
+
+  &.dark {
+    :global {
+      .ant-modal-content {
+        background-color: #1e2223;
+
+        .ant-modal-close {
+          color: #999999;
+
+          &:hover {
+            color: #ffffff;
+          }
+        }
+
+        .ant-modal-header {
+          background-color: #1e2223;
+          color: #ffffff;
+
+          .ant-modal-title {
+            color: #ffffff;
+          }
+        }
+      }
+    }
+  }
+
+  :global {
+    .ant-modal-content {
+      border-radius: @border-radius-modal !important;
+
+      .ant-modal-header {
+        border: none;
+        height: 64px;
+        padding: 36px 0 4px;
+        border-top-right-radius: @border-radius-modal;
+        border-top-left-radius: @border-radius-modal;
+
+        .ant-modal-title {
+          font-size: 24px;
+          line-height: 1;
+          font-weight: normal;
+          text-align: center;
+        }
+      }
+
+      .ant-modal-body {
+        padding: 36px 40px 40px;
+        overflow: auto;
+        max-height: 600px;
+      }
+    }
+  }
+}
+
+.drawer {
+  &.dark {
+    :global {
+      .ant-drawer-content {
+        background-color: #1e2223;
+        .ant-drawer-wrapper-body {
+          .ant-drawer-header {
+            color: #ffffff;
+            .ant-drawer-header-title {
+              .ant-drawer-close {
+                color: #ffffff;
+              }
+
+              .ant-drawer-title {
+                color: #ffffff;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  :global {
+    .ant-drawer-content {
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+
+      .ant-drawer-wrapper-body {
+        .ant-drawer-header {
+          border-top-left-radius: 16px;
+          border-top-right-radius: 16px;
+          .ant-drawer-header-title {
+            display: flex;
+            flex-direction: row-reverse;
+            .ant-drawer-close {
+              margin-right: -5px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+@import '../../../../shield-option-common/common';
+
+.wrapperData {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-row-gap: 16px;
+  background-color: #f6f7f9;
+  padding: 16px;
+  border-radius: @border-radius-btn2;
+}
+
+.mmNameLabel {
+  .flexCenter();
+}
+
+.mmTipContent {
+  max-width: 300px;
+  padding: 8px 16px;
+  border-radius: @border-radius-btn2 !important;
+  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  border-color: #f1f1f1 !important;
+
+  &.mobile {
+    max-width: calc(100vw - 32px);
+  }
+}
+
+.mmTips {
+  .mmTitle {
+    text-align: center;
+    padding-bottom: 2px;
+  }
+
+  .mmDesc {
+    color: @color-light-font;
+  }
+}

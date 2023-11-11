@@ -1,0 +1,71 @@
+module.exports = {
+  extends: ['stylelint-config-standard', 'stylelint-prettier/recommended'],
+  rules: {
+    'color-hex-length': null,
+    'at-rule-empty-line-before': null,
+    'selector-pseudo-class-no-unknown': null,
+    'no-descending-specificity': null,
+    'rule-empty-line-before': null,
+    'declaration-empty-line-before': null,
+    'property-no-vendor-prefix': null,
+    'font-family-no-missing-generic-family-keyword': null,
+    'value-list-comma-newline-after': null,
+    'length-zero-no-unit': null,
+    'comment-empty-line-before': null,
+    'declaration-block-no-duplicate-properties': null,
+    'declaration-block-no-shorthand-property-overrides': null,
+    'declaration-block-no-redundant-longhand-properties': null,
+    'declaration-colon-newline-after': null,
+    'selector-class-pattern': /^([a-z][a-zA-Z-\d]+)$/,
+    'keyframes-name-pattern': /^([a-z][a-zA-Z-\d]+)$/,
+    'function-no-unknown': null,
+
+    'selector-type-no-unknown': [
+      true,
+      {
+        ignoreTypes: [
+          'page',
+          'view',
+          'cover-view',
+          'cover-image',
+          'scroll-view',
+          'swiper',
+          'movable-area',
+          'movable-view',
+          'text',
+          'rich-text',
+          'icon',
+          'image',
+          'radio',
+          'radio-group',
+          'checkbox',
+          'checkbox-group',
+          'switch',
+          'slider',
+          'picker',
+          'picker-view',
+          'navigator',
+          'web-view',
+        ],
+      },
+    ],
+    'unit-no-unknown': [
+      true,
+      {
+        ignoreUnits: ['rpx'],
+      },
+    ],
+    'property-no-unknown': [
+      true,
+      {
+        ignoreProperties: ['uc-perf-stat-ignore'],
+      },
+    ],
+  },
+  overrides: [
+    {
+      files: ['*.less', '**/*.less'],
+      customSyntax: 'postcss-less',
+    },
+  ],
+};

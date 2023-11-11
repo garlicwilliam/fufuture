@@ -1,0 +1,140 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapper {
+  display: flex;
+  position: relative;
+  padding: 60px 24px;
+  user-select: none;
+  background-color: #ffffff;
+  border-radius: @border-radius-btn2;
+}
+
+.axis {
+  position: relative;
+  line-height: 0;
+  height: 5px;
+  width: 100%;
+  background-color: @color-bg-default;
+
+  .past {
+    position: absolute;
+    height: 5px;
+    line-height: 0;
+  }
+
+  .pastLong {
+    background-color: @color-long;
+    line-height: 0;
+  }
+
+  .pastShort {
+    background-color: @color-short;
+    line-height: 0;
+  }
+}
+
+.point {
+  position: absolute;
+  text-align: center;
+  line-height: 0;
+  width: 20px;
+  top: 5px;
+  transform: translateX(-10px);
+}
+
+.point1 {
+  position: absolute;
+  text-align: center;
+  line-height: 0;
+  width: 20px;
+  top: -9px;
+  transform: translateX(-10px);
+}
+
+.text {
+  position: absolute;
+
+  text-align: center;
+  height: 16px;
+  width: 80px;
+
+  top: -14px;
+  left: -30px;
+}
+
+.text1 {
+  position: absolute;
+
+  text-align: center;
+  height: 16px;
+  width: 80px;
+
+  top: 14px;
+  left: -30px;
+}
+
+.text2 {
+  position: absolute;
+
+  text-align: center;
+  height: 12px;
+  width: 100px;
+
+  top: 30px;
+  left: -40px;
+}
+
+.text3 {
+  position: absolute;
+
+  text-align: center;
+  height: 12px;
+  width: 100px;
+
+  top: -29px;
+  left: -40px;
+}
+
+.openText {
+  .font(12, @color-desc);
+}
+
+.currentText {
+  .font(12, @color-highlight);
+}
+
+.descText {
+  .font(12, @color-desc);
+}
+
+.liqText {
+  .font(12, @color-warn);
+}
+
+.liqTextLong {
+  .font(12, @color-long);
+}
+
+.liqTextShort {
+  .font(12, @color-short);
+}
+
+.current {
+  position: absolute;
+  text-align: center;
+  line-height: 0;
+  width: 20px;
+  height: 12px;
+  left: calc(50% - 10px);
+  top: 5px;
+
+  .text {
+    position: absolute;
+    text-align: center;
+
+    width: 100px;
+    height: 16px;
+    left: -(50px - 10px);
+    top: -22px;
+  }
+}

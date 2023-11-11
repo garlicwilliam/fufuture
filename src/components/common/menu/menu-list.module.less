@@ -1,0 +1,46 @@
+@ellipsis-size: 28px;
+
+.outer {
+  display: grid;
+  grid-template-columns: 1fr @ellipsis-size;
+}
+
+.menuListContainer {
+  display: flex;
+  position: relative;
+  align-items: center;
+  overflow: hidden;
+  justify-content: flex-end;
+
+  .menuList {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.ellipsis {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: @ellipsis-size;
+  cursor: pointer;
+
+  .ellipsisBtn {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+}
+
+.menuOverlayList {
+  display: grid;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+}
+
+.mobileDropdownBtn {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}

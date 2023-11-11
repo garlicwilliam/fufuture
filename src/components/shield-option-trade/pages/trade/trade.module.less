@@ -1,0 +1,38 @@
+@import '../../../shield-option-common/common';
+@import './trade-common.module.less';
+
+.wrapperTrade {
+  display: grid;
+  grid-template-columns: 1fr @right-width;
+  grid-template-areas:
+    'a a'
+    'b c'
+    'b d';
+  max-width: @max-width;
+  margin: auto;
+  grid-row-gap: 20px;
+  grid-column-gap: 20px;
+  padding-top: 30px;
+
+  &.mobile {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'a'
+      'b'
+      'c'
+      'd';
+  }
+
+  .mSelect {
+    grid-area: a;
+  }
+  .mPrices {
+    grid-area: b;
+  }
+  .mBalance {
+    grid-area: c;
+  }
+  .mTrade {
+    grid-area: d;
+  }
+}

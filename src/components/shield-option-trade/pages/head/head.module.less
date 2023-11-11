@@ -1,0 +1,36 @@
+@import '../../../shield-option-common/common';
+
+.wrapperHead {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1001;
+  height: 70px;
+  width: 100%;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f1f1f1;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-column-gap: 40px;
+  align-items: center;
+  padding-left: 40px;
+
+  &.mobile {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    height: 60px;
+  }
+
+  .walletInfo {
+    margin-right: 20px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    align-items: center;
+    grid-column-gap: 16px;
+    border-radius: @color-bg-f7;
+  }
+}

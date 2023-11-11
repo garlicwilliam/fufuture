@@ -1,0 +1,28 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapperShare {
+  background-color: @color-white;
+  padding: 0 1px 40px 1px;
+  border-radius: @border-radius-btn2;
+
+  &.mobile {
+    padding: 0 0 24px 0;
+  }
+
+  .cardTitle {
+    .flexCenter();
+    .font(24);
+    padding: 30px 16px;
+    border-bottom: 1px solid @color-divider;
+
+    &.mobile {
+      .font(18);
+      padding: 20px 16px;
+    }
+  }
+
+  .poolList {
+    display: grid;
+    grid-row-gap: 0;
+  }
+}

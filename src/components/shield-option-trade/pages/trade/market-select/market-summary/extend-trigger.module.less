@@ -1,0 +1,31 @@
+@import '../../../../../shield-option-common/common';
+
+.trigger {
+  cursor: pointer;
+  border: 1px solid @color-divider2;
+  border-radius: @border-radius-btn2;
+
+  height: 40px;
+  padding: 0 16px;
+
+  .flexCenter();
+  .font(14, @color-highlight);
+
+  &.mobile {
+    height: 34px;
+    padding: 0 8px;
+    //.font(12, @color-highlight);
+  }
+
+  .text {
+    padding-right: 12px;
+    width: 120px;
+    .flexCenter();
+    user-select: none;
+
+    &.mobile {
+      padding-right: 4px;
+      width: 60px;
+    }
+  }
+}

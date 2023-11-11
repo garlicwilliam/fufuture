@@ -1,0 +1,67 @@
+@import '../../../shield-option-common/common';
+
+@font: 48;
+@font-mobile: 24;
+
+@title-padding-top: 80px;
+@title-padding-bottom: 60px;
+@title-padding-top-mobile: 50px;
+@title-padding-bottom-mobile: 40px;
+
+@arrow-font: 24;
+@arrow-font-mobile: 20;
+@arrow-bg-size: @font * 1px;
+@arrow-bg-size-mobile: 36px;
+
+.wrapperPageTitle {
+  position: relative;
+  padding-top: @title-padding-top;
+  padding-bottom: @title-padding-bottom;
+  display: flex;
+  justify-content: center;
+
+  &.mobile {
+    padding-top: @title-padding-top-mobile;
+    padding-bottom: @title-padding-bottom-mobile;
+  }
+
+  .backRoute {
+    position: absolute;
+    left: 0;
+    top: @title-padding-top;
+
+    &.mobile {
+      top: @title-padding-top-mobile - ((@arrow-bg-size-mobile - @arrow-font*1px)/2);
+    }
+
+    .bg {
+      background-color: @color-bg-arrow;
+      border-radius: 50%;
+      width: @arrow-bg-size;
+      height: @arrow-bg-size;
+      .font(@arrow-font);
+      .flexCenter();
+      cursor: pointer;
+
+      &:hover {
+        background-color: fade(@color-bg-arrow, 80%);
+        color: fade(@color-normal-font, 70%);
+      }
+
+      &.mobile {
+        width: @arrow-bg-size-mobile;
+        height: @arrow-bg-size-mobile;
+        .font(@arrow-font-mobile);
+      }
+    }
+  }
+
+  .mainTitle {
+    .font(@font);
+    color: #333333;
+
+    &.mobile {
+      .font(@font-mobile);
+    }
+  }
+}

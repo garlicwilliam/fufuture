@@ -1,0 +1,78 @@
+@import '../../../../../shield-option-common/common';
+
+.optionTypeGroup {
+  display: grid;
+  grid-row-gap: 2px;
+}
+
+.optionTypeLong {
+  .font(14, @color-long);
+}
+
+.optionTypeShort {
+  .font(14, @color-short);
+}
+
+.largeSize {
+  font-size: 14px;
+}
+
+.smallSize {
+  font-size: 12px;
+}
+
+.mainText {
+  .font(13);
+}
+
+.descColor {
+  color: @color-desc;
+}
+
+.descText {
+  .font(12, @color-desc);
+}
+
+.openTime {
+  .font(12, @color-desc);
+}
+
+.cellGroup {
+  display: grid;
+  grid-row-gap: 2px;
+}
+
+.cellGroupRight {
+  display: grid;
+  grid-row-gap: 2px;
+  justify-content: end;
+  justify-items: end;
+}
+
+.rowRender {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-row-gap: 24px;
+  width: 100%;
+  padding: 16px 16px;
+}
+
+.closeBtnMobile {
+  .flexCenter();
+  font-size: 14px;
+  line-height: 1;
+  padding-bottom: 16px;
+}
+
+.flexGroup {
+  .flexCenter();
+  justify-content: end;
+  column-gap: 4px;
+}
+
+.actionBtn {
+  color: @color-highlight;
+  &:hover {
+    color: desaturate(@color-highlight, 60%);
+  }
+}

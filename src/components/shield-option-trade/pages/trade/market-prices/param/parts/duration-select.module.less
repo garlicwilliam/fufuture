@@ -1,0 +1,139 @@
+@import '../../../../../../shield-option-common/common';
+
+.btnHover() {
+  &:hover {
+    color: @color-highlight;
+  }
+}
+
+.btnActive() {
+  color: @color-highlight;
+}
+
+.wrapperDuration {
+  display: grid;
+
+  grid-row-gap: 10px;
+  grid-column-gap: 14px;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 1;
+  font-size: 12px;
+  color: @color-desc;
+
+  &.price {
+    grid-template-columns: auto auto auto;
+    grid-template-areas:
+      '_ d e'
+      'a b c';
+    justify-items: end;
+    justify-content: end;
+
+    &.mobile {
+      grid-template-columns: auto auto auto auto auto;
+      grid-template-areas: 'a b c d e';
+      justify-content: space-between;
+    }
+  }
+
+  &.kline {
+    grid-template-columns: auto auto auto auto auto auto;
+    grid-template-areas:
+      '_ _ _ _ d e'
+      'f g h a b c';
+
+    &.mobile {
+      grid-template-columns: auto auto auto auto auto auto auto;
+      grid-template-areas: 'f g h a b c d e';
+      justify-content: space-between;
+    }
+  }
+
+  &.mobile {
+    justify-content: end;
+  }
+
+  .minutes {
+    grid-area: f;
+    cursor: pointer;
+    .btnHover();
+
+    &.active {
+      .btnActive();
+    }
+  }
+
+  .hour {
+    grid-area: g;
+    cursor: pointer;
+    .btnHover();
+
+    &.active {
+      .btnActive();
+    }
+  }
+
+  .hour4 {
+    grid-area: h;
+    cursor: pointer;
+    .btnHover();
+
+    &.active {
+      .btnActive();
+    }
+  }
+
+  .day {
+    grid-area: a;
+    cursor: pointer;
+    .btnHover();
+
+    &.active {
+      .btnActive();
+    }
+  }
+
+  .week {
+    grid-area: b;
+    cursor: pointer;
+    .btnHover();
+
+    &.active {
+      .btnActive();
+    }
+  }
+
+  .month {
+    grid-area: c;
+    cursor: pointer;
+    .btnHover();
+
+    &.active {
+      .btnActive();
+    }
+  }
+
+  .chart {
+    grid-area: d;
+    font-size: 18px;
+    line-height: 0;
+    cursor: pointer;
+    .btnHover();
+
+    &.active {
+      .btnActive();
+    }
+  }
+
+  .kline {
+    grid-area: e;
+    font-size: 18px;
+    line-height: 0;
+    cursor: pointer;
+    .btnHover();
+
+    &.active {
+      .btnActive();
+    }
+  }
+}

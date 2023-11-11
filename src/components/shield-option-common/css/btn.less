@@ -1,0 +1,22 @@
+@import './var';
+@import './mixin';
+
+.shield-btn {
+  .button();
+}
+
+.shield-btn-default {
+  border-radius: @border-radius-btn2 !important;
+}
+
+.shield-wallet-address {
+  height: 40px;
+  line-height: 1;
+  border-radius: 8px;
+  background-color: @color-bg-f7;
+  color: #333333;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}

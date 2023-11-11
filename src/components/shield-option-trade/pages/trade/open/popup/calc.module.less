@@ -1,0 +1,130 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapperCalc {
+  cursor: pointer;
+  margin-left: -20px;
+}
+
+.innerCalc {
+  padding-left: 20px;
+
+  &:hover {
+    .icon {
+      color: @color-normal-font;
+    }
+  }
+}
+
+.overlayContent {
+  padding: 10px;
+}
+
+.overlay {
+  width: 308px;
+
+  &.mobile {
+    width: ~'calc(100vw - 64px)';
+  }
+
+  .title {
+    .font(16);
+    color: @color-normal-font;
+  }
+
+  .phaseInfo {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'a '
+      'b'
+      'c';
+    justify-content: space-between;
+    padding: 0 8px 8px 8px;
+    background-color: @color-bg;
+    border-radius: @border-radius-btn2;
+
+    .phaseHour {
+      grid-area: a;
+      height: 36px;
+    }
+    .fundToken {
+      grid-area: b;
+      height: 36px;
+    }
+    .openAmount {
+      grid-area: c;
+    }
+
+    .openAmountForm {
+      height: 32px;
+      width: 140px;
+    }
+
+    .openAmountInput {
+      font-size: 14px !important;
+    }
+  }
+
+  .phaseList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    grid-column-gap: 10px;
+    grid-row-gap: 16px;
+  }
+
+  .tips {
+    .font(14);
+    color: @color-normal-font;
+  }
+
+  .calcRes {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+
+    .calcInput {
+      display: flex;
+      align-items: center;
+      column-gap: 8px;
+
+      .inputForm {
+        height: 40px;
+        width: 80px;
+      }
+
+      .phase {
+        white-space: nowrap;
+      }
+    }
+
+    .calcOutput {
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+// phase component
+.wrapperPhase {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-row-gap: 8px;
+  justify-content: center;
+  justify-items: center;
+
+  .index {
+    .font(14);
+    color: @color-desc;
+  }
+
+  .valueFee {
+    border: 1px solid @color-divider;
+    border-radius: @border-radius-btn2;
+    height: 32px;
+    width: 100%;
+
+    .font(14);
+    .flexCenter();
+    color: @color-highlight;
+  }
+}

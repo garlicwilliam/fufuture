@@ -1,0 +1,17 @@
+@import '../../../../shield-option-common/common';
+
+.wrapperPools {
+  max-width: @max-width-tiny;
+  margin: auto;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-column-gap: 20px;
+  grid-row-gap: 20px;
+
+  &.mobile {
+    grid-template-columns: 1fr;
+  }
+}

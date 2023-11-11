@@ -1,0 +1,70 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapperSetting {
+}
+
+.settingTrigger {
+  margin-right: -20px;
+  padding-right: 20px;
+
+  &.mobile {
+    margin-right: -16px;
+    padding-right: 16px;
+  }
+}
+
+.overlay {
+  width: 308px;
+
+  &.mobile {
+    width: ~'calc(100vw - 32px - 32px)';
+  }
+
+  .title {
+    .font(16);
+  }
+
+  .subTitle {
+    .font(14);
+  }
+
+  .selectionList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    grid-column-gap: 10px;
+    grid-row-gap: 10px;
+
+    .pInput {
+      height: 40px;
+    }
+  }
+
+  .deadline {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    grid-column-gap: 8px;
+    align-items: center;
+
+    .mInput {
+      height: 40px;
+    }
+  }
+}
+
+.selectMenu {
+  border: @border-width-form solid @color-border;
+  border-radius: @border-radius-btn2;
+  .flexCenter();
+  height: 40px;
+  cursor: pointer;
+
+  transition-property: background-color, border;
+  transition-duration: 300ms;
+  transition-timing-function: ease-in-out;
+
+  &.active {
+    background-color: @color-bg-active;
+    color: @color-white;
+    border-color: @color-bg-active;
+  }
+}

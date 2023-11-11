@@ -1,0 +1,54 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapperPercent {
+  display: grid;
+  grid-row-gap: 12px;
+
+  &.mobile {
+    grid-row-gap: 10px;
+  }
+
+  .title {
+    .font(16, @color-desc);
+
+    &.mobile {
+      .font(14, @color-desc);
+    }
+  }
+
+  .percent {
+    .font(24, @color-highlight);
+
+    &.mobile {
+      .font(16, @color-highlight);
+
+      &.mini {
+        .font(14, @color-highlight);
+      }
+    }
+  }
+
+  .liquidity {
+    .font(24);
+    color: @color-normal-font;
+    vertical-align: baseline;
+    align-items: baseline;
+    column-gap: 8px;
+
+    &.mobile {
+      .font(16);
+
+      &.mini {
+        .font(14);
+      }
+    }
+  }
+
+  .unit {
+    .font(14, @color-highlight);
+
+    &.mobile {
+      .font(12, @color-highlight);
+    }
+  }
+}

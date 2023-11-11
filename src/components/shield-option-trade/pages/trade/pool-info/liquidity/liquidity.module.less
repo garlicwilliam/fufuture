@@ -1,0 +1,20 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapperLiquidity {
+  display: grid;
+  height: 100%;
+  grid-template-rows: auto 1fr;
+
+  .liquidityCard {
+    display: grid;
+    align-content: space-between;
+    background-color: @color-white;
+    border-radius: @border-radius-btn2;
+    padding: 30px 20px;
+
+    &.mobile {
+      grid-row-gap: 30px;
+      padding: 24px 16px;
+    }
+  }
+}

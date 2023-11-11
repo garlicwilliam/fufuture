@@ -1,0 +1,42 @@
+@import '../../../../../shield-option-common/common';
+
+.fundingInfo {
+  display: flex;
+  justify-content: center;
+
+  &.mobile {
+    padding-top: 20px;
+
+    &.ext {
+      display: none;
+    }
+  }
+
+  .index {
+    .font(16);
+
+    &.mobile {
+      .font(14);
+    }
+  }
+
+  .separator {
+    .font(16);
+
+    &.mobile {
+      .font(14);
+    }
+  }
+
+  .point {
+    .font(16, @color-normal-font);
+
+    &.mobile {
+      .font(14, @color-normal-font);
+    }
+  }
+}
+
+.unit {
+  color: @color-desc;
+}

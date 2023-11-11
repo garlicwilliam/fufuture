@@ -1,0 +1,136 @@
+@input-placeholder-color: #cccccc;
+@input-placeholder-color-dark: rgb(221 221 221 / 20%);
+@form-border-color: #e7ebf4;
+@form-border-active-color: rgb(19 70 255 / 30%);
+@form-border-color-dark: rgb(231 235 244 / 50%);
+@form-border-color-dark-active: rgb(231 235 244 / 80%);
+@form-border-highlight-color: rgb(19 70 255 / 60%);
+@warning-color: #ff4848;
+@form-border-highlight-color2: rgb(19 70 255 / 80%);
+@input-placeholder-font: 16px;
+
+@border-color-normal: @form-border-color;
+@border-color-normal-active: @form-border-active-color;
+@border-color-normal-error: @warning-color;
+
+@border-color-dark: @form-border-color-dark;
+@border-color-dark-active: @form-border-color-dark-active;
+@border-color-dark-error: @warning-color;
+
+@font-color-normal: #333333;
+@font-color-dark: #ffffff;
+
+@placeholder-color-normal: @input-placeholder-color;
+@placeholder-color-dark: @input-placeholder-color-dark;
+
+.transition() {
+  transition-duration: 300ms;
+  transition-property: border-color;
+  transition-timing-function: ease-in-out;
+}
+
+.wrapperDecimal {
+  display: flex;
+  height: 50px;
+  width: 100%;
+  line-height: 0;
+  border-radius: 4px;
+  border: 2px solid @border-color-normal;
+  user-select: none;
+
+  .transition();
+
+  &.noBorder {
+    border: none;
+  }
+
+  &.highlight:not(.active):not(.error):not(.noBorder) {
+    border: 2px solid @form-border-highlight-color;
+  }
+
+  &.active:not(.noBorder):not(.error) {
+    box-shadow: 0 0 2px @border-color-normal-active;
+    border-color: @border-color-normal-active;
+  }
+
+  &.error {
+    background-color: #fff1f1;
+    border-color: @border-color-normal-error;
+  }
+
+  &.dark {
+    &:not(.noBorder) {
+      border: 1px solid @border-color-dark;
+    }
+
+    &.active:not(.noBorder):not(.error) {
+      box-shadow: 0 0 2px rgb(255 255 255 / 30%);
+      border-color: @border-color-dark-active;
+    }
+
+    &.error {
+      border-color: @border-color-dark-error;
+      background-color: transparent;
+    }
+
+    &.highlight:not(.active):not(.error):not(.noBorder) {
+      border: 1px solid @form-border-highlight-color2;
+    }
+  }
+
+  .prefix {
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+    line-height: 1;
+    justify-content: center;
+    align-items: center;
+    padding-left: 0.5rem;
+  }
+
+  .input {
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 100%;
+    border: none;
+    border-radius: 0.25rem;
+    height: 100%;
+    font-size: 1rem;
+    padding: 2px 0.5rem;
+    background-color: transparent;
+    outline: none;
+    color: @font-color-normal;
+
+    &.pullRight {
+      text-align: right;
+    }
+
+    &.pullLeft {
+      text-align: left;
+    }
+
+    &::placeholder {
+      color: @placeholder-color-normal;
+      font-size: @input-placeholder-font;
+    }
+
+    &.dark {
+      color: @font-color-dark;
+
+      &::placeholder {
+        color: @placeholder-color-dark;
+        font-size: @input-placeholder-font;
+      }
+    }
+  }
+
+  .suffix {
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+    line-height: 1;
+    justify-content: center;
+    align-items: center;
+    padding-right: 0.5rem;
+  }
+}

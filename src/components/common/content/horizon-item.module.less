@@ -1,0 +1,30 @@
+.wrapperHorizon {
+  width: 100%;
+  display: grid;
+  align-items: center;
+
+  &.justify {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+  }
+
+  &.left {
+    grid-template-columns: auto auto;
+    justify-content: start;
+    grid-column-gap: 4px;
+  }
+
+  &.right {
+    grid-template-columns: auto auto;
+    justify-content: end;
+    grid-column-gap: 4px;
+  }
+
+  .label {
+    display: flex;
+  }
+
+  .value {
+    display: flex;
+  }
+}

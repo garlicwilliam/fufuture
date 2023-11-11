@@ -1,0 +1,92 @@
+@import '../../../../shield-option-common/common';
+
+.wrapperReferral {
+  padding: 60px 30px;
+  display: grid;
+  grid-row-gap: 80px;
+
+  &.mobile {
+    padding: 32px 16px;
+  }
+
+  .title {
+    .font(24);
+    text-align: center;
+
+    &.mobile {
+      .font(20);
+    }
+  }
+
+  .summary {
+    .content {
+      padding-top: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      justify-items: center;
+
+      .divider {
+        width: 1px;
+        border-left: 1px solid @color-divider2;
+      }
+
+      .numLabel {
+        .font(48, @color-highlight);
+
+        &.mobile {
+          .font(36, @color-highlight);
+        }
+      }
+    }
+  }
+
+  .balance {
+    .assets {
+      padding-top: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-column-gap: 20px;
+      grid-row-gap: 20px;
+      justify-content: space-between;
+
+      &.mobile {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        grid-row-gap: 16px;
+      }
+
+      .assetCard {
+        padding: 24px 32px;
+        background-color: #f9fafc;
+        border-radius: @border-radius-btn2;
+
+        &.mobile {
+          padding: 16px 24px;
+        }
+
+        .num {
+          .font(24);
+
+          &.mobile {
+            .font(18);
+          }
+        }
+
+        .assetLabel {
+          display: flex;
+          align-items: center;
+          column-gap: 8px;
+
+          img {
+            border-radius: 50%;
+          }
+        }
+      }
+    }
+  }
+
+  .claim {
+    padding-top: 40px;
+    max-width: 400px;
+    margin: auto;
+  }
+}

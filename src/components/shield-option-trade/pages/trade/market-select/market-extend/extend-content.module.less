@@ -1,0 +1,27 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapperExt {
+  width: 100%;
+  height: 100%;
+
+  .menus {
+    display: flex;
+    column-gap: 40px;
+    border-bottom: 1px solid @color-divider;
+
+    .tabTitle {
+      .flexCenter();
+      .font(14, @color-desc);
+      column-gap: 4px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 2px solid transparent;
+      height: 50px;
+
+      &.active {
+        .font(14, @color-normal-font);
+        border-color: @color-highlight;
+      }
+    }
+  }
+}

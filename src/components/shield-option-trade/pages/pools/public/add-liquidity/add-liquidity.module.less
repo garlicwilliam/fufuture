@@ -1,0 +1,33 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapperAddLiquidity {
+  background-color: @color-white;
+  padding: 0 1px 40px 1px;
+  border-radius: @border-radius-btn2;
+
+  &.mobile {
+    padding: 0 0 24px 0;
+  }
+
+  .cardTitle {
+    .font(24);
+    .flexCenter();
+    padding: 30px 16px;
+    border-bottom: 1px solid @color-divider;
+
+    &.mobile {
+      .font(18);
+      padding: 20px 16px;
+    }
+  }
+
+  .cardContent {
+    padding: 0 30px;
+    width: 100%;
+
+    &.mobile {
+      max-width: 100%;
+      padding: 0 16px;
+    }
+  }
+}

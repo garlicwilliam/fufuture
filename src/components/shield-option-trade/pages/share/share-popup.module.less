@@ -1,0 +1,60 @@
+@import '../../../shield-option-common/common';
+
+.shareModal {
+  display: block;
+  width: 500px !important;
+
+  :global {
+    .ant-modal-content {
+      height: 710px;
+
+      .ant-modal-close-x {
+        &:hover {
+          background-color: fade(#f1f1f1, 30%) !important;
+          color: #ffffff !important;
+        }
+      }
+
+      .ant-modal-header {
+        display: none !important;
+        padding-top: 16px !important;
+        padding-bottom: 0 !important;
+        height: auto !important;
+      }
+
+      .ant-modal-body {
+        padding: 10px 10px !important;
+        height: 710px !important;
+        max-height: 720px !important;
+        width: 500px !important;
+      }
+    }
+  }
+}
+
+.foot {
+  width: 100%;
+  height: 80px;
+  display: grid;
+  grid-template-columns: 1fr 140px;
+
+  .qr {
+    line-height: 0;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    grid-column-gap: 16px;
+
+    .desc {
+      line-height: 1.5;
+      font-size: 14px;
+      color: @color-light-font;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .down {
+    line-height: 0;
+    .flexCenter();
+  }
+}

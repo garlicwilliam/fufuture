@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 300 300">
+  <circle id="circle1" cy="150" fill="#68bf7b" r="150" fill-opacity="30%" cx="150"/>
+  <circle cx="150" id="circle2" r="120" fill="#68bf7b" cy="150"/>
+  <path d="M130,156 L109,134 L112,130 L129,142 L158,113 L162,117 " id="path1"
+        transform="scale(1.5) translate(-36, -30)" fill="#ffffff"/>
+</svg>

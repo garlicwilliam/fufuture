@@ -1,0 +1,349 @@
+@import '../../../../../shield-option-common/common';
+
+@ext-height-desk: 160px;
+@ext-height-mobile: 400px;
+
+.wrapperLocked {
+  padding-top: 80px;
+
+  .detailCard {
+    background-color: @color-white;
+    padding: 20px 30px 40px 30px;
+    border-radius: @border-radius-btn2;
+    min-height: 400px;
+
+    transition-property: height;
+    transition-timing-function: ease-in-out;
+    transition-duration: 300ms;
+
+    &.mobile {
+      padding: 16px 0 16px 0;
+    }
+
+    .poolMenus {
+      border-bottom: 1px solid @color-divider;
+      padding-bottom: 16px;
+      display: grid;
+      grid-template-columns: 40% 200px;
+      justify-content: space-between;
+
+      &.mobile {
+        grid-template-columns: 1fr;
+        padding: 0 16px 16px 16px;
+        grid-row-gap: 16px;
+      }
+
+      .batchActions {
+        display: flex;
+        justify-content: end;
+        align-items: center;
+      }
+    }
+
+    .poolStatistics {
+      border-bottom: 1px solid @color-divider;
+      display: grid;
+      grid-template-columns: 1fr;
+      padding: 16px 0 16px 0;
+
+      .sTitle {
+        .font(16);
+        padding: 0 0 16px 0;
+
+        &.mobile {
+          .font(14);
+          padding: 0 8px 12px 8px;
+        }
+      }
+
+      .gridItems {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        grid-row-gap: 14px;
+        justify-items: end;
+        padding: 0 0 0 16px;
+      }
+
+      .gridItemsMob {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-row-gap: 10px;
+        padding: 0 16px 0 16px;
+      }
+
+      .first {
+        justify-self: start;
+      }
+      .title {
+        .font(14, @color-desc);
+      }
+      .valueMob {
+        .font(12);
+      }
+      .sym {
+        .font(12, @color-desc);
+      }
+      .longValue {
+        .font(14, @color-long);
+      }
+      .shortValue {
+        .font(14, @color-short);
+      }
+      .longValueMob {
+        .font(12, @color-long);
+      }
+      .shortValueMob {
+        .font(12, @color-short);
+      }
+    }
+
+    .poolDetails {
+      padding: 0 0 0 0;
+    }
+  }
+}
+
+.selectPool {
+  position: relative;
+
+  :global {
+    .sld-select-wrapper {
+      height: 50px;
+      border: 1px solid @color-divider;
+      border-radius: @border-radius-btn2;
+    }
+  }
+}
+
+.selectPoolDropdown {
+  border-radius: @border-radius-btn2 !important;
+
+  :global {
+    .sld-select-dropdown-content {
+      border-radius: @border-radius-btn2 !important;
+
+      .sld-select-dropdown-inner {
+        border-radius: @border-radius-btn2 !important;
+        padding: 8px;
+
+        max-height: 300px;
+        overflow-y: scroll;
+
+        .scrollbar();
+
+        .sld-select-dropdown-item {
+          height: 50px;
+        }
+
+        .sld-select-dropdown-item-active {
+          background-color: @color-bg-selected;
+        }
+      }
+    }
+  }
+}
+
+.cellGroup {
+  display: grid;
+  grid-row-gap: 4px;
+
+  .cellMainLong {
+    .font(14, @color-long);
+  }
+  .cellMainShort {
+    .font(14, @color-short);
+  }
+  .cellMain {
+    .font(14);
+  }
+  .cellMain1 {
+    .font(14);
+  }
+  .cellDesc {
+    .font(12, @color-desc);
+  }
+  .cellDescLong {
+    .font(12, @color-long);
+  }
+  .cellDescShort {
+    .font(12, @color-short);
+  }
+}
+
+.cellRight {
+  justify-content: flex-end !important;
+  justify-items: end;
+}
+
+.actionBtn {
+  .font(14, @color-highlight);
+}
+
+.arrowDown {
+}
+
+.arrowUp {
+  transform: rotate(90deg);
+}
+
+.priceChange {
+  .flexCenter();
+  column-gap: 2px;
+}
+
+.tip {
+  padding: 8px 16px;
+  border-radius: @border-radius-btn2 !important;
+}
+
+.deskTableExt {
+  padding: 16px 16px 16px 50px;
+  display: grid;
+
+  grid-template-columns: 1fr 230px;
+  grid-row-gap: 16px;
+  grid-column-gap: 16px;
+  grid-template-areas: 'a b';
+
+  min-height: 100px;
+  height: @ext-height-desk;
+
+  animation: extendRow;
+  animation-duration: 200ms;
+  animation-timing-function: ease-in-out;
+
+  overflow: hidden;
+
+  .graph {
+    grid-area: a;
+  }
+
+  .migrate {
+    display: grid;
+    grid-row-gap: 16px;
+    grid-area: b;
+    background-color: #ffffff;
+    padding: 16px;
+    border-radius: @border-radius-btn2;
+    cursor: default;
+  }
+
+  .actBtn {
+    border-radius: @border-radius-btn2;
+  }
+}
+
+.mobTableExt {
+  padding: 0 8px;
+  background-color: #fff;
+
+  animation: extendRowMob;
+  animation-duration: 200ms;
+  animation-timing-function: ease-in-out;
+
+  overflow: hidden;
+
+  .content {
+    background-color: @color-bg;
+
+    border-top-left-radius: @border-radius-btn2;
+    border-top-right-radius: @border-radius-btn2;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-row-gap: 30px;
+    grid-column-gap: 16px;
+    justify-content: space-between;
+    padding: 16px;
+  }
+
+  .actions {
+    display: grid;
+    grid-row-gap: 16px;
+    background-color: @color-bg;
+
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: @border-radius-btn2;
+    border-bottom-right-radius: @border-radius-btn2;
+
+    padding: 0 16px 16px 16px;
+  }
+
+  .actionBox {
+    display: grid;
+
+    grid-row-gap: 10px;
+    background-color: #fff;
+    border-radius: @border-radius-btn2;
+    padding: 12px 8px;
+
+    margin: 0 -8px;
+  }
+
+  .leftBox {
+    margin-left: -8px;
+  }
+
+  .rightBox {
+    margin-right: -8px;
+  }
+
+  .flexValue {
+    .flexCenter();
+    line-height: 1;
+    align-items: center;
+  }
+
+  .extLabel {
+    .font(14, @color-desc);
+  }
+
+  .extValue {
+    .font(14);
+  }
+
+  .extShort {
+    .font(14, @color-short);
+  }
+
+  .extLong {
+    .font(14, @color-long);
+  }
+}
+
+@keyframes extendRow {
+  0% {
+    height: 0;
+    min-height: 0;
+  }
+
+  50% {
+    height: 100px;
+    min-height: 50px;
+  }
+
+  100% {
+    height: @ext-height-desk;
+    min-height: 100px;
+  }
+}
+
+@keyframes extendRowMob {
+  0% {
+    height: 0;
+    min-height: 0;
+  }
+
+  50% {
+    height: 200px;
+    min-height: 200px;
+  }
+
+  100% {
+    height: @ext-height-mobile;
+    min-height: 350px;
+  }
+}

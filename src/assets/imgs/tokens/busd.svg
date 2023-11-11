@@ -1,0 +1,25 @@
+<svg version="1.1" xml:space="preserve" viewBox="0 0 996 996" xmlns="http://www.w3.org/2000/svg">
+  <defs id="defs13">
+    <clipPath clipPathUnits="userSpaceOnUse" id="clipPath23">
+      <path d="M 0,800 H 800 V 0 H 0 Z" id="path21"/>
+    </clipPath>
+  </defs>
+  <g id="g15" transform="matrix(1.3333333,0,0,-1.3333333,0,1066.6667)">
+    <g id="g17" transform="translate(-26.5,26.500045)">
+      <g id="g19" clip-path="url(#clipPath23)">
+        <g id="g25" transform="translate(400,773.5)">
+          <path
+            d="M 0,0 C 206.278,0 373.5,-167.222 373.5,-373.5 373.5,-579.778 206.278,-747 0,-747 c -206.278,0 -373.5,167.222 -373.5,373.5 C -373.5,-167.222 -206.278,0 0,0"
+            style="fill:#f0b90b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+            id="path27"/>
+        </g>
+        <g id="g29" transform="translate(146.02,399.8657)">
+          <path
+            d="M 0,0 63.443,63.442 126.885,0 63.443,-63.443 Z M 444.513,63.865 190.238,-190.411 253.677,-253.846 507.96,0.426 Z M 95.138,-95.13 349.413,159.145 412.856,95.702 158.581,-158.574 Z M 95.022,95.003 254.133,254.114 317.576,190.671 158.465,31.561 Z"
+            style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+            id="path31"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,78 @@
+@remPx: 16px;
+
+.sldButton {
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+
+  &.tiny {
+    height: 2 * @remPx;
+    line-height: 1;
+    font-size: 0.875 * @remPx;
+  }
+
+  &.small {
+    height: 2.5 * @remPx;
+    line-height: 1;
+    font-size: 0.875 * @remPx;
+  }
+
+  &.large {
+    height: 3.125 * @remPx;
+    line-height: 1;
+    font-size: 1 * @remPx;
+  }
+
+  &.huge {
+    height: 64px;
+    line-height: 1;
+    font-size: 18px;
+  }
+
+  &.primary {
+    background-color: #1346ff;
+    color: #ffffff;
+
+    &.disable {
+      opacity: 0.8;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(.disable) {
+      background-color: rgb(19 70 255 / 90%);
+    }
+  }
+
+  &.primaryNoBg {
+    color: #1346ff;
+    border: 1px solid #1346ff;
+  }
+
+  &.default {
+    color: #999999;
+    border: 1px solid #e5e5e5;
+
+    &.disable {
+      opacity: 0.8;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(.disable) {
+      color: #808080;
+      border: 1px solid #d5d5d5;
+    }
+
+    &.dark {
+      border: 1px solid rgb(255 255 255 / 50%);
+
+      &:hover {
+        border-color: rgb(255 255 255 / 80%);
+      }
+    }
+  }
+}

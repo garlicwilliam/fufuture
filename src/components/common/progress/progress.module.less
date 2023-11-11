@@ -1,0 +1,46 @@
+.progressColor {
+  :global {
+    .sld-progress-outer {
+      background-color: #e7ebf4;
+    }
+
+    .sld-progress-inner {
+      background-image: linear-gradient(to right, #0072f4, #0055ff);
+    }
+
+    .sld-progress-shadow {
+      &.bold {
+        box-shadow: 0 2px 15px 0 rgb(0 63 230 / 30%);
+      }
+
+      &.thin {
+        box-shadow: 0 2px 8px 0 rgb(0 63 230 / 30%);
+      }
+    }
+  }
+}
+
+.progress {
+  display: block;
+  line-height: 0;
+  width: 100%;
+
+  .outer {
+    position: relative;
+    display: block;
+    width: 100%;
+    border-radius: 2px;
+    line-height: 0;
+
+    .inner {
+      position: absolute;
+      border-radius: 2px;
+      left: 0;
+      top: 0;
+
+      .shadow {
+        width: 100%;
+      }
+    }
+  }
+}

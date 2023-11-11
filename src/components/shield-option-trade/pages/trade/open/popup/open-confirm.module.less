@@ -1,0 +1,33 @@
+@import '../../../../../shield-option-common/common';
+
+.openBtnLong {
+  border-radius: @border-radius-btn2 !important;
+  background-color: @color-long;
+  .font(16, @color-white);
+
+  &:global(.sld_button_disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.openBtnShort {
+  border-radius: @border-radius-btn2 !important;
+  background-color: @color-short;
+  .font(16, @color-white);
+
+  &:global(.sld_button_disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.paramInfo {
+  padding: 16px;
+  background-color: @color-bg;
+  border-radius: @border-radius-btn2;
+
+  .paramLabel {
+    .font(14, @color-normal-font);
+  }
+}

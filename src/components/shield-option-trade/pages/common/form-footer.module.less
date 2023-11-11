@@ -1,0 +1,23 @@
+@import '../../../shield-option-common/common';
+
+.wrapperFooter {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 10px;
+  grid-template-areas: 'a b';
+
+  &.mobile {
+    grid-template-columns: 1fr;
+    grid-row-gap: 16px;
+    grid-template-areas:
+      'b'
+      'a';
+  }
+
+  .confirm {
+    grid-area: b;
+  }
+  .cancel {
+    grid-area: a;
+  }
+}

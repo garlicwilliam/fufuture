@@ -1,0 +1,32 @@
+@import '../../../../../shield-option-common/common';
+
+.amountForm {
+  height: 40px !important;
+}
+
+.takingOrderValue {
+  display: flex;
+  column-gap: 8px;
+}
+
+.inputWidth {
+  &.mobile {
+    width: 100px;
+  }
+}
+
+.copyAddress {
+  .flexCenter();
+  column-gap: 4px;
+
+  .copy {
+    line-height: 0;
+    font-size: 14px;
+    cursor: pointer;
+    color: @color-desc;
+
+    &:hover {
+      color: @color-normal-font;
+    }
+  }
+}

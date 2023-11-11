@@ -1,0 +1,70 @@
+@import '../../../../../shield-option-common/common';
+
+.schedule {
+  line-height: 0;
+}
+
+.overlayContent {
+  width: 300px;
+
+  .title {
+    .font(15);
+    padding-bottom: 16px;
+  }
+  .subTitle {
+    .font(12);
+  }
+  .itemLabel {
+    .font(12, @color-desc);
+  }
+  .itemValue {
+    .font(12, @color-normal-font);
+  }
+  .phaseGroups {
+    display: grid;
+    grid-column-gap: 6px;
+    grid-row-gap: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    padding: 0 8px;
+  }
+  .phase {
+    display: grid;
+    grid-row-gap: 4px;
+
+    .index {
+      .font(12, @color-desc);
+      .flexCenter();
+    }
+
+    .content {
+      border: 1px solid @color-divider;
+      height: 32px;
+      border-radius: @border-radius-btn2;
+      .flexCenter();
+      .font(14, @color-highlight);
+    }
+  }
+  .phaseKeep {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+
+    .left {
+      .flexCenter();
+      column-gap: 8px;
+      .font(12);
+      white-space: nowrap;
+    }
+
+    .right {
+      display: grid;
+      justify-content: end;
+      align-items: center;
+    }
+
+    .numInput {
+      height: 40px;
+      width: 80px;
+      border-radius: @border-radius-btn2;
+    }
+  }
+}

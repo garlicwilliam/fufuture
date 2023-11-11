@@ -1,0 +1,42 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapperParam {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'i d s';
+  justify-content: space-between;
+
+  &.narrow {
+    grid-row-gap: 20px;
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      'i d'
+      's s';
+    justify-content: space-between;
+  }
+
+  &.mobile {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'i'
+      'd'
+      's';
+    grid-row-gap: 16px;
+  }
+
+  .index {
+    grid-area: i;
+  }
+
+  .day {
+    grid-area: d;
+  }
+
+  .select {
+    grid-area: s;
+  }
+}
+
+.resize {
+  overflow: hidden;
+}

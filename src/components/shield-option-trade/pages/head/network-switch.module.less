@@ -1,0 +1,37 @@
+@import '../../../shield-option-common/common';
+
+.desc {
+  font-size: 14px;
+  color: @color-desc;
+}
+
+.buttons {
+  display: grid;
+  grid-row-gap: 8px;
+}
+
+.switchTitle {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.chainBtn {
+  border: 1px solid @color-divider2;
+  border-radius: @border-radius-btn2;
+  cursor: pointer;
+  user-select: none;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 4px;
+  font-size: 16px;
+
+  transition-duration: 300ms;
+  transition-property: background-color;
+  transition-timing-function: ease-in-out;
+
+  &:hover {
+    background-color: @color-bg-f7;
+  }
+}

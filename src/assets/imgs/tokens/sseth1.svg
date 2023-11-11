@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 35 35" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <polygon id="path-1" points="8.36099677 0 4.14471889e-05 17.6950609 8.36099677 22.8209604 16.7219521 17.6950609"/>
+    <polygon id="path-3" points="3.24369337e-05 19.1926264 8.36098776 24.9477419 16.7219431 19.1926264 8.36098776 35"/>
+  </defs>
+  <g id="for-T" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="group-2-4" transform="translate(9.289950, 0.000000)">
+      <mask id="mask-2" fill="white">
+        <use xlink:href="#path-1"/>
+      </mask>
+      <use id="mask" fill="#FFFFFF" xlink:href="#path-1"/>
+      <mask id="mask-4" fill="white">
+        <use xlink:href="#path-3"/>
+      </mask>
+      <use id="mask" fill="#FFFFFF" xlink:href="#path-3"/>
+    </g>
+    <polygon id="Fill-1-5" fill="#37DBFF"
+             points="0 18.2230517 3.75004917 25.7383301 9.07324951 25.7383301 5.1971842 18.4456634 7.5980685 13.8122835 2.76116326 13.8122835"/>
+    <polygon id="Fill-1-8" fill="#37DBFF"
+             transform="translate(30.612765, 17.933669) scale(-1, -1) translate(-30.612765, -17.933669) "
+             points="26.2255299 16.3814139 29.6961968 23.8966923 35 23.8966923 31.4227141 16.6040256 33.8235984 11.9706457 28.9866931 11.9706457"/>
+  </g>
+</svg>

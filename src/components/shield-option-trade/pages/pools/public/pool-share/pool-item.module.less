@@ -1,0 +1,78 @@
+@import '../../../../../shield-option-common/common';
+
+.wrapperItem {
+  display: grid;
+  grid-template-columns: 1fr 90px;
+  grid-column-gap: 20px;
+  grid-template-areas:
+    'a a'
+    'b c';
+  grid-row-gap: 14px;
+  border-bottom: 1px solid @color-divider;
+  transition-property: border-color, background-color;
+  transition-duration: 300ms;
+  padding: 24px 30px;
+
+  &:hover {
+    background-color: #fafafa;
+  }
+
+  &.mobile {
+    padding: 22px 16px;
+    grid-row-gap: 12px;
+    grid-template-columns: 1fr 70px;
+    background-color: transparent;
+    border-bottom: 1px solid @color-divider;
+    border-radius: 0;
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  .title {
+    grid-area: a;
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+
+    .price {
+      display: flex;
+      .font(12, @color-desc);
+      background-color: @color-bg;
+      padding: 8px;
+      border-radius: @border-radius-btn2;
+    }
+  }
+
+  .content {
+    grid-area: b;
+    display: grid;
+    grid-row-gap: 6px;
+    align-content: space-between;
+
+    .pubPoolInfo {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      .line1();
+      .font(16);
+      user-select: none;
+
+      &.mobile {
+        .font(14);
+      }
+
+      .unit {
+        .font(12);
+        color: @color-desc;
+      }
+    }
+  }
+
+  .actions {
+    grid-area: c;
+  }
+}

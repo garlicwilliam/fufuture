@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 102 87" version="1.1">
+  <defs>
+    <linearGradient x1="32.9532%" y1="42.8619034%" x2="100%" y2="77.31569%" id="linearGradient-1">
+      <stop stop-color="#726AE4" offset="0%"/>
+      <stop stop-color="#5950D4" offset="100%"/>
+    </linearGradient>
+    <linearGradient x1="0%" y1="50%" x2="100%" y2="50%" id="linearGradient-2">
+      <stop stop-color="#FFC36B" offset="0%"/>
+      <stop stop-color="#E67A40" offset="100%"/>
+    </linearGradient>
+    <linearGradient x1="0%" y1="50%" x2="100%" y2="50%" id="linearGradient-3">
+      <stop stop-color="#DD6992" offset="0%"/>
+      <stop stop-color="#AA2746" offset="100%"/>
+    </linearGradient>
+    <linearGradient x1="0%" y1="50%" x2="100%" y2="50%" id="linearGradient-4">
+      <stop stop-color="#4FCEA9" offset="0%"/>
+      <stop stop-color="#187D60" offset="100%"/>
+    </linearGradient>
+  </defs>
+  <g id="page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="share" transform="translate(-358.000000, -117.000000)">
+      <g id="group-10" transform="translate(358.000000, 117.000000)">
+        <polygon id="path-91" fill="url(#linearGradient-1)" points="12.3024342 44.6304348 0 62.3695652 24 62.3695652"/>
+        <polygon id="path-92" fill="url(#linearGradient-2)"
+                 points="84.1413593 12 66.5 29.2552423 84.1413593 47 101.5 29.5"/>
+        <circle id="oval" fill="url(#linearGradient-3)" cx="68" cy="80" r="7"/>
+        <circle id="oval-6" fill="url(#linearGradient-4)" cx="30" cy="6" r="6"/>
+      </g>
+    </g>
+  </g>
+</svg>

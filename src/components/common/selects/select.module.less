@@ -1,0 +1,119 @@
+@height: 50px;
+@border-radius: 4px;
+
+.wrapperSelect {
+  display: grid;
+  grid-template-columns: 1fr @height;
+  grid-template-areas: 'a b';
+  height: @height;
+  width: 100%;
+  border-radius: 4px;
+  border: 2px solid #e7ebf4;
+  background-color: #ffffff;
+
+  &.withTitle {
+    grid-template-areas:
+      'c b'
+      'a b';
+  }
+
+  &.noBorder {
+    border: none;
+  }
+
+  &.flexWidth {
+    width: auto;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    user-select: none;
+  }
+
+  &.dark {
+    border: 1px solid rgb(231 235 244 / 50%);
+    background-color: transparent;
+
+    &.noBorder {
+      border: none;
+    }
+  }
+
+  .title {
+    grid-area: c;
+  }
+
+  .selectedOption {
+    grid-area: a;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    cursor: default;
+    overflow: hidden;
+
+    &.dark {
+      color: #ffffff;
+    }
+  }
+
+  .icon {
+    grid-area: b;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    color: #666666;
+    border-left: 1px solid #f1f1f1;
+
+    &.dark {
+      border-left: 1px solid rgb(231 235 244 / 50%);
+      &.noBorder {
+        border-left: none;
+      }
+    }
+
+    &.noBorder {
+      border-left: none;
+    }
+  }
+}
+
+.overlay {
+  box-shadow: 0 0 8px rgb(0 0 0 / 10%);
+
+  .overlayInner {
+    padding: 4px;
+
+    .item {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 8px;
+      line-height: 1;
+      height: 40px;
+      border-radius: 4px;
+      color: #333333;
+      cursor: default;
+
+      &.active {
+        background-color: #e7ebf4;
+      }
+
+      &:hover:not(.active) {
+        background-color: #f8f8f8;
+      }
+
+      &.dark {
+        color: #ffffff;
+
+        &.active {
+          background-color: fade(#1d1f20, 50%);
+        }
+
+        &:hover:not(.active) {
+          background-color: fade(#1d1f20, 30%);
+        }
+      }
+    }
+  }
+}
