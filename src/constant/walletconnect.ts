@@ -21,8 +21,8 @@ export function wcProviderInitOps(): UniversalProviderOpts {
   return {
     projectId: '4473e1279621240809d6ecaf56415dbb',
     metadata: {
-      name: 'Doption',
-      url: 'https://doption.net',
+      name: 'Fufuture',
+      url: 'https://fufuture.io',
       description: '',
       icons: [],
     },
