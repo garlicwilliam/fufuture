@@ -2,9 +2,9 @@ import { BaseStateComponent } from '../../../../state-manager/base-state-compone
 import { P } from '../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../../util/string';
 import styles from './shield-logo.module.less';
-import darkLogo from '../../../../assets/imgs/logo/fufuture-dark.svg';
-import lightLogo from '../../../../assets/imgs/logo/fufuture-light.svg';
-import mobileLogo from '../../../../assets/imgs/logo/fufuture-light.svg';
+import darkLogo from '../../../../assets/imgs/logo/fufuture-1-dark.svg';
+import lightLogo from '../../../../assets/imgs/logo/fufuture-1-light.svg';
+import mobileLogo from '../../../../assets/imgs/logo/fufuture-1-light.svg';
 
 type IState = {
   isMobile: boolean;
@@ -34,7 +34,7 @@ export class ShieldLogo extends BaseStateComponent<IProps, IState> {
 
     return (
       <div className={styleMr(styles.wrapperLogo)}>
-        <img src={logoUrl} alt={''} height={this.state.isMobile ? 30 : 36} />
+        <img src={logoUrl} alt={''} height={this.state.isMobile ? 30 : 40} />
       </div>
     );
   }

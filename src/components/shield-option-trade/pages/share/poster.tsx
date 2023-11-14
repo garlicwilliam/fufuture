@@ -62,7 +62,7 @@ export class Poster extends BaseStateComponent<IProps, IState> {
     }
 
     this.drawBg({ x: 0, y: 0 });
-    this.drawLogo({ x: 40, y: 40 });
+    this.drawLogo({ x: 40, y: 30 });
     this.drawSubTitle({ x: 42, y: 100 });
     this.drawInner({ x: 50, y: 140 });
     this.drawDecorate({ x: 340, y: 110 });
@@ -87,7 +87,7 @@ export class Poster extends BaseStateComponent<IProps, IState> {
       return;
     }
 
-    this.context2D.drawImage(logoImg, pos.x, pos.y, 181.5, 41.5);
+    this.context2D.drawImage(logoImg, pos.x, pos.y, 185, 51);
   }
 
   private drawDecorate(pos: Pos) {
