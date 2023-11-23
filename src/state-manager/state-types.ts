@@ -80,6 +80,10 @@ export type ShieldOrderInfo = {
     pnl: SldDecimal;
   };
 };
+export type ShieldHistoryOrderRs = {
+  orders: ShieldOrderInfo[];
+  taker: string;
+};
 export type ShieldMakerOrderInfo = {
   id: BigNumber;
   indexInPool: BigNumber;

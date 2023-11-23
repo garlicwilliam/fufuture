@@ -2,7 +2,12 @@ import { BaseStateComponent } from '../../../../../../state-manager/base-state-c
 import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { cssPick, styleMerge } from '../../../../../../util/string';
 import styles from './history-table.module.less';
-import { ShieldOptionType, ShieldOrderInfo, ShieldOrderState } from '../../../../../../state-manager/state-types';
+import {
+  ShieldHistoryOrderRs,
+  ShieldOptionType,
+  ShieldOrderInfo,
+  ShieldOrderState
+} from '../../../../../../state-manager/state-types';
 import { TableForDesktop } from '../../../../../table/table-desktop';
 import { ColumnType } from 'antd/lib/table/interface';
 import { D } from '../../../../../../state-manager/database/database-state-parser';
@@ -21,7 +26,7 @@ import { OrderStatusNode } from '../../../../const/status';
 
 type IState = {
   isMobile: boolean;
-  orders: ShieldOrderInfo[] | undefined;
+  orders: ShieldHistoryOrderRs | undefined;
   ordersPending: boolean;
 };
 type IProps = {};
@@ -256,8 +261,8 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
 
   mergeOrders() {
     return D.Option.HistoryOrders.watch().pipe(
-      map((orders: ShieldOrderInfo[]) => {
-        orders.forEach(order => {
+      map((orders: ShieldHistoryOrderRs) => {
+        orders.orders.forEach(order => {
           order.pnl = computeOrderPnl(order);
         });
 
@@ -307,15 +312,15 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
-    const len = this.state.orders?.length || 0;
+    const len = this.state.orders?.orders.length || 0;
     const index = P.Option.Trade.OrderHistory.PageIndex.get();
     const size = P.Option.Trade.OrderHistory.PageSize.get();
     const maxCount = (index + 1) * size;
-    const hasMore = ((this.state.orders?.length || 0) > 0 && len >= maxCount) || this.state.ordersPending;
+    const hasMore = ((this.state.orders?.orders.length || 0) > 0 && len >= maxCount) || this.state.ordersPending;
 
     return this.state.isMobile ? (
       <TableForMobile
-        datasource={this.state.orders}
+        datasource={this.state.orders?.orders}
         columns={this.columnsMobile}
         rowKey={(row: ShieldOrderInfo) => row.id.toString()}
         hasMore={hasMore}
@@ -325,7 +330,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       />
     ) : (
       <TableForDesktop
-        datasource={this.state.orders}
+        datasource={this.state.orders?.orders}
         columns={this.columns}
         rowKey={(row: ShieldOrderInfo) => row.id.toString()}
         hasMore={hasMore}
