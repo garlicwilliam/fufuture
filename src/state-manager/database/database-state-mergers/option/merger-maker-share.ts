@@ -3,7 +3,7 @@ import { ShieldMakerPublicPoolShare, StateNullType } from '../../../state-types'
 import { from, mergeMap, Observable, of, switchMap, combineLatest } from 'rxjs';
 import { SUB_GRAPH_API } from '../../../../components/shield-option-trade/const/default';
 import { httpPost } from '../../../../util/http';
-import { map, take, toArray } from 'rxjs/operators';
+import { map, take, tap, toArray } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { makerPubPoolShareGetter } from '../../../contract/contract-getter-cpx-shield';
 import { isSN } from '../../../interface-util';
@@ -43,12 +43,14 @@ export class MergerMakerShare implements DatabaseStateMerger<ShieldMakerPublicPo
         return Array.from(new Set(addresses));
       }),
       switchMap((addresses: string[]) => {
-        const provider$ = walletState.watchWeb3Provider().pipe(take(1));
-        const address$ = from(addresses);
-
-        return combineLatest([address$, provider$]).pipe(
-          mergeMap(([address, provider]) => {
-            return makerPubPoolShareGetter(maker, address, provider);
+        return from(addresses).pipe(
+          mergeMap(address => {
+            return walletState.watchWeb3Provider().pipe(
+              take(1),
+              switchMap(provider => {
+                return makerPubPoolShareGetter(maker, address, provider);
+              })
+            );
           }),
           toArray(),
           map((info: (ShieldMakerPublicPoolShare | StateNullType)[]) => {

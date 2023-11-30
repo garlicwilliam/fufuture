@@ -37,7 +37,7 @@ const PAIR_CONFIG = {
 };
 const GRAPH_CONFIG = {
   [NET_GOERLI]: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/shield-history-goerli-v5',
-  [NET_BNB]: ' https://api.thegraph.com/subgraphs/name/garlicwilliam/fufutrue-history-bsc',
+  [NET_BNB]: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/fufutrue-history-bsc',
 };
 
 export const DEFAULT_TRADE_PAIR = PAIR_CONFIG[SUPPORT_NETWORK];
