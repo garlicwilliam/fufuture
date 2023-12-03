@@ -2,9 +2,6 @@ import { BaseStateComponent } from '../../../../state-manager/base-state-compone
 import { P } from '../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../../util/string';
 import styles from './shield-logo.module.less';
-import darkLogo from '../../../../assets/imgs/logo/fufuture-1-dark.svg';
-import lightLogo from '../../../../assets/imgs/logo/fufuture-1-light.svg';
-import mobileLogo from '../../../../assets/imgs/logo/fufuture-1-light.svg';
 
 type IState = {
   isMobile: boolean;
@@ -12,6 +9,8 @@ type IState = {
 type IProps = {
   isDark?: boolean;
   isHome?: boolean;
+  logoUrl: string;
+  height?: number;
 };
 
 export class ShieldLogo extends BaseStateComponent<IProps, IState> {
@@ -28,13 +27,13 @@ export class ShieldLogo extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
-    const mobileCss = this.state.isMobile ? styles.mobile : '';
+    const mobileCss = '';
     const styleMr = bindStyleMerger(mobileCss);
-    const logoUrl = this.state.isMobile && !this.props.isHome ? mobileLogo : this.props.isDark ? darkLogo : lightLogo;
+    const height: number = this.props.height ? this.props.height : this.state.isMobile ? 28 : 32;
 
     return (
-      <div className={styleMr(styles.wrapperLogo)}>
-        <img src={logoUrl} alt={''} height={this.state.isMobile ? 30 : 40} />
+      <div className={styleMr(styles.logoWrapper)}>
+        <img src={this.props.logoUrl} alt={''} height={height} />
       </div>
     );
   }

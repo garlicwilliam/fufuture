@@ -1,19 +1,18 @@
 import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
 import { DatabaseStateMerger } from '../../../interface';
-import { PriceDuration, TokenPriceHistory } from '../../../state-types';
+import {PriceDuration, ShieldUnderlyingType, TokenPriceHistory} from '../../../state-types';
 import _ from 'lodash';
 import { tokenIdMaps } from '../token-ids';
 import { finalize, map } from 'rxjs/operators';
-import { IndexUnderlyingType } from '../../../../components/shield-option-trade/const/assets';
 import { tokenSymbolFromName } from '../../../../constant/tokens';
 import { httpGet } from '../../../../util/http';
 import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
 
-export class TokenPricesMerger implements DatabaseStateMerger<TokenPriceHistory, [PriceDuration, IndexUnderlyingType]> {
+export class TokenPricesMerger implements DatabaseStateMerger<TokenPriceHistory, [PriceDuration, ShieldUnderlyingType]> {
   //
   private isPending: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  public mergeWatch(...args: [PriceDuration, IndexUnderlyingType]): Observable<TokenPriceHistory> {
+  public mergeWatch(...args: [PriceDuration, ShieldUnderlyingType]): Observable<TokenPriceHistory> {
     return this.doGet(args[0], args[1]);
   }
 
@@ -29,7 +28,7 @@ export class TokenPricesMerger implements DatabaseStateMerger<TokenPriceHistory,
     };
   }
 
-  private doGet(duration: PriceDuration, token: IndexUnderlyingType): Observable<TokenPriceHistory> {
+  private doGet(duration: PriceDuration, token: ShieldUnderlyingType): Observable<TokenPriceHistory> {
     const days: number = duration === 'DAY' ? 1 : duration === 'WEEK' ? 7 : duration === 'MONTH' ? 30 : 30;
     const tokenSym: symbol | undefined = tokenSymbolFromName(token);
     const id: string | undefined = tokenSym ? tokenIdMaps.get(tokenSym) : undefined;

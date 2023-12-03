@@ -17,6 +17,7 @@ import { EthereumProviderInterface, EthereumProviderState, EthereumSpecifyMethod
 import { ProviderExistDetectors, ProviderGetters } from './metamask-like-constant';
 import * as _ from 'lodash';
 import { NetworkParamConfig } from '../constant/network-type';
+import { eth } from '../components/shield-option-trade/const/imgs';
 
 export function ethAccounts(ethereum: EthereumProviderInterface): Observable<string[]> {
   return from(ethereum.request({ method: 'eth_accounts' }) as Promise<string[]>).pipe(
@@ -41,7 +42,6 @@ export function ethRequestAccounts(ethereum: EthereumProviderInterface): Observa
 }
 
 export function walletAddChain(ethereum: EthereumProviderInterface, chainParam: NetworkParamConfig): Observable<any> {
-  console.log('add chain', chainParam);
   const promise = ethereum.request({ method: 'wallet_addEthereumChain', params: [chainParam] });
 
   return from(promise);
@@ -60,15 +60,7 @@ export function walletSwitchChain(
 }
 
 function detectIsConnected(ethereum: EthereumProviderInterface): Observable<boolean> {
-  return ethAccounts(ethereum).pipe(
-    catchError(err => {
-      console.warn('error', err);
-      return of([]);
-    }),
-    map((accounts: string[]) => {
-      return accounts.length > 0;
-    })
-  );
+  return of(ethereum.isConnected());
 }
 
 export class EthereumProviderStateManager {
@@ -130,7 +122,7 @@ export class EthereumProviderStateManager {
 
   public setUserSelected(selected: EthereumProviderName | null): boolean {
     const injected: Set<EthereumProviderName> | undefined = this.injectedProviders.getValue();
-    if (!injected || injected.size === 0) {
+    if (!injected || injected.size == 0) {
       return false;
     }
 

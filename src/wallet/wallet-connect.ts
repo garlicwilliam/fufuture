@@ -18,7 +18,8 @@ import {
 import { catchError, filter, map, startWith, take, tap } from 'rxjs/operators';
 import { SldDecimal } from '../util/decimal';
 import { ETH_WEI } from '../util/ethers';
-import { wcConnectOps, wcDefaultChain, WcNetNamespace, wcProviderInitOps } from '../constant/walletconnect';
+import { WcNetNamespace } from '../constant/walletconnect';
+import { wcOps } from '../constant/walletconnect.conf';
 import { UniversalProvider, UniversalProviderOpts } from '@walletconnect/universal-provider';
 import IUniversalProvider from '@walletconnect/universal-provider';
 import { SessionTypes } from '@walletconnect/types';
@@ -72,11 +73,11 @@ export class WalletConnect implements WalletInterface {
   }
 
   private createInitOpts(): UniversalProviderOpts {
-    return wcProviderInitOps();
+    return wcOps.initProviderOps;
   }
 
   private createProjectId(): string {
-    return wcProviderInitOps().projectId || '';
+    return wcOps.initProviderOps.projectId || '';
   }
 
   private wrapperProvider() {
@@ -95,12 +96,13 @@ export class WalletConnect implements WalletInterface {
   }
 
   private requestAccounts(provider: IUniversalProvider): Observable<{ accounts: string[]; chain: string }> {
-    const opts = wcConnectOps();
-    const defChain: string = wcDefaultChain();
+    const opts = wcOps.connectOps;
+    const defChain: string = wcOps.defaultChain;
 
     let accounts$: Observable<string[]>;
     if (provider.session) {
       provider.setDefaultChain(defChain);
+
       accounts$ = from(provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>);
     } else {
       this.modal.subscribeModal((state: { open: boolean }) => {
@@ -136,6 +138,7 @@ export class WalletConnect implements WalletInterface {
       }),
       tap(([{ accounts, chain }, provider]) => {
         console.log('provider ==== ', provider);
+        console.log('accounts ====', accounts);
         console.log('session ==== ', provider.session);
         this.walletConnectProviderHolder.next(provider);
       }),

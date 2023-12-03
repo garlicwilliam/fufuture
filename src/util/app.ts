@@ -4,6 +4,7 @@ import { setAddAll, setDelAll } from './array';
 
 export enum AppName {
   Stone = 'shield-stone',
+  ShieldHome = 'shield-home',
   ShieldTrade = 'shield-trade',
 }
 const field = 'SldApp';

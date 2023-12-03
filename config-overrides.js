@@ -9,15 +9,7 @@ const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
 const isProduction = process.env.NODE_ENV === 'production';
 
 const { addMultipleEntry, addLessLoader, modifyVars } = require('./config-overrides.util');
-
-const shieldAppEntries = [
-  {
-    isReplaceMain: true,
-    entry: 'src/components/shield-option-trade/entry.tsx',
-    template: 'public/option-app.html',
-    outPath: '/index.html',
-  },
-];
+const { entries } = require('./config-overrides.projects');
 
 const {
   override,
@@ -49,7 +41,7 @@ module.exports = {
         modifyVars: modifyVars,
       },
     }),
-    addMultipleEntry(shieldAppEntries),
+    addMultipleEntry(entries),
     addWebpackAlias({
       '~': path.resolve(__dirname, 'src/'),
       '@': path.resolve(__dirname, 'src/'),

@@ -15,6 +15,7 @@ type IState = {
 type IProps = {
   size: number;
   token: TokenErc20;
+  className?: string;
 };
 
 function px(num: number): string {
@@ -59,11 +60,14 @@ export class TokenIcon extends BaseStateComponent<IProps, IState> {
     return (
       <>
         {this.state.iconUrl ? (
-          <div className={styleMr(styles.icon)} style={{ width: px(this.props.size), height: px(this.props.size) }}>
+          <div
+            className={styleMr(styles.icon, this.props.className)}
+            style={{ minWidth: px(this.props.size), width: px(this.props.size), height: px(this.props.size) }}
+          >
             <img src={this.state.iconUrl} alt={''} width={this.props.size} height={this.props.size} />
           </div>
         ) : (
-          <TokenDefaultIcon token={this.props.token} size={this.props.size} />
+          <TokenDefaultIcon token={this.props.token} size={this.props.size} classname={this.props.className} />
         )}
       </>
     );

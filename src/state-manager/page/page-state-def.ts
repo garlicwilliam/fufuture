@@ -5,7 +5,7 @@ import {
   ShieldMakerPublicPoolShare,
   ShieldOptionType,
   ShieldOrderInfo,
-  ShieldTradePair,
+  ShieldTradePair, ShieldUnderlyingType,
   TokenErc20,
   TradeChartType,
 } from '../state-types';
@@ -13,8 +13,7 @@ import { confirmIsMobile, Size } from '../../util/layout';
 import { EMPTY_ADDRESS, Language } from '../../constant';
 import { getLanguage } from '../../locale/i18n';
 import { SldDecimal } from '../../util/decimal';
-import { IndexUnderlyingType } from '../../components/shield-option-trade/const/assets';
-import { DEFAULT_TRADE_PAIR } from '../../components/shield-option-trade/const/default';
+import { SLD_ENV_CONF } from '../../components/shield-option-trade/const/env';
 
 export const PAGE_STATE = {
   Lang: {
@@ -49,18 +48,21 @@ export const PAGE_STATE = {
     Trade: {
       Select: {
         IndexUnderlying: {
-          _default: IndexUnderlyingType.BTC as IndexUnderlyingType,
+          _default: ShieldUnderlyingType.BTC as ShieldUnderlyingType,
         },
         Extend: {
           _default: false as boolean,
         },
+        SearchKey: {
+          _default: '' as string,
+        },
       },
       Pair: {
         Base: {
-          _default: DEFAULT_TRADE_PAIR.indexUnderlying as IndexUnderlyingType,
+          _default: SLD_ENV_CONF.DefaultPair.indexUnderlying as ShieldUnderlyingType,
         },
         Quote: {
-          _default: DEFAULT_TRADE_PAIR.quoteToken as TokenErc20 | null,
+          _default: SLD_ENV_CONF.DefaultPair.quoteToken as TokenErc20 | null,
         },
       },
       SpecifiedMaker: {
@@ -141,7 +143,7 @@ export const PAGE_STATE = {
               _default: false as boolean,
             },
             CurrentPair: {
-              _default: { indexUnderlying: IndexUnderlyingType.ETH } as Partial<ShieldTradePair>,
+              _default: { indexUnderlying: ShieldUnderlyingType.ETH } as Partial<ShieldTradePair>,
             },
           },
           Withdraw: {

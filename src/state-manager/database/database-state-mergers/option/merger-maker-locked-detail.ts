@@ -1,13 +1,13 @@
 import { DatabaseStateMerger } from '../../../interface';
 import { ShieldMakerOrderInfo, ShieldMakerPrivatePoolInfo } from '../../../state-types';
 import { BehaviorSubject, Observable, of, switchMap, zip } from 'rxjs';
-import { SUB_GRAPH_API } from '../../../../components/shield-option-trade/const/default';
 import { httpPost } from '../../../../util/http';
 import { finalize, map, take, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { makerPriPoolOrdersGetter } from '../../../contract/contract-getter-cpx-shield';
-import { shieldOptionTradeContracts } from '../../../const/shield-option-trade-contract';
+import { shieldOptionTradeContracts } from '../../../../components/shield-option-trade/contract/shield-option-trade-contract';
 import { BigNumber } from 'ethers';
+import {SLD_ENV_CONF} from "../../../../components/shield-option-trade/const/env";
 
 type OrderId = {
   orderID: string;
@@ -32,7 +32,7 @@ export class MergerMakerLockedDetail
   }
 
   private doGet(pool: ShieldMakerPrivatePoolInfo): Observable<ShieldMakerOrderInfo[]> {
-    const url = SUB_GRAPH_API;
+    const url = SLD_ENV_CONF.SubGraphUrl;
 
     if (!url || !pool) {
       return of([]);

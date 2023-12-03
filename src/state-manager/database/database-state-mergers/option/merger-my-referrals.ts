@@ -1,9 +1,9 @@
 import { DatabaseStateMerger } from '../../../interface';
 import { Observable, of } from 'rxjs';
-import { SUB_GRAPH_API } from '../../../../components/shield-option-trade/const/default';
 import { httpPost } from '../../../../util/http';
 import { map } from 'rxjs/operators';
 import * as _ from 'lodash';
+import {SLD_ENV_CONF} from "../../../../components/shield-option-trade/const/env";
 
 export class MergerMyReferrals implements DatabaseStateMerger<number, [string]> {
   mergeWatch(...args: [string]): Observable<number> {
@@ -19,7 +19,7 @@ export class MergerMyReferrals implements DatabaseStateMerger<number, [string]> 
   }
 
   doGet(inviter: string): Observable<number> {
-    const url = SUB_GRAPH_API;
+    const url = SLD_ENV_CONF.SubGraphUrl;
 
     if (!url) {
       return of(0);

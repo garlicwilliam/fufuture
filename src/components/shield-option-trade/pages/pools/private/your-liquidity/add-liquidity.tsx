@@ -6,7 +6,7 @@ import ModalRender from '../../../../../modal-render';
 import { I18n } from '../../../../../i18n/i18n';
 import {
   ShieldMakerPrivatePoolInfo,
-  ShieldTradePair,
+  ShieldTradePair, ShieldUnderlyingType,
   StateNull,
   TokenErc20,
 } from '../../../../../../state-manager/state-types';
@@ -17,7 +17,6 @@ import { SldProgress } from '../../../../../common/progress/progress';
 import { HorizonItem } from '../../../../../common/content/horizon-item';
 import { SearchToken } from '../../../common/search-token';
 import { AssetsSelect } from '../../../common/assets-select';
-import { IndexUnderlyingType } from '../../../../const/assets';
 import { Visible } from '../../../../../builtin/hidden';
 import { snRep } from '../../../../../../state-manager/interface-util';
 import { SldDecimal, SldDecPercent } from '../../../../../../util/decimal';
@@ -63,7 +62,7 @@ export class AddPrivateLiquidity extends BaseStateComponent<IProps, IState> {
     P.Option.Pools.Private.Liquidity.Add.IsVisible.set(false);
   }
 
-  onAssetsChange(assets: IndexUnderlyingType) {
+  onAssetsChange(assets: ShieldUnderlyingType) {
     const newState: Partial<ShieldTradePair> = { indexUnderlying: assets, quoteToken: this.state.curPair?.quoteToken };
     this.updatePair(newState);
   }

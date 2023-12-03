@@ -6,7 +6,11 @@ import jaTranslation from './ja';
 import zhTranslation from './zh';
 import zhHKTranslation from './zhHK';
 
-const LanguageCacheKey = 'LanguageCacheKey';
+import { getAppName } from '../util/app';
+
+const appName: string = getAppName();
+
+const LanguageCacheKey = appName + '_LanguageCacheKey';
 const cacheLanguage = localStorage.getItem(LanguageCacheKey);
 
 let selectedLanguage = cacheLanguage || 'en';

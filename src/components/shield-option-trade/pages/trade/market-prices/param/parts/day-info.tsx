@@ -9,13 +9,14 @@ import { SldDecimal, SldDecPercent } from '../../../../../../../util/decimal';
 import { ReactNode } from 'react';
 import { HorizonItem } from '../../../../../../common/content/horizon-item';
 import { D } from '../../../../../../../state-manager/database/database-state-parser';
-import { IndexUnderlyingType } from '../../../../../const/assets';
+import { map } from 'rxjs/operators';
+import {ShieldUnderlyingType} from "../../../../../../../state-manager/state-types";
 
 type IState = {
   isMobile: boolean;
   dayPriceChange: SldDecPercent;
   dayVolume: SldDecimal;
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
 };
 type IProps = {
   layout: 'narrow' | 'mobile' | 'normal';
@@ -34,12 +35,14 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
     this.registerIsMobile('isMobile');
     this.registerState('dayPriceChange', D.Option.Price24hChange);
     this.registerState('indexUnderlying', P.Option.Trade.Pair.Base);
-    this.registerState('dayVolume', D.Option.Volume24h);
+    this.registerObservable('dayVolume', D.Option.Volume24h.watch().pipe(map(v => v.total)));
   }
 
   componentWillUnmount() {
     this.destroyState();
   }
+
+  merge24Volume() {}
 
   gen24ChangeVertical(styleMr: StyleMerger): ReactNode {
     return (

@@ -8,7 +8,7 @@ import { S } from '../../../../../../state-manager/contract/contract-state-parse
 import {
   ShieldMakerOrderInfo,
   ShieldMakerPrivatePoolInfo,
-  ShieldOptionType,
+  ShieldOptionType, ShieldUnderlyingType,
 } from '../../../../../../state-manager/state-types';
 import { PairLabel } from '../../../common/pair-label';
 import { TableForDesktop } from '../../../../../table/table-desktop';
@@ -19,11 +19,10 @@ import { TokenAmountInline } from '../../../../../common/content/token-amount-in
 import { TextBtn } from '../../../../../common/buttons/text-btn';
 import { combineLatest, Observable, of, switchMap } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
-import { IndexUnderlyingType } from '../../../../const/assets';
 import { SortDesc } from '../../../../../common/svg/sort-desc';
 import { SortAsc } from '../../../../../common/svg/sort-asc';
 import { computeMakerLiquidationPrice, computeMakerOrderPnl } from '../../../../utils/compute';
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { MakerAddMargin } from './add-margin';
 import { SldTips } from '../../../../../common/tips/tips';
 import { ReactNode } from 'react';
@@ -40,6 +39,7 @@ import { SldSelect, SldSelectOption } from '../../../../../common/selects/select
 import { D } from '../../../../../../state-manager/database/database-state-parser';
 import { shieldOrderService } from '../../../../services/shield-order.service';
 import { fontCss } from '../../../../../i18n/font-switch';
+import { Visible } from '../../../../../builtin/hidden';
 
 type Statistic = {
   amountCall: SldDecimal;
@@ -521,41 +521,21 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
 
   private fillPnl(
     orders: ShieldMakerOrderInfo[],
-    indexUnderlying: IndexUnderlyingType
+    indexUnderlying: ShieldUnderlyingType
   ): Observable<ShieldMakerOrderInfo[]> {
-    const price$ = S.Option.Oracle[indexUnderlying].watch();
+    const price$: Observable<SldDecPrice> = S.Option.Oracle[indexUnderlying].watch();
 
     return price$.pipe(
       map((price: SldDecPrice) => {
-        return orders.map(order => {
+        return orders.map((order: ShieldMakerOrderInfo) => {
           order.markPrice = price;
           order.pnl = computeMakerOrderPnl(order);
-          order.liquidationPrice = computeMakerLiquidationPrice(order);
+
+          const { liqPrice, couldLiq } = computeMakerLiquidationPrice(order);
+          order.liquidationPrice = liqPrice;
+          order.couldLiquidation = couldLiq;
 
           return order;
-        });
-      })
-    );
-  }
-
-  mergeOrders(): Observable<ShieldMakerOrderInfo[]> {
-    const priceEth$ = S.Option.Oracle.ETH.watch();
-    const priceBtc$ = S.Option.Oracle.BTC.watch();
-    const detail$ = S.Option.Pool.Maker.LockDetail.watch();
-
-    return combineLatest([priceBtc$, priceEth$, detail$]).pipe(
-      map(([priceBtc, priceEth, lockedDetail]) => {
-        const prices = {
-          [IndexUnderlyingType.BTC]: priceBtc,
-          [IndexUnderlyingType.ETH]: priceEth,
-        };
-
-        return lockedDetail.map(one => {
-          one.markPrice = prices[one.indexUnderlying];
-          one.pnl = computeMakerOrderPnl(one);
-          one.liquidationPrice = computeMakerLiquidationPrice(one);
-
-          return one;
         });
       })
     );
@@ -593,6 +573,17 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
           >
             <I18n id={'trade-funding-fee-settlement'} textUpper={'uppercase'} />
           </SldButton>
+
+          <Visible when={row.couldLiquidation || false}>
+            <SldButton
+              size={'tiny'}
+              type={'primary'}
+              className={styleMerge(styles.btnOutline)}
+              onClick={() => this.onRiskControlOne(row)}
+            >
+              <I18n id={'trade-liquidation'} textUpper={'uppercase'} />
+            </SldButton>
+          </Visible>
         </div>
       </div>
     );
@@ -758,6 +749,16 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
     const migrate$ = shieldOptionTradeService.migration(orderIds);
 
     this.subOnce(migrate$, done => {
+      if (done) {
+        this.refreshAll();
+      }
+    });
+  }
+
+  onRiskControlOne(order: ShieldMakerOrderInfo) {
+    const riskControl$ = shieldOptionTradeService.riskControl([order.id]);
+
+    this.subOnce(riskControl$, done => {
       if (done) {
         this.refreshAll();
       }
@@ -1040,7 +1041,7 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
           </div>
         </div>
 
-        <MakerAddMargin onDone={order => this.refreshOne(order)} />
+        <MakerAddMargin onDone={(order: ShieldMakerOrderInfo) => this.refreshOne(order)} />
       </>
     );
   }

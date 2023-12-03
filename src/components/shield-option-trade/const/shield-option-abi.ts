@@ -1,6 +1,6 @@
 import { ShieldOptionTradeConfigAbi } from './shield-option-address';
-
-export const ABI_CHAIN_LINK = [
+type Abi = any[];
+export const ABI_CHAIN_LINK: Abi = [
   {
     inputs: [],
     name: 'decimals',
@@ -49,7 +49,7 @@ export const ABI_CHAIN_LINK = [
     type: 'function',
   },
 ];
-export const ABI_OPTION_TRADE_Copy = [
+export const ABI_OPTION_TRADE_Copy: Abi = [
   {
     inputs: [
       {
@@ -105,7 +105,7 @@ export const ABI_OPTION_TRADE_Copy = [
     type: 'function',
   },
 ];
-export const ABI_OPTION_TRADE = [
+export const ABI_OPTION_TRADE: Abi = [
   {
     inputs: [
       {
@@ -1332,7 +1332,7 @@ export const ABI_OPTION_TRADE = [
     type: 'function',
   },
 ];
-export const ABI_PRIVATE_POOL = [
+export const ABI_PRIVATE_POOL: Abi = [
   {
     inputs: [
       {
@@ -2248,7 +2248,7 @@ export const ABI_PRIVATE_POOL = [
     type: 'function',
   },
 ];
-export const ABI_PUBLIC_POOL = [
+export const ABI_PUBLIC_POOL: Abi = [
   {
     inputs: [
       {
@@ -3364,7 +3364,7 @@ export const ABI_PUBLIC_POOL = [
     type: 'function',
   },
 ];
-export const ABI_PUBLIC_POOL_Copy = [
+export const ABI_PUBLIC_POOL_Copy: Abi = [
   {
     inputs: [
       {
@@ -3385,7 +3385,7 @@ export const ABI_PUBLIC_POOL_Copy = [
     type: 'function',
   },
 ];
-export const ABI_LIQUIDITY_MANAGER = [
+export const ABI_LIQUIDITY_MANAGER: Abi = [
   {
     inputs: [
       {
@@ -3700,7 +3700,7 @@ export const ABI_LIQUIDITY_MANAGER = [
     type: 'function',
   },
 ];
-export const ABI_LIQUIDITY_FACTORY = [
+export const ABI_LIQUIDITY_FACTORY: Abi = [
   {
     inputs: [
       {
@@ -3770,7 +3770,7 @@ export const ABI_LIQUIDITY_FACTORY = [
     type: 'function',
   },
 ];
-export const ABI_UNDERLYING_ASSET = [
+export const ABI_UNDERLYING_ASSET: Abi = [
   {
     inputs: [
       {
@@ -4179,7 +4179,7 @@ export const ABI_UNDERLYING_ASSET = [
     type: 'function',
   },
 ];
-export const ABI_AGGREGATOR = [
+export const ABI_AGGREGATOR: Abi = [
   {
     inputs: [
       {
@@ -4426,7 +4426,7 @@ export const ABI_AGGREGATOR = [
     type: 'function',
   },
 ];
-export const ABI_BROKER = [
+export const ABI_BROKER: Abi = [
   {
     inputs: [],
     stateMutability: 'nonpayable',

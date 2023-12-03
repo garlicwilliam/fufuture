@@ -11,16 +11,16 @@ import { SldDecimal, SldDecPercent } from '../../../../../../util/decimal';
 import { DecimalNumInput } from '../../../../../common/input/num-input-decimal';
 import { I18n } from '../../../../../i18n/i18n';
 import { TokenAmountInline } from '../../../../../common/content/token-amount-inline';
-import { ShieldOrderOpenResult, TokenErc20 } from '../../../../../../state-manager/state-types';
+import {ShieldOrderOpenResult, ShieldUnderlyingType, TokenErc20} from '../../../../../../state-manager/state-types';
 import { ItemsBox } from '../../../../../common/content/items-box';
 import { OverlayClose } from '../../../../../common/icon/overlay-close';
 import { HorizonItem } from '../../../../../common/content/horizon-item';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { ZERO } from '../../../../../../constant';
 import { DeltaTime, displayDuration } from '../../../../../../util/time';
 import { TokenLabel } from '../../../common/token-label';
-import { IndexUnderlyingDecimal, IndexUnderlyingType } from '../../../../const/assets';
+import { IndexUnderlyingDecimal } from '../../../../const/assets';
 import { FixPadding } from '../../../../../common/content/fix-padding';
 import { shieldOptionMatrixService } from '../../../../services/shield-option-matrix.service';
 import { combineLatest, Observable, of, switchMap, zip } from 'rxjs';
@@ -71,7 +71,7 @@ class Phase extends BaseStateComponent<PProps, PState> {
 type IState = {
   isMobile: boolean;
   quoteToken: TokenErc20 | null;
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
   forceClose: TriggerEvent | undefined;
   fundingPeriod: BigNumber;
 

@@ -1,13 +1,13 @@
 import { DatabaseStateMerger } from '../../../interface';
 import { ShieldMakerPublicPoolShare, StateNullType } from '../../../state-types';
 import { from, mergeMap, Observable, of, switchMap, combineLatest } from 'rxjs';
-import { SUB_GRAPH_API } from '../../../../components/shield-option-trade/const/default';
 import { httpPost } from '../../../../util/http';
-import { map, take, tap, toArray } from 'rxjs/operators';
+import { map, take, toArray } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { makerPubPoolShareGetter } from '../../../contract/contract-getter-cpx-shield';
 import { isSN } from '../../../interface-util';
 import { walletState } from '../../../wallet/wallet-state';
+import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
 
 export class MergerMakerShare implements DatabaseStateMerger<ShieldMakerPublicPoolShare[], [string]> {
   mergeWatch(...args: [string]): Observable<ShieldMakerPublicPoolShare[]> {
@@ -23,7 +23,7 @@ export class MergerMakerShare implements DatabaseStateMerger<ShieldMakerPublicPo
   }
 
   private doGet(maker: string): Observable<ShieldMakerPublicPoolShare[]> {
-    const url = SUB_GRAPH_API;
+    const url = SLD_ENV_CONF.SubGraphUrl;
     if (!url) {
       return of([]);
     }

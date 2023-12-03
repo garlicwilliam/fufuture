@@ -2,13 +2,12 @@ import { BaseStateComponent } from '../../../../../state-manager/base-state-comp
 import { P } from '../../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger, cssPick } from '../../../../../util/string';
 import styles from './market-select.module.less';
-import { TokenErc20 } from '../../../../../state-manager/state-types';
+import {ShieldUnderlyingType, TokenErc20} from '../../../../../state-manager/state-types';
 import { Visible } from '../../../../builtin/hidden';
 import { isDocumentClickInArea } from '../../../../../util/dom';
 import { map, tap } from 'rxjs/operators';
 import { asyncScheduler, combineLatest, Observable } from 'rxjs';
 import { ArrowDouble } from '../../../../common/svg/arrow-double';
-import { IndexUnderlyingType } from '../../../const/assets';
 import { ShieldIndexFundingPair } from './market-summary/index-funding-pair';
 import { IndexFundingInfo } from './market-summary/index-funding-info';
 import { ExtendTrigger } from './market-summary/extend-trigger';
@@ -16,10 +15,10 @@ import { MarketExtendContent } from './market-extend/extend-content';
 
 type IState = {
   isMobile: boolean;
-  baseToken: IndexUnderlyingType;
+  baseToken: ShieldUnderlyingType;
   quoteToken: TokenErc20 | null;
   isExtend: boolean;
-  curTab: IndexUnderlyingType;
+  curTab: ShieldUnderlyingType;
 };
 type IProps = {
   className?: string;
@@ -83,7 +82,6 @@ export class MarketSelect extends BaseStateComponent<IProps, IState> {
           <div className={styleMr(styles.summary)}>
             <ShieldIndexFundingPair className={styleMr(styles.title)} />
             <IndexFundingInfo className={styleMr(styles.info)} isExt={this.state.isExtend} />
-
             <ExtendTrigger
               className={styleMr(styles.trigger)}
               isExt={this.state.isExtend}

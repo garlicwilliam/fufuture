@@ -2,15 +2,14 @@ import { BaseStateComponent } from '../../../../../../state-manager/base-state-c
 import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger, cssPick } from '../../../../../../util/string';
 import styles from './index-funding-info.module.less';
-import { TokenErc20 } from '../../../../../../state-manager/state-types';
-import { IndexUnderlyingType } from '../../../../const/assets';
+import {ShieldUnderlyingType, TokenErc20} from '../../../../../../state-manager/state-types';
 import { SldDecPrice } from '../../../../../../util/decimal';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
 import { I18n } from '../../../../../i18n/i18n';
 
 type IState = {
   isMobile: boolean;
-  base: IndexUnderlyingType;
+  base: ShieldUnderlyingType;
   token: TokenErc20 | null;
   price: SldDecPrice;
 };

@@ -4,14 +4,13 @@ import { bindStyleMerger } from '../../../../../util/string';
 import styles from './market-prices.module.less';
 import { PriceParam } from './param/param';
 import { PriceCharts } from './charts/charts';
-import { TradeChartType } from '../../../../../state-manager/state-types';
+import {ShieldUnderlyingType, TradeChartType} from '../../../../../state-manager/state-types';
 import { KLineCharts } from './charts/kline';
-import { IndexUnderlyingType } from '../../../const/assets';
 
 type IState = {
   isMobile: boolean;
   chartType: TradeChartType;
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
 };
 type IProps = {
   className?: string;

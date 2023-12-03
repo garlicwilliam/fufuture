@@ -1,8 +1,8 @@
 import { PageState, PageStateDefine, PageStateDefineTree, PageStateTree } from '../interface';
 import { PageStateImp } from './page-state';
-import _ from 'lodash';
 import { PAGE_STATE } from './page-state-def';
 import { confirmIsMini, confirmIsMobile, confirmIsNarrow, Size, windowHeight, windowWidth } from '../../util/layout';
+import _ from 'lodash';
 
 function isPageStateDefine(def: any): boolean {
   return _.has(def, '_default');

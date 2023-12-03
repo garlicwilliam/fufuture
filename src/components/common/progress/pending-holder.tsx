@@ -5,7 +5,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 
 type IProps = {
   loading: boolean;
-  height?: string;
+  height?: string | number;
   width?: string | number;
   dark?: boolean;
   useIcon?: boolean;
@@ -21,13 +21,13 @@ export class PendingHolder extends BaseStateComponent<IProps, IState> {
 
   componentDidMount() {}
 
-  render() {
-    const width = this.props.width
-      ? typeof this.props.width === 'number'
-        ? this.props.width + 'px'
-        : this.props.width
-      : undefined;
+  propsCssSize(val: number | string | undefined): string | undefined {
+    return val ? (typeof val === 'number' ? val + 'px' : val) : undefined;
+  }
 
+  render() {
+    const width = this.propsCssSize(this.props.width);
+    const height = this.propsCssSize(this.props.height);
     const darkCss = this.props.dark === true ? styles.dark : '';
 
     return this.props.loading ? (
@@ -36,7 +36,7 @@ export class PendingHolder extends BaseStateComponent<IProps, IState> {
       ) : (
         <div
           className={styleMerge(styles.animatedBackground, darkCss, 'placeholder')}
-          style={{ height: this.props.height, width: width, lineHeight: 0 }}
+          style={{ height: height, width: width, lineHeight: 0 }}
         />
       )
     ) : (

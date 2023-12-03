@@ -5,17 +5,23 @@ import _ from 'lodash';
 import { filter, switchMap } from 'rxjs/operators';
 import { P } from '../page/page-state-parser';
 import { MappedState } from './contract-state-def.util-map';
-import { erc20ApprovedAmountGetter } from './contract-getter-sim-erc20';
+import { erc20ApprovedAmountGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
 import { linkAnswerGetter } from './contract-getter-sim-link';
-import { shieldOptionTradeContracts } from '../const/shield-option-trade-contract';
+import { shieldOptionTradeContracts } from '../../components/shield-option-trade/contract/shield-option-trade-contract';
 import {
+  brokerAllRewardsGetter,
   calculatorFundingFeeGetter,
+  inviterGetter,
   makerAddLiquidityApprovedAmountGetter,
-  makerPriPoolInfoListGetter,
+  makerPriPoolApprovedGetter,
+  makerPriPoolDetailsGetter,
   makerPriPoolInfoByPairGetter,
+  makerPriPoolInfoListGetter,
   makerPubPoolInfoListGetter,
+  makerPubPoolWithdrawReceiveGetter,
   orderFundingFeeGetter,
   orderTradingFeeGetter,
+  paramBrokerPortionGetter,
   paramFundingPeriodGetter,
   paramFundingRateMatrixGetter,
   paramFundingTimesGetter,
@@ -29,11 +35,6 @@ import {
   userAccountInfoGetter,
   userActiveOrderListGetter,
   userOpenMaxAmount,
-  makerPubPoolWithdrawReceiveGetter,
-  brokerAllRewardsGetter,
-  inviterGetter,
-  makerPriPoolDetailsGetter,
-  makerPriPoolApprovedGetter,
 } from './contract-getter-cpx-shield';
 
 class StateHolder implements StateReference {
@@ -113,6 +114,10 @@ export const CONTRACT_STATE = {
         },
       },
       Deposit: {
+        Max: {
+          _depend: [P.Option.Trade.Pair.Quote, walletState.USER_ADDR],
+          _getter: erc20UserBalanceGetter,
+        },
         Approved: {
           _depend: [
             walletState.USER_ADDR,
@@ -296,6 +301,12 @@ export const CONTRACT_STATE = {
             walletState.watchSigner(),
           ],
           _getter: paramTradingFeeRateGetter,
+        },
+      },
+      Broker: {
+        Portion: {
+          _depend: [shieldOptionTradeContracts.CONTRACTS.optionTrade],
+          _getter: paramBrokerPortionGetter,
         },
       },
     },

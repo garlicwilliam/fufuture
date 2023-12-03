@@ -8,7 +8,9 @@ import { Visible } from '../../../builtin/hidden';
 import { WalletAddress } from '../../../header-wallet/sub-components/wallet-address';
 import { walletState } from '../../../../state-manager/wallet/wallet-state';
 import { ShieldNetworkSwitch } from './netwrok-switch';
-import { LangSwitch } from './lang-switch';
+import { LangSwitch } from '../../../shield-option-common/head/lang/lang-switch';
+import { TokenBalance } from './token-balance';
+import { SLD_ENV_CONF } from '../../const/env';
 
 type IState = {
   isMobile: boolean;
@@ -35,14 +37,18 @@ export class AppHead extends BaseStateComponent<IProps, IState> {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 
+    const logoUrl = this.state.isMobile ? SLD_ENV_CONF.Logo.Mobile.url : SLD_ENV_CONF.Logo.Web.url;
+
     return (
       <div className={styleMr(styles.wrapperHead)}>
-        <ShieldLogo />
+        <ShieldLogo logoUrl={logoUrl} />
 
         <OptionMenuList />
 
         <Visible when={!this.state.isMobile}>
           <div className={styleMr(styles.walletInfo, cssPick(this.state.isConnected, styles.connected))}>
+            <TokenBalance />
+
             <WalletAddress />
 
             <ShieldNetworkSwitch />

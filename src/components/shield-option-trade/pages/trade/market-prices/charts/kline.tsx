@@ -3,14 +3,15 @@ import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../../../../util/string';
 import styles from './kline.module.less';
 import { asyncScheduler } from 'rxjs';
-import { IndexUnderlyingType } from '../../../../const/assets';
+
+import {ShieldUnderlyingType} from "../../../../../../state-manager/state-types";
 
 type IState = {
   isMobile: boolean;
   duration: number;
 };
 type IProps = {
-  baseToken: IndexUnderlyingType;
+  baseToken: ShieldUnderlyingType;
   height: number;
 };
 

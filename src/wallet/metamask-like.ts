@@ -7,6 +7,7 @@ import * as ethers from 'ethers';
 import { BigNumber, providers, Signer } from 'ethers';
 import {
   ethAccounts,
+  EthereumProviderStateManager,
   ethRequestAccounts,
   metamaskProviderManager,
   netVersion,
@@ -20,11 +21,18 @@ import { isEthNetworkGroup } from '../constant/network-util';
 import { NetworkParams } from '../constant/network-conf';
 import { NetworkParamConfig } from '../constant/network-type';
 
+type AccountRetrievedType = string | null;
+type AccountValType = AccountRetrievedType | undefined;
+type NetworkRetrievedType = Network | null;
+type NetworkValType = NetworkRetrievedType | undefined;
+
+type ProviderStateType = EthereumProviderState | null;
+
 export class MetamaskLike implements WalletInterface {
   public readonly walletType: Wallet = Wallet.Metamask;
 
-  private curAccount = new BehaviorSubject<string | null | undefined>(undefined);
-  private curNetwork = new BehaviorSubject<Network | null | undefined>(undefined);
+  private curAccount: BehaviorSubject<AccountValType> = new BehaviorSubject<AccountValType>(undefined);
+  private curNetwork: BehaviorSubject<NetworkValType> = new BehaviorSubject<NetworkValType>(undefined);
 
   private accountHandler = (accounts: string[]) => this.updateAccount(accounts);
   private networkHandler = (chainId: string | number) => {
@@ -38,17 +46,17 @@ export class MetamaskLike implements WalletInterface {
     this.updateNetwork(network);
   };
 
-  private manager = metamaskProviderManager;
+  private manager: EthereumProviderStateManager = metamaskProviderManager;
   private provider: EthereumProviderInterface | null = null;
 
   constructor() {
     this.watchProviderAndConnect().subscribe();
   }
 
-  private watchProviderAndConnect() {
+  private watchProviderAndConnect(): Observable<any> {
     return this.manager.watchCurrentSelected().pipe(
-      switchMap((state: EthereumProviderState | null) => {
-        const account$ = state
+      switchMap((state: ProviderStateType) => {
+        const account$: Observable<string[]> = state
           ? state.specifyMethod === EthereumSpecifyMethod.Auto
             ? ethAccounts(state.instance)
             : ethRequestAccounts(state.instance)
@@ -56,14 +64,16 @@ export class MetamaskLike implements WalletInterface {
 
         return zip(account$, of(state));
       }),
-      switchMap(([accounts, state]: [string[], EthereumProviderState | null]) => {
+      switchMap(([accounts, state]: [string[], ProviderStateType]) => {
         this.updateAccount(accounts);
 
-        const network$ = state ? netVersion(state.instance).pipe(map(id => id.toString() as Network)) : of(null);
+        const network$: Observable<NetworkValType> = state
+          ? netVersion(state.instance).pipe(map((id: string) => id.toString() as Network))
+          : of(null);
 
         return zip(network$, of(state));
       }),
-      tap(([network, state]) => {
+      tap(([network, state]: [NetworkValType, ProviderStateType]) => {
         this.updateNetwork(network);
 
         if (state) {
@@ -86,7 +96,7 @@ export class MetamaskLike implements WalletInterface {
     });
   }
 
-  private updateNetwork(network: Network | null): void {
+  private updateNetwork(network: NetworkValType): void {
     if (this.curNetwork.getValue() === network) {
       return;
     }
@@ -96,11 +106,11 @@ export class MetamaskLike implements WalletInterface {
     });
   }
 
-  private account(): Observable<string | null> {
+  private account(): Observable<AccountRetrievedType> {
     return this.curAccount.pipe(
-      filter(account => account !== undefined),
-      map(account => account as string | null),
-      switchMap((account: string | null) => {
+      filter((account: AccountValType): boolean => account !== undefined),
+      map((account: AccountValType) => account as string | null),
+      switchMap((account: AccountRetrievedType): Observable<AccountRetrievedType> => {
         if (account === null) {
           return this.manager.hasInit().pipe(map(() => account));
         } else {
@@ -112,9 +122,9 @@ export class MetamaskLike implements WalletInterface {
 
   private network(): Observable<Network | null> {
     return this.curNetwork.pipe(
-      filter(network => network !== undefined),
-      map(network => network as Network | null),
-      switchMap((network: Network | null) => {
+      filter((network: NetworkValType): boolean => network !== undefined),
+      map((network: NetworkValType) => network as Network | null),
+      switchMap((network: NetworkRetrievedType): Observable<NetworkRetrievedType> => {
         if (network === null) {
           return this.manager.hasInit().pipe(map(() => network));
         } else {
@@ -227,10 +237,11 @@ export class MetamaskLike implements WalletInterface {
   }
 
   public watchNativeBalance(trigger?: Observable<any>): Observable<SldDecimal> {
+    type CombineRs = [ethers.providers.Provider, string, Network, any];
     const refreshTrigger: Observable<any> = trigger ? trigger.pipe(startWith(true)) : of(null);
 
     return combineLatest([this.watchProvider(), this.watchAccount(), this.watchNetwork(), refreshTrigger]).pipe(
-      switchMap(([provider, address, network, refresh]) => {
+      switchMap(([provider, address, network, refresh]: CombineRs) => {
         return provider.getBalance(address);
       }),
       map((balance: BigNumber) => {
@@ -253,11 +264,11 @@ export class MetamaskLike implements WalletInterface {
   }
 
   public watchSigner(): Observable<Signer> {
-    return this.watchProvider().pipe(map(provider => provider.getSigner()));
+    return this.watchProvider().pipe(map((provider: ethers.providers.Web3Provider) => provider.getSigner()));
   }
 
   public walletName(): string {
-    const curProviderState = this.manager.getCurrentSelected();
+    const curProviderState: ProviderStateType = this.manager.getCurrentSelected();
     return curProviderState ? curProviderState.name : EthereumProviderName.MetaMask;
   }
 }

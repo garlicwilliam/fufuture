@@ -4,7 +4,7 @@ import {
   ShieldMakerPrivatePoolInfo,
   ShieldOrderFundPhaseInfo,
   ShieldOrderInfo,
-  ShieldOrderMigration,
+  ShieldOrderMigration, ShieldUnderlyingType,
 } from '../../../state-manager/state-types';
 import { S } from '../../../state-manager/contract/contract-state-parser';
 import {
@@ -18,20 +18,17 @@ import {
   orderInfoGetter,
   orderListMigrationInfoGetter,
 } from '../../../state-manager/contract/contract-getter-cpx-shield';
-import { shieldOptionTradeContracts } from '../../../state-manager/const/shield-option-trade-contract';
+import { shieldOptionTradeContracts } from '../contract/shield-option-trade-contract';
 import { map, take, toArray } from 'rxjs/operators';
 import { shieldOptionMatrixService } from './shield-option-matrix.service';
 import { SldDecimal, SldDecPercent, SldDecPrice } from '../../../util/decimal';
-import { BigNumber } from '@ethersproject/bignumber';
 import { arrayInteger } from '../../../util/array';
-import { Contract } from 'ethers';
+import { Contract, BigNumber } from 'ethers';
 import { getHttpProvider } from '../../../wallet/http-provider';
-import { SUPPORT_NETWORK } from '../const/default';
 import { createChainContract } from '../../../state-manager/const/contract-creator';
 import { ABI_CHAIN_LINK, ABI_OPTION_TRADE } from '../const/shield-option-abi';
-import { IndexUnderlyingType } from '../const/assets';
-import { SHIELD_OPTION_TRADE_ADDRESS } from '../const/shield-option-address';
 import { linkAnswerGetter } from '../../../state-manager/contract/contract-getter-sim-link';
+import { SLD_ENV_CONF } from '../const/env';
 
 export class ShieldOrderService {
   public fillOrdersFundPhaseInfo(orders: ShieldOrderInfo[]): Observable<ShieldOrderInfo[]> {
@@ -89,17 +86,17 @@ export class ShieldOrderService {
   }
 
   public getOrderByHttpRpc(orderId: number): Observable<ShieldOrderInfo | null> {
-    const provider = getHttpProvider(SUPPORT_NETWORK);
+    const provider = getHttpProvider(SLD_ENV_CONF.CurNetwork);
 
     if (!provider) {
       return of(null);
     }
 
-    const optionAddress: string = SHIELD_OPTION_TRADE_ADDRESS[SUPPORT_NETWORK]?.optionTrade!;
+    const optionAddress: string = SLD_ENV_CONF.Addresses.optionTrade;
 
     return of(optionAddress).pipe(
       map(contractAddress => {
-        return createChainContract(contractAddress, ABI_OPTION_TRADE, provider, SUPPORT_NETWORK);
+        return createChainContract(contractAddress, ABI_OPTION_TRADE, provider, SLD_ENV_CONF.CurNetwork);
       }),
       switchMap((contract: Contract) => {
         return orderInfoGetter(contract, BigNumber.from(orderId));
@@ -107,21 +104,19 @@ export class ShieldOrderService {
     );
   }
 
-  public getOrderAssetsPrice(indexUnderlying: IndexUnderlyingType): Observable<SldDecPrice | null> {
+  public getOrderAssetsPrice(indexUnderlying: ShieldUnderlyingType): Observable<SldDecPrice | null> {
     const contractAddress: string = (
-      indexUnderlying === IndexUnderlyingType.ETH
-        ? SHIELD_OPTION_TRADE_ADDRESS[SUPPORT_NETWORK]?.ethOracle
-        : SHIELD_OPTION_TRADE_ADDRESS[SUPPORT_NETWORK]?.btcOracle
+      indexUnderlying === ShieldUnderlyingType.ETH ? SLD_ENV_CONF.Addresses.ethOracle : SLD_ENV_CONF.Addresses.btcOracle
     )!;
 
-    const provider = getHttpProvider(SUPPORT_NETWORK);
+    const provider = getHttpProvider(SLD_ENV_CONF.CurNetwork);
     if (!provider) {
       return of(null);
     }
 
     return of(contractAddress).pipe(
       map(oracleAddress => {
-        return createChainContract(oracleAddress, ABI_CHAIN_LINK, provider, SUPPORT_NETWORK);
+        return createChainContract(oracleAddress, ABI_CHAIN_LINK, provider, SLD_ENV_CONF.CurNetwork);
       }),
       switchMap((contract: Contract) => {
         return linkAnswerGetter(contract);

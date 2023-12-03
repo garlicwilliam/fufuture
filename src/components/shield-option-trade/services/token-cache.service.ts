@@ -7,7 +7,7 @@ import { erc20InfoGetter } from '../../../state-manager/contract/contract-getter
 import { catchError, finalize, map, tap } from 'rxjs/operators';
 import { httpJson } from '../../../util/http';
 import { createErc20Contract } from '../../../state-manager/const/contract-creator';
-import { tokenIconConfigFile } from '../const/imgs';
+import { SLD_ENV_CONF } from '../const/env';
 
 export class TokenCacheService {
   private readonly cacheMapToken = new Map<string, TokenErc20>();
@@ -59,7 +59,7 @@ export class TokenCacheService {
   // -------------------------------------------------------------------------------------------------------------------
 
   private loadIconConfig() {
-    httpJson(tokenIconConfigFile)
+    httpJson(SLD_ENV_CONF.TokenIcon)
       .pipe(
         tap(config => {
           Object.keys(config).forEach(network => {

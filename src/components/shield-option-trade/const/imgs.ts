@@ -1,9 +1,8 @@
-import { IndexUnderlyingType } from './assets';
-
-export const eth = 'https://static.fufuture.io/tokens/eth1.svg';
-export const btc = 'https://static.fufuture.io/tokens/btc1.svg';
-
-export const tokenIconConfigFile = 'https://static.fufuture.io/token-icon.json';
+import eth1 from '../../../assets/imgs/tokens/eth1.svg';
+import btc1 from '../../../assets/imgs/tokens/btc1.svg';
+import {ShieldUnderlyingType} from "../../../state-manager/state-types";
+export const eth = eth1;
+export const btc = btc1;
 
 export const iconSizeTiny = 20;
 export const iconSize = 24;
@@ -13,7 +12,7 @@ export const iconFontSizeTiny = 14;
 export const iconFontSize = 16;
 export const iconFontSizeBig = 18;
 
-export const IndexUnderlyingAssetsIcon: { [k in IndexUnderlyingType]: string } = {
-  [IndexUnderlyingType.ETH]: eth,
-  [IndexUnderlyingType.BTC]: btc,
+export const IndexUnderlyingAssetsIcon: { [k in ShieldUnderlyingType]: string } = {
+  [ShieldUnderlyingType.ETH]: eth,
+  [ShieldUnderlyingType.BTC]: btc,
 };

@@ -3,6 +3,7 @@ export enum RouteKey {
   empty = '',
   home = 'home',
   r = 'r',
+  pool = 'pool',
   pools = 'pools',
   poolsPublic = 'pools/public',
   poolsPrivate = 'pools/private',
@@ -11,8 +12,25 @@ export enum RouteKey {
 
   trade = 'trade',
   broker = 'trade/broker',
+  vault = 'vault',
+  vaultStDetail = 'vault/detail',
   sld = 'sld',
-
+  swapBurn = 'swap-burn',
+  mining = 'mining',
+  vote = 'vote',
   referral = 'referral',
   poster = 'poster',
+
+  claim = 'claim',
+  union = 'union',
+
+  stake = 'stake',
+  stoneEco = 'stone-eco',
+  rewards = 'rewards',
+  gNft = 'g-nft',
+  gauge = 'gauge',
+  portfolio = 'portfolio-allocation',
+  portfolioVoteList = 'vote-list',
+  portfolioVoteDetail = 'vote-detail',
+  bridge = 'bridge',
 }

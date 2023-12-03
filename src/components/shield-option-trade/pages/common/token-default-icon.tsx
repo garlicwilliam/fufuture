@@ -11,6 +11,7 @@ type IState = {
 type IProps = {
   token: TokenErc20;
   size?: number;
+  classname?: string;
 };
 
 export class TokenDefaultIcon extends BaseStateComponent<IProps, IState> {
@@ -37,7 +38,7 @@ export class TokenDefaultIcon extends BaseStateComponent<IProps, IState> {
 
     return (
       <div
-        className={styleMr(styles.tokenFontIcon, fontCss.boldLatin)}
+        className={styleMr(styles.tokenFontIcon, fontCss.boldLatin, this.props.classname)}
         style={{ width: size, height: size, fontSize: fontSize, borderWidth }}
       >
         {i}

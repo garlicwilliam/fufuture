@@ -6,7 +6,7 @@ import {
   ShieldHistoryOrderRs,
   ShieldOptionType,
   ShieldOrderInfo,
-  ShieldOrderState
+  ShieldOrderState,
 } from '../../../../../../state-manager/state-types';
 import { TableForDesktop } from '../../../../../table/table-desktop';
 import { ColumnType } from 'antd/lib/table/interface';
@@ -18,14 +18,18 @@ import { SldDecimal, SldDecPrice } from '../../../../../../util/decimal';
 import { TokenAmountInline } from '../../../../../common/content/token-amount-inline';
 import { computeOrderPnl } from '../../../../utils/compute';
 import { TableMobileTitle } from '../../../../../table/table-mobile-title';
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { TableForMobile } from '../../../../../table/table-mobile';
 import { map } from 'rxjs/operators';
 import { VerticalItem } from '../../../../../common/content/vertical-item';
 import { OrderStatusNode } from '../../../../const/status';
+import { Observable } from 'rxjs';
+import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
+import { isSameAddress } from '../../../../../../util/address';
 
 type IState = {
   isMobile: boolean;
+  curUserAddress: string;
   orders: ShieldHistoryOrderRs | undefined;
   ordersPending: boolean;
 };
@@ -34,6 +38,7 @@ type IProps = {};
 export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
+    curUserAddress: '',
     orders: undefined,
     ordersPending: false,
   };
@@ -253,13 +258,14 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
     this.registerIsMobile('isMobile');
     this.registerObservable('orders', this.mergeOrders());
     this.registerStatePending('ordersPending', D.Option.HistoryOrders);
+    this.registerObservable('curUserAddress', walletState.USER_ADDR);
   }
 
   componentWillUnmount() {
     this.destroyState();
   }
 
-  mergeOrders() {
+  mergeOrders(): Observable<ShieldHistoryOrderRs> {
     return D.Option.HistoryOrders.watch().pipe(
       map((orders: ShieldHistoryOrderRs) => {
         orders.orders.forEach(order => {
@@ -312,15 +318,21 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
-    const len = this.state.orders?.orders.length || 0;
+    const len = this.state.orders?.orders?.length || 0;
     const index = P.Option.Trade.OrderHistory.PageIndex.get();
     const size = P.Option.Trade.OrderHistory.PageSize.get();
     const maxCount = (index + 1) * size;
-    const hasMore = ((this.state.orders?.orders.length || 0) > 0 && len >= maxCount) || this.state.ordersPending;
+    const hasMore = ((this.state.orders?.orders?.length || 0) > 0 && len >= maxCount) || this.state.ordersPending;
+
+    const orderList: ShieldOrderInfo[] | undefined = this.state.orders
+      ? isSameAddress(this.state.orders?.taker, this.state.curUserAddress)
+        ? this.state.orders.orders
+        : undefined
+      : undefined;
 
     return this.state.isMobile ? (
       <TableForMobile
-        datasource={this.state.orders?.orders}
+        datasource={orderList}
         columns={this.columnsMobile}
         rowKey={(row: ShieldOrderInfo) => row.id.toString()}
         hasMore={hasMore}
@@ -330,7 +342,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       />
     ) : (
       <TableForDesktop
-        datasource={this.state.orders?.orders}
+        datasource={orderList}
         columns={this.columns}
         rowKey={(row: ShieldOrderInfo) => row.id.toString()}
         hasMore={hasMore}

@@ -12,7 +12,7 @@ import { fontCss } from '../../../../../i18n/font-switch';
 import { ItemsBox } from '../../../../../common/content/items-box';
 import { HorizonItem } from '../../../../../common/content/horizon-item';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { ZERO } from '../../../../../../constant';
 import { DecimalNumInput } from '../../../../../common/input/num-input-decimal';
 import { SldDecimal } from '../../../../../../util/decimal';

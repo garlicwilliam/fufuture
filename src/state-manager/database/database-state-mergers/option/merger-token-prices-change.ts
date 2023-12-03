@@ -1,5 +1,4 @@
 import { DatabaseStateMerger } from '../../../interface';
-import { IndexUnderlyingType } from '../../../../components/shield-option-trade/const/assets';
 import { SldDecPercent } from '../../../../util/decimal';
 import { EMPTY, Observable, of } from 'rxjs';
 import { tokenIdMaps } from '../token-ids';
@@ -8,13 +7,14 @@ import { httpGet } from '../../../../util/http';
 import { catchError, map } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
+import {ShieldUnderlyingType} from "../../../state-types";
 
-export class MergerTokenPricesChange implements DatabaseStateMerger<SldDecPercent, [IndexUnderlyingType]> {
-  mergeWatch(...args: [IndexUnderlyingType]): Observable<SldDecPercent> {
+export class MergerTokenPricesChange implements DatabaseStateMerger<SldDecPercent, [ShieldUnderlyingType]> {
+  mergeWatch(...args: [ShieldUnderlyingType]): Observable<SldDecPercent> {
     return this.doGet(args[0]);
   }
 
-  mock(args?: [IndexUnderlyingType]): Observable<SldDecPercent> | SldDecPercent {
+  mock(args?: [ShieldUnderlyingType]): Observable<SldDecPercent> | SldDecPercent {
     return SldDecPercent.genPercent('2.2');
   }
 
@@ -22,7 +22,7 @@ export class MergerTokenPricesChange implements DatabaseStateMerger<SldDecPercen
     return of(false);
   }
 
-  private doGet(indexUnderlying: IndexUnderlyingType): Observable<SldDecPercent> {
+  private doGet(indexUnderlying: ShieldUnderlyingType): Observable<SldDecPercent> {
     const tokenSymbol = tokenSymbolFromName(indexUnderlying);
     const tokenId: string | undefined = tokenSymbol ? tokenIdMaps.get(tokenSymbol) : undefined;
 

@@ -1,4 +1,4 @@
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { baseBigNumber } from './ethers';
 import { E18, ZERO } from '../constant';
 import * as _ from 'lodash';
@@ -653,7 +653,10 @@ export class SldDecPercent {
   private percentDecObj: SldDecimal;
 
   private constructor(private originDecObj: SldDecimal) {
-    this.percentDecObj = SldDecimal.fromOrigin(this.originDecObj.toOrigin(), this.originDecObj.getOriginDecimal() - 2);
+    const percentDecimal: number = this.originDecObj.getOriginDecimal();
+    const percentOrigin: BigNumber = this.originDecObj.toOrigin().mul(100);
+
+    this.percentDecObj = SldDecimal.fromOrigin(percentOrigin, percentDecimal);
   }
 
   public percentFormat(opt?: FormatOption): string {

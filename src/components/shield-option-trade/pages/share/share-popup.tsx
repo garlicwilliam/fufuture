@@ -60,6 +60,7 @@ export class SharePopup extends BaseStateComponent<IProps, IState> {
         onCancel={this.hide.bind(this)}
         onClose={this.hide.bind(this)}
         className={styles.shareModal}
+        banDrawer={true}
       >
         {this.state.curOrder ? <Poster ref={this.poster} curOrder={this.state.curOrder} /> : <></>}
 

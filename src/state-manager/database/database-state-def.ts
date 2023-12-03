@@ -12,6 +12,7 @@ import { MergerMyReferrals } from './database-state-mergers/option/merger-my-ref
 import { MergerMakerLockedDetail } from './database-state-mergers/option/merger-maker-locked-detail';
 import { MergerMakerLiquidity } from './database-state-mergers/option/merger-maker-liquidity';
 import { MergerMakerShare } from './database-state-mergers/option/merger-maker-share';
+import { MergerPoolAddress } from './database-state-mergers/option/merger-pool-address';
 
 class DBStateReference implements DatabaseStateRef {
   private root: DatabaseStateTree<any> | null = null;
@@ -62,6 +63,10 @@ export const DATABASE_STATE = {
       _depend: [P.Option.Trade.Pair.Base],
       _merger: new Merger24volume(),
     },
+    Volume24hOfToken: {
+      _depend: [P.Option.Trade.Select.IndexUnderlying],
+      _merger: new Merger24volume(),
+    },
     MyReferrals: {
       _depend: [walletState.USER_ADDR],
       _merger: new MergerMyReferrals(),
@@ -78,6 +83,12 @@ export const DATABASE_STATE = {
       LockedDetails: {
         _depend: [P.Option.Pools.Private.LockedDetails.CurPool],
         _merger: new MergerMakerLockedDetail(),
+      },
+    },
+    Pool: {
+      AllAddress: {
+        _depend: [],
+        _merger: new MergerPoolAddress(),
       },
     },
   },

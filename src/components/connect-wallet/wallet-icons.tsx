@@ -47,4 +47,5 @@ export const WALLET_ICONS_MAP: { [w in EthereumProviderName]: string } = {
   [EthereumProviderName.ImToken]: imtoken,
   [EthereumProviderName.SafePal]: safepal,
   [EthereumProviderName.TrustWallet]: trust,
+  [EthereumProviderName.Coin98]: coin98,
 };

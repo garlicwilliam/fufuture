@@ -43,10 +43,10 @@ export function erc20SymbolGetter(erc20Contract: Contract): Observable<string> {
 
 export function erc20InfoGetter(erc20Contract: Contract): Observable<TokenErc20> {
   const cacheKey: string = genCacheKey(erc20Contract, 'erc20_info');
-  const symbol$ = erc20SymbolGetter(erc20Contract);
-  const decimal$ = erc20DecimalGetter(erc20Contract);
+  const symbol$: Observable<string> = erc20SymbolGetter(erc20Contract);
+  const decimal$: Observable<number> = erc20DecimalGetter(erc20Contract);
 
-  const token$ = zip(symbol$, decimal$).pipe(
+  const token$: Observable<TokenErc20> = zip(symbol$, decimal$).pipe(
     map(([symbol, decimal]) => {
       return {
         symbol,
@@ -56,7 +56,7 @@ export function erc20InfoGetter(erc20Contract: Contract): Observable<TokenErc20>
       };
     }),
     catchError(err => {
-      console.warn('error', err);
+      console.warn('error', err, erc20Contract.address);
       throw err;
     })
   );
@@ -73,10 +73,14 @@ export function erc20InfoByAddressGetter(erc20Address: string): Observable<Token
 }
 
 export function erc20UserBalanceGetter(
-  erc20: Contract | TokenErc20,
+  erc20: Contract | TokenErc20 | null,
   userAddress: string,
   decimal?: number
 ): Observable<SldDecimal> {
+  if (!erc20) {
+    return of(SldDecimal.ZERO);
+  }
+
   const erc20Contract$: Observable<Contract> = isValidContract(erc20)
     ? of(erc20 as Contract)
     : createErc20Contract(erc20.address);

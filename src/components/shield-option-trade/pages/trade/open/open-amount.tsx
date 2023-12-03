@@ -7,8 +7,8 @@ import { ReactNode } from 'react';
 import { I18n } from '../../../../i18n/i18n';
 import { SldDecimal } from '../../../../../util/decimal';
 import { i18n } from '../../../../i18n/i18n-fn';
-import { TokenErc20 } from '../../../../../state-manager/state-types';
-import { IndexUnderlyingDecimal, IndexUnderlyingType } from '../../../const/assets';
+import {ShieldUnderlyingType, TokenErc20} from '../../../../../state-manager/state-types';
+import { IndexUnderlyingDecimal } from '../../../const/assets';
 import { S } from '../../../../../state-manager/contract/contract-state-parser';
 
 type IState = {
@@ -16,7 +16,7 @@ type IState = {
   inputAmount: SldDecimal | null;
   maxOpen: SldDecimal;
   quoteToken: TokenErc20 | null;
-  baseToken: IndexUnderlyingType;
+  baseToken: ShieldUnderlyingType;
 };
 type IProps = {
   errorChange?: (isError: boolean) => void;

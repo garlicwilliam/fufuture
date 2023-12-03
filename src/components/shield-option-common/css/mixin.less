@@ -46,11 +46,11 @@
   }
 }
 
-.scrollbar() {
+.scrollbar(@size: 8px) {
   &::-webkit-scrollbar {
     background-color: transparent;
-    height: 8px;
-    width: 8px;
+    height: @size;
+    width: @size;
   }
 
   &::-webkit-scrollbar-thumb {

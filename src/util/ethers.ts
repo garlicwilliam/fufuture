@@ -1,4 +1,4 @@
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 
 export const ETH_WEI = 18;
 

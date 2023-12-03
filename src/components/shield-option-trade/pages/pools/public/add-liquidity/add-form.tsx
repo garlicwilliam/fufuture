@@ -10,8 +10,7 @@ import { SldDecimal } from '../../../../../../util/decimal';
 import { SldButton } from '../../../../../common/buttons/sld-button';
 import { FixPadding } from '../../../../../common/content/fix-padding';
 import { I18n } from '../../../../../i18n/i18n';
-import { TokenErc20 } from '../../../../../../state-manager/state-types';
-import { IndexUnderlyingType } from '../../../../const/assets';
+import {ShieldUnderlyingType, TokenErc20} from '../../../../../../state-manager/state-types';
 import { shieldOptionTradeService } from '../../../../services/shield-option-trade.service';
 import { tokenBalanceService } from '../../../../services/token-balance.service';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
@@ -80,7 +79,7 @@ export class AddPubLiquidityForm extends BaseStateComponent<IProps, IState> {
 
     const add$ = shieldOptionTradeService.addLiquidity(
       this.state.curSelectToken,
-      IndexUnderlyingType.ETH,
+      ShieldUnderlyingType.ETH,
       this.state.inputValue,
       false
     );

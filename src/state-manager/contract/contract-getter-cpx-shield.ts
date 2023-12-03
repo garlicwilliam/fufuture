@@ -1,4 +1,4 @@
-import { Contract, ethers } from 'ethers';
+import { Contract, ethers, BigNumber } from 'ethers';
 import { concatMap, from, mergeMap, NEVER, Observable, of, switchMap, zip } from 'rxjs';
 import {
   ShieldBrokerReward,
@@ -15,13 +15,12 @@ import {
   ShieldTokenPoolInfo,
   ShieldTokenPoolLiquidity,
   ShieldTokenPoolLiquidityList,
-  ShieldTradePair,
+  ShieldTradePair, ShieldUnderlyingType,
   ShieldUserAccountInfo,
   StateNull,
   StateNullType,
   TokenErc20,
 } from '../state-types';
-import { BigNumber } from '@ethersproject/bignumber';
 import { genContractCallPartial } from './contract-utils';
 import { CACHE_10_MIN, CACHE_10_SEC, CACHE_3_SEC, CACHE_FOREVER, cacheService } from '../mem-cache/cache-contract';
 import { catchError, map, toArray } from 'rxjs/operators';
@@ -44,7 +43,7 @@ import {
 } from '../../components/shield-option-trade/const/shield-option-abi';
 import { curTimestamp } from '../../util/time';
 import * as _ from 'lodash';
-import { IndexUnderlyingDecimal, IndexUnderlyingType } from '../../components/shield-option-trade/const/assets';
+import { IndexUnderlyingDecimal } from '../../components/shield-option-trade/const/assets';
 import { isEmptyAddress, isSameAddress, isValidAddress } from '../../util/address';
 import { Network } from '../../constant/network';
 import { isSN, snAssert, snRep } from '../interface-util';
@@ -99,7 +98,7 @@ export function userAccountInfoGetter(
 
 export function userOpenMaxAmount(
   optionContract: Contract,
-  indexUnderlying: IndexUnderlyingType,
+  indexUnderlying: ShieldUnderlyingType,
   token: TokenErc20 | string,
   optionType: ShieldOptionType
 ): Observable<SldDecimal> {
@@ -174,7 +173,7 @@ function orderInfoConvert(id: BigNumber, rs: OrderRs, optionContract: Contract):
       return {
         id: id,
         takerAddress: rs.holder,
-        indexUnderlying: rs.name as IndexUnderlyingType,
+        indexUnderlying: rs.name as ShieldUnderlyingType,
         token,
         optionType: rs.isBuy ? ShieldOptionType.Call : ShieldOptionType.Put,
         orderState: rs.state as ShieldOrderState,
@@ -272,7 +271,7 @@ export function orderFundingFeeGetter(
   tradeContract: Contract,
   token: TokenErc20,
   makerAddress: string,
-  baseToken: IndexUnderlyingType,
+  baseToken: ShieldUnderlyingType,
   optionType: ShieldOptionType,
   indexAmount: SldDecimal | null
 ): Observable<ShieldOrderOpenResult> {
@@ -332,7 +331,7 @@ export function calculatorFundingFeeGetter(
   tradeContract: Contract,
   token: TokenErc20,
   makerAddress: string,
-  indexUnderlying: IndexUnderlyingType,
+  indexUnderlying: ShieldUnderlyingType,
   optionType: ShieldOptionType,
   indexAmount: SldDecimal | null
 ): Observable<ShieldOrderOpenResult> {
@@ -411,7 +410,7 @@ export function orderTradingFeeGetter(
  */
 export function tokenPoolAddressGetter(
   managerContract: Contract,
-  indexUnderlying: IndexUnderlyingType,
+  indexUnderlying: ShieldUnderlyingType,
   token: TokenErc20
 ): Observable<ShieldTokenPoolAddress | StateNullType> {
   type Rs = { priPool: string; pubPool: string };
@@ -448,7 +447,7 @@ export function tokenPoolAddressGetter(
 
 export function tokenPoolInfoGetter0(
   managerContract: Contract,
-  indexUnderlying: IndexUnderlyingType, // base
+  indexUnderlying: ShieldUnderlyingType, // base
   quoteToken: TokenErc20 // quote
 ): Observable<ShieldTokenPoolInfo | typeof StateNull> {
   return tokenPoolAddressGetter(managerContract, indexUnderlying, quoteToken).pipe(
@@ -557,7 +556,53 @@ export function privatePoolInfoGetter(
   );
 }
 
-// -------------------------------------------------
+export function privatePoolInfoGetter0(
+  privatePoolContract: Contract,
+  tokenErc20Contract: Contract
+): Observable<ShieldPoolInfo> {
+  const locked$ = from(privatePoolContract.totalLockedLiquidity() as Promise<BigNumber>).pipe(
+    map(amount => {
+      return SldDecimal.fromOrigin(amount, 18);
+    })
+  );
+  const balance$ = erc20UserBalanceGetter(tokenErc20Contract, privatePoolContract.address).pipe(
+    catchError(err => {
+      return of(SldDecimal.ZERO);
+    })
+  );
+
+  return zip(locked$, balance$).pipe(
+    map(([locked, balance]) => {
+      return {
+        poolAddress: privatePoolContract.address,
+        total: balance,
+        available: balance.sub(locked),
+        locked,
+      };
+    })
+  );
+}
+
+export function publicPoolInfoGetter0(publicPoolContract: Contract, decimal: number): Observable<ShieldPoolInfo> {
+  type Rs = {
+    depositedAmount: BigNumber;
+    availableAmount: BigNumber;
+    lockedAmount: BigNumber;
+  };
+
+  return from(publicPoolContract.publicPoolInfo() as Promise<Rs>).pipe(
+    map((rs: Rs) => {
+      return {
+        poolAddress: publicPoolContract.address,
+        total: SldDecimal.fromOrigin(rs.depositedAmount, decimal),
+        available: SldDecimal.fromOrigin(rs.availableAmount, decimal),
+        locked: SldDecimal.fromOrigin(rs.lockedAmount, decimal),
+      };
+    })
+  );
+}
+
+// --------------------------------------------------
 
 export function tokenPoolLiquidityGetter(
   managerContract: Contract,
@@ -638,6 +683,10 @@ export function privatePoolLiquidityGetter(
   );
 }
 
+export function privatePoolUnderlyingGetter(priPoolContract: Contract): Observable<ShieldUnderlyingType> {
+  return from(priPoolContract.underlyingName() as Promise<ShieldUnderlyingType>);
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 
 export function poolTokenAddressListGetter(managerContract: Contract): Observable<string[]> {
@@ -672,7 +721,7 @@ export function poolTokenErc20ListGetter(managerContract: Contract): Observable<
 
 export function poolAddressListGetter(
   managerContract: Contract,
-  indexUnderlying: IndexUnderlyingType
+  indexUnderlying: ShieldUnderlyingType
 ): Observable<ShieldTokenPoolAddress[]> {
   const cacheKey: string = genCacheKey(managerContract, 'pool_address_list', indexUnderlying);
 
@@ -694,7 +743,7 @@ export function poolAddressListGetter(
 
 export function poolLiquidityListGetter(
   managerContract: Contract,
-  indexUnderlying: IndexUnderlyingType
+  indexUnderlying: ShieldUnderlyingType
 ): Observable<ShieldTokenPoolLiquidityList> {
   const liquidity$ = poolAddressListGetter(managerContract, indexUnderlying).pipe(
     switchMap((addresses: ShieldTokenPoolAddress[]) => {
@@ -727,10 +776,10 @@ export function makerPriPoolInfoListGetter(
   managerContract: Contract,
   makerAddress: string
 ): Observable<ShieldMakerPrivatePoolInfo[]> {
-  const indexUnderlyingArr: IndexUnderlyingType[] = Object.values(IndexUnderlyingType);
+  const indexUnderlyingArr: ShieldUnderlyingType[] = Object.values(ShieldUnderlyingType);
 
   return from(indexUnderlyingArr).pipe(
-    mergeMap((indexUnderlying: IndexUnderlyingType) => {
+    mergeMap((indexUnderlying: ShieldUnderlyingType) => {
       return makerPriPoolInfoListOfUnderlyingGetter(managerContract, makerAddress, indexUnderlying);
     }),
     toArray(),
@@ -746,7 +795,7 @@ export function makerPriPoolInfoListGetter(
 export function makerPriPoolInfoListOfUnderlyingGetter(
   managerContract: Contract,
   makerAddress: string,
-  indexUnderlying: IndexUnderlyingType
+  indexUnderlying: ShieldUnderlyingType
 ): Observable<ShieldMakerPrivatePoolInfo[]> {
   return poolAddressListGetter(managerContract, indexUnderlying).pipe(
     switchMap((poolAddresses: ShieldTokenPoolAddress[]) => {
@@ -848,7 +897,7 @@ export function makerPriLiquidityGetter(
     map(([token, underlying, account]): ShieldMakerPrivatePoolInfo => {
       return {
         priPoolAddress: priPoolAddress,
-        indexUnderlying: underlying as IndexUnderlyingType,
+        indexUnderlying: underlying as ShieldUnderlyingType,
         token: token,
         holder: account.holder,
         amount: SldDecimal.fromOrigin(account.amount, token.decimal),
@@ -1094,13 +1143,13 @@ export function makerPubPoolInfoListGetter(
   managerContract: Contract,
   makerAddress: string
 ): Observable<ShieldMakerPublicPoolShare[]> {
-  return makerPubPoolInfoListOfUnderlyingGetter(managerContract, makerAddress, IndexUnderlyingType.ETH);
+  return makerPubPoolInfoListOfUnderlyingGetter(managerContract, makerAddress, ShieldUnderlyingType.ETH);
 }
 
 export function makerPubPoolInfoListOfUnderlyingGetter(
   managerContract: Contract,
   makerAddress: string,
-  indexUnderlying: IndexUnderlyingType
+  indexUnderlying: ShieldUnderlyingType
 ): Observable<ShieldMakerPublicPoolShare[]> {
   return poolAddressListGetter(managerContract, indexUnderlying).pipe(
     switchMap((poolAddresses: ShieldTokenPoolAddress[]) => {
@@ -1385,6 +1434,17 @@ export function paramRiskFundAddrGetter(optionContract: Contract): Observable<st
   const address$ = from(optionContract.riskFundAddr() as Promise<string>);
 
   return cacheService.tryUseCache(address$, cacheKey, CACHE_FOREVER);
+}
+
+export function paramBrokerPortionGetter(optionContract: Contract): Observable<SldDecPercent> {
+  const cacheKey: string = genCacheKey(optionContract, 'broker_portion');
+  const percent$ = from(optionContract.brokerPortion() as Promise<BigNumber>).pipe(
+    map((portion: BigNumber) => {
+      return SldDecPercent.fromOrigin(portion, 2);
+    })
+  );
+
+  return cacheService.tryUseCache(percent$, cacheKey, CACHE_FOREVER);
 }
 
 //

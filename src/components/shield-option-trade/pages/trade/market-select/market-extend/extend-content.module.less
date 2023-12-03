@@ -24,4 +24,24 @@
       }
     }
   }
+
+  .prefix {
+    height: 100%;
+    .flexCenter();
+    padding: 0 4px 0 10px;
+    font-size: 20px;
+  }
+
+  .suffix {
+    height: 100%;
+    .flexCenter();
+    padding: 0 10px 0 10px;
+    font-size: 20px;
+    color: @color-desc;
+    cursor: pointer;
+
+    &:hover {
+      color: @color-normal-font;
+    }
+  }
 }

@@ -5,7 +5,7 @@ import {
   ShieldOrderMigration,
 } from '../../../state-manager/state-types';
 import { SldDecimal, SldDecPercent, SldDecPrice } from '../../../util/decimal';
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { baseBigNumber } from '../../../util/ethers';
 import { numString, percentageCompute } from '../../../util/math';
 import { arrayInteger } from '../../../util/array';
@@ -239,16 +239,20 @@ export function computeMakerOrderPnl(order: ShieldMakerOrderInfo): {
   return { pnl, positionLoss, premium };
 }
 
-export function computeMakerLiquidationPrice(order: ShieldMakerOrderInfo): SldDecPrice {
-  const E = baseBigNumber(order.orderAmount.getOriginDecimal());
-  const r = order.makerMarginAmount.toOrigin().mul(E).div(order.orderAmount.toOrigin());
+export function computeMakerLiquidationPrice(order: ShieldMakerOrderInfo): {
+  liqPrice: SldDecPrice;
+  couldLiq: boolean;
+} {
+  const E: BigNumber = baseBigNumber(order.orderAmount.getOriginDecimal());
+  const r: BigNumber = order.makerMarginAmount.toOrigin().mul(E).div(order.orderAmount.toOrigin());
   const delta: SldDecimal = SldDecimal.fromOrigin(r, order.makerMarginAmount.getOriginDecimal());
   const deltaPrice: SldDecPrice = SldDecPrice.fromE18(delta.toE18());
 
-  const liqPrice: SldDecPrice =
-    order.optionType === ShieldOptionType.Call ? order.openPrice.add(deltaPrice) : order.openPrice.sub(deltaPrice);
+  const isCall: boolean = order.optionType === ShieldOptionType.Call;
+  const liqPrice: SldDecPrice = isCall ? order.openPrice.add(deltaPrice) : order.openPrice.sub(deltaPrice);
+  const couldLiq: boolean = (isCall ? order.markPrice?.gt(liqPrice) : order.markPrice?.lt(liqPrice)) || false;
 
-  return liqPrice;
+  return { liqPrice, couldLiq };
 }
 
 export function computeMakerLiquidationAxis(

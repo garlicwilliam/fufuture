@@ -6,14 +6,15 @@ import { iconSize, IndexUnderlyingAssetsIcon } from '../../const/imgs';
 import { fontCss } from '../../../i18n/font-switch';
 import styles from './assets-select.module.less';
 import { TokenIndex } from './token-index';
-import { IndexUnderlyingType } from '../../const/assets';
+
+import {ShieldUnderlyingType} from "../../../../state-manager/state-types";
 
 type IState = {
   isMobile: boolean;
 };
 type IProps = {
-  onSelect?: (assets: IndexUnderlyingType) => void;
-  curSelect?: IndexUnderlyingType;
+  onSelect?: (assets: ShieldUnderlyingType) => void;
+  curSelect?: ShieldUnderlyingType;
 };
 
 export class AssetsSelect extends BaseStateComponent<IProps, IState> {
@@ -31,12 +32,12 @@ export class AssetsSelect extends BaseStateComponent<IProps, IState> {
 
   onSelectAsset(option: SldSelectOption) {
     if (this.props.onSelect) {
-      this.props.onSelect(option.value as IndexUnderlyingType);
+      this.props.onSelect(option.value as ShieldUnderlyingType);
     }
   }
 
   private genAssetsOptions(): SldSelectOption[] {
-    return Object.values(IndexUnderlyingType).map((indexUnderlying: string) => {
+    return Object.values(ShieldUnderlyingType).map((indexUnderlying: string) => {
       return {
         label: (
           <div className={styles.assetsItem}>

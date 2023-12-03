@@ -7,13 +7,13 @@ import { SldDecPrice } from '../../../../../../../util/decimal';
 import { S } from '../../../../../../../state-manager/contract/contract-state-parser';
 import { PendingHolder } from '../../../../../../common/progress/pending-holder';
 import { TokenIndex } from '../../../../common/token-index';
-import { IndexUnderlyingType } from '../../../../../const/assets';
 import { interval } from 'rxjs';
 import { startWith, tap } from 'rxjs/operators';
+import {ShieldUnderlyingType} from "../../../../../../../state-manager/state-types";
 
 type IState = {
   isMobile: boolean;
-  baseToken: IndexUnderlyingType;
+  baseToken: ShieldUnderlyingType;
   basePrice: SldDecPrice | undefined;
   basePriceLast: SldDecPrice | undefined;
 };

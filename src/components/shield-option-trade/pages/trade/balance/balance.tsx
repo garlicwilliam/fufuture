@@ -48,8 +48,7 @@ export class Balance extends BaseStateComponent<IProps, IState> {
           <div className={styleMr(styles.balanceTitle)}>
             <span className={styleMr(fontCss.bold)}>
               <I18n id={'trade-balance-available'} />
-            </span>
-            &nbsp;
+            </span>&nbsp;
             <span className={styleMr(fontCss.boldLatin)}>{' (' + this.state.quoteToken?.symbol + ')'}</span>
           </div>
 

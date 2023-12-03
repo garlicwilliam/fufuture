@@ -42,6 +42,7 @@ function getEthereumProviders(checkField: string, not?: string[]): EthereumProvi
 
 function checkWalletInjection(checkField: string, not?: string[]): boolean {
   let isExist: boolean = checkEthereum(checkField, not);
+
   if (!isExist) {
     isExist = checkEthereumProviders(checkField, not);
   }
@@ -68,6 +69,7 @@ const nonMetaMaskFields = [
   'isSafePal',
   'isTrust',
   'isONTO',
+  'isCoin98',
 ];
 
 export const ProviderExistDetectors: { [key in EthereumProviderName]: () => boolean } = {
@@ -107,6 +109,9 @@ export const ProviderExistDetectors: { [key in EthereumProviderName]: () => bool
   },
   [EthereumProviderName.TrustWallet]: () => {
     return !!window.trustWallet || checkWalletInjection('isTrust', ['isTokenPocket']);
+  },
+  [EthereumProviderName.Coin98]: () => {
+    return !!window.coin98;
   },
 };
 
@@ -151,5 +156,8 @@ export const ProviderGetters: { [key in EthereumProviderName]: () => Observable<
     }
 
     return of(findWalletInjection('isTrust')).pipe(filter(Boolean));
+  },
+  [EthereumProviderName.Coin98]: () => {
+    return of(window.coin98.provider);
   },
 };

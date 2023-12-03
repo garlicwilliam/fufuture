@@ -10,17 +10,21 @@ import { ItemsBox } from '../../../../common/content/items-box';
 import { HorizonItem } from '../../../../common/content/horizon-item';
 import { I18n } from '../../../../i18n/i18n';
 import { TokenAmountInline } from '../../../../common/content/token-amount-inline';
-import { ShieldOptionType, ShieldOrderOpenResult, TokenErc20 } from '../../../../../state-manager/state-types';
+import {
+  ShieldOptionType,
+  ShieldOrderOpenResult,
+  ShieldUnderlyingType,
+  TokenErc20
+} from '../../../../../state-manager/state-types';
 import { Calc } from './popup/calc';
 import { OpenSetting } from './popup/setting';
 import { TokenIndex } from '../../common/token-index';
 import { PendingHolder } from '../../../../common/progress/pending-holder';
-import { IndexUnderlyingType } from '../../../const/assets';
 import { OpenConfirm } from './popup/open-confirm';
 
 type IState = {
   isMobile: boolean;
-  baseToken: IndexUnderlyingType;
+  baseToken: ShieldUnderlyingType;
   curPrice: SldDecPrice | undefined;
   curOptionType: ShieldOptionType;
   quoteToken: TokenErc20 | null;

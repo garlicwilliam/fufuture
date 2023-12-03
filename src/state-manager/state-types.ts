@@ -1,12 +1,13 @@
 import { BigNumber } from 'ethers';
 import { Network } from '../constant/network';
-import { SldDecimal, SldDecPercent, SldDecPrice } from '../util/decimal';
-import { IndexUnderlyingType } from '../components/shield-option-trade/const/assets';
+import { DecimalJson, SldDecimal, SldDecPercent, SldDecPrice } from '../util/decimal';
+import { DexType } from '../constant';
 
 export const ArgIllegal = Symbol('illegal');
 export const StateNull = Symbol('null');
 
 export type StateNullType = typeof StateNull;
+
 export type TokenPriceHistory = {
   curPrice: number;
   history: [number, number][];
@@ -25,39 +26,207 @@ export type TokenErc20 = {
   decimal: number;
 };
 
-export type ShieldTradePair = {
-  indexUnderlying: IndexUnderlyingType;
-  quoteToken: TokenErc20;
+export type UniSwapPair = {
+  pairAddress: string;
+  token0: string;
+  token1: string;
+};
+export type UniSwapPairInfo = {
+  pairAddress: string;
+  token0: TokenErc20;
+  token1: TokenErc20;
+};
+export type UniSwapReserve = {
+  reserve0: BigNumber;
+  reserve1: BigNumber;
+};
+export type UniSwapSlot0 = {
+  sqrtPriceX96: BigNumber;
+  tick: number;
 };
 
+export type UniSwapV3PosNftPrice = SldDecPrice | 'MIN' | 'MAX';
+export type UniSwapV3PosNft = {
+  id: BigNumber;
+  token0: TokenErc20;
+  token1: TokenErc20;
+  liquidity: BigNumber;
+  tickLower: number;
+  tickUpper: number;
+  minBasePrice: UniSwapV3PosNftPrice;
+  maxBasePrice: UniSwapV3PosNftPrice;
+  baseTokenAmount: UniSwapV3TokenAmount;
+  quoteTokenAmount: UniSwapV3TokenAmount;
+  tier: BigNumber;
+  feeRate: SldDecPercent;
+};
+export type UniSwapV3TokenAmount = {
+  token: TokenErc20;
+  amount: SldDecimal;
+};
+export type UniSwapV3PosNftAmount = {
+  amount0: UniSwapV3TokenAmount;
+  amount1: UniSwapV3TokenAmount;
+};
+
+export type IzumiState = {
+  sqrtPrice_96: BigNumber;
+  currentPoint: BigNumber;
+};
+export type DexVersion = { dex: DexType; ver: number; net: Network };
+export type DexFactory = DexVersion & { factory: string };
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+export type StoneStrategy = {
+  network: Network;
+  address: string;
+  allocation: SldDecPercent;
+};
+export type StoneStrategyInfo = {
+  name: string;
+  contract: string;
+  network: Network;
+  amount: SldDecimal;
+  targetAllocation: SldDecPercent;
+};
+
+export enum StoneProposalType {
+  AddStrategy,
+  UpdatePortfolio,
+}
+
+export type StoneProposalAddStrategy = {
+  type: StoneProposalType;
+  address: string;
+};
+export type StoneProposalUpdatePortfolio = {
+  type: StoneProposalType;
+  strategies: {
+    address: string;
+    portfolio: SldDecPercent;
+  }[];
+};
+export type StoneProposalDetail = {
+  address: string;
+  deadline: number;
+  support: SldDecimal;
+  oppose: SldDecimal;
+  executed: boolean;
+  executeTime: number;
+  data: string;
+  details: StoneProposalAddStrategy | StoneProposalUpdatePortfolio;
+};
+export type StoneUserInfo = {
+  request: {
+    round: BigNumber;
+    stoneAmount: SldDecimal;
+  };
+  withdrawableEth: SldDecimal;
+};
+export type StoneApyPrimaryData = {
+  round: number;
+  time: number;
+  price: SldDecimal;
+};
+export type StateAssetTypeForGNFT = 'nft' | 'erc20';
+export type StonePoolInfo = {
+  chainId: Network;
+  chainIcon: string;
+  lpAddress: string;
+  lpName: string;
+  miningAddress: string;
+  gNftAddress: string;
+  protocolUrl: string;
+  protocolIcon: string;
+  protocolName: string;
+  stakeType: StateAssetTypeForGNFT;
+};
+export type StonePoolHasStaked = {
+  user: string;
+  hasPosition: boolean;
+};
+export type StonePoolUserStartTime = {
+  user: string;
+  start: number;
+};
+
+export type StoneBridgeType = 'layerZero' | 'standard';
+export type StoneBridgeCrossCache = {
+  bridgeType: StoneBridgeType;
+  srcNetwork: Network;
+  disNetwork: Network;
+  txHash: string;
+  amount: DecimalJson;
+};
+export type StoneBridgeCrossCapacity = {
+  max: SldDecimal;
+  remain: SldDecimal;
+};
+export enum StoneColorType {
+  Color1,
+  Color2,
+}
+
+export enum StoneBgImgType {
+  Stake,
+  Short,
+  Normal,
+  Blank,
+}
+// ---------------------------------------------------------------------------------------------------------------------
+
+export enum ShieldUnderlyingType {
+  BTC = 'BTC',
+  ETH = 'ETH',
+}
+
+export type ShieldTradePair = {
+  indexUnderlying: ShieldUnderlyingType;
+  quoteToken: TokenErc20;
+};
 export enum ShieldOptionType {
   Call = 'Call',
   Put = 'Put',
 }
-
 export enum ShieldOrderState {
-  ACTIVE,
-  CLOSED,
-  TAKER_LIQUIDATED,
-  MAKER_LIQUIDATED,
-  POOL_LIQUIDATED,
-  MAKER_AGREEMENT_LIQUIDATED,
-  POOL_AGREEMENT_LIQUIDATED,
-  TAKER_MAKER_AGREEMENT_LIQUIDATED,
-  TAKER_POOL_AGREEMENT_LIQUIDATED,
+  ACTIVE = 0,
+  CLOSED = 1,
+  TAKER_LIQUIDATED = 2,
+  MAKER_LIQUIDATED = 3,
+  POOL_LIQUIDATED = 4,
+  MAKER_AGREEMENT_LIQUIDATED = 5,
+  POOL_AGREEMENT_LIQUIDATED = 6,
+  TAKER_MAKER_AGREEMENT_LIQUIDATED = 7,
+  TAKER_POOL_AGREEMENT_LIQUIDATED = 8,
 }
-
+export type ShieldPoolAddress = {
+  poolAddress: string;
+  tokenAddress: string;
+};
+export type ShieldPoolAddressList = {
+  private: ShieldPoolAddress[];
+  public: ShieldPoolAddress[];
+};
 export type ShieldUserAccountInfo = {
   availableBalance: SldDecimal;
   lockedMargin: SldDecimal;
   orderTotalCount: number;
   activeOrderIDArr: BigNumber[];
 };
-
+export type ShieldTokenTradingVolume = {
+  token: string;
+  volume: SldDecimal;
+};
+export type ShieldTradingVolume = {
+  indexUnderlying: ShieldUnderlyingType;
+  total: SldDecimal;
+  tokens: ShieldTokenTradingVolume[];
+};
 export type ShieldOrderInfo = {
   id: BigNumber;
   takerAddress: string;
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
   token: TokenErc20;
   optionType: ShieldOptionType;
   orderState: ShieldOrderState;
@@ -91,7 +260,7 @@ export type ShieldMakerOrderInfo = {
   maker: string;
   orderStatus: ShieldOrderState;
 
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
   token: TokenErc20;
   optionType: ShieldOptionType;
   openPrice: SldDecPrice;
@@ -115,6 +284,7 @@ export type ShieldMakerOrderInfo = {
     pnl: SldDecimal;
   };
   liquidationPrice?: SldDecPrice;
+  couldLiquidation?: boolean;
 };
 export type ShieldOrderMigration = {
   id: BigNumber;
@@ -138,7 +308,7 @@ export type ShieldPoolInfo = {
   total: SldDecimal;
 };
 export type ShieldPoolMetaInfo = {
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
   token: TokenErc20;
 };
 export type ShieldTokenPoolInfo = ShieldPoolMetaInfo & {
@@ -148,10 +318,11 @@ export type ShieldTokenPoolInfo = ShieldPoolMetaInfo & {
 export type ShieldTokenPoolLiquidity = ShieldPoolMetaInfo & {
   privateLiquidity: SldDecimal;
   publicLiquidity: SldDecimal;
+  volume?: SldDecimal;
 };
 export type ShieldTokenPoolLiquidityList = {
   liquidity: ShieldTokenPoolLiquidity[];
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
 };
 export type ShieldTokenPoolAddress = ShieldPoolMetaInfo & {
   priPoolAddress: string;
@@ -165,7 +336,7 @@ export type ShieldOrderOpenResult = {
 };
 export type ShieldMakerPrivatePoolInfo = {
   priPoolAddress: string;
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
   token: TokenErc20;
   holder: string;
   amount: SldDecimal;

@@ -12,7 +12,7 @@ import { S } from '../../../../../state-manager/contract/contract-state-parser';
 import { displayDuration } from '../../../../../util/time';
 import { combineLatest, interval, Observable } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { SldTips } from '../../../../common/tips/tips';
 import { fontCss } from '../../../../i18n/font-switch';
 import * as _ from 'lodash';

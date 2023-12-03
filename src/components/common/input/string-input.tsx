@@ -9,6 +9,7 @@ import { asyncScheduler } from 'rxjs';
 type IState = {
   isMobile: boolean;
   isActive: boolean;
+  value: string;
 };
 
 type IProps = {
@@ -29,14 +30,25 @@ export class StringInput extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
     isActive: false,
+    value: '',
   };
 
   componentDidMount() {
     this.registerIsMobile('isMobile');
+
+    if (this.props.value) {
+      this.updateState({ value: this.props.value });
+    }
   }
 
   componentWillUnmount() {
     this.destroyState();
+  }
+
+  componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>, snapshot?: any) {
+    if (prevProps.value !== this.props.value && this.props.value !== this.state.value) {
+      this.updateState({ value: this.props.value });
+    }
   }
 
   onFocus(isFocus: boolean) {
@@ -44,10 +56,13 @@ export class StringInput extends BaseStateComponent<IProps, IState> {
   }
 
   onChangeValue(event: BaseSyntheticEvent) {
-    asyncScheduler.schedule(() => {
-      if (this.props.onChange) {
-        this.props.onChange(event.target.value);
-      }
+    const val = event.target.value;
+    this.updateState({ value: val }, () => {
+      asyncScheduler.schedule(() => {
+        if (this.props.onChange) {
+          this.props.onChange(event.target.value);
+        }
+      });
     });
   }
 
@@ -77,7 +92,7 @@ export class StringInput extends BaseStateComponent<IProps, IState> {
             <input
               type={'text'}
               className={styleMr('sld_str_input_form', this.props.inputClassName)}
-              //value={this.props.value}
+              value={this.state.value}
               placeholder={this.props.placeholder}
               onBlur={() => this.onFocus(false)}
               onFocus={() => this.onFocus(true)}

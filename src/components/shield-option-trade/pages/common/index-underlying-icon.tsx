@@ -2,15 +2,15 @@ import { BaseStateComponent } from '../../../../state-manager/base-state-compone
 import { P } from '../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../../util/string';
 import styles from './index-underlying-icon.module.less';
-import { IndexUnderlyingType } from '../../const/assets';
 import { IndexUnderlyingAssetsIcon } from '../../const/imgs';
+import {ShieldUnderlyingType} from "../../../../state-manager/state-types";
 
 type IState = {
   isMobile: boolean;
 };
 type IProps = {
   size: number;
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
 };
 
 function px(num: number): string {

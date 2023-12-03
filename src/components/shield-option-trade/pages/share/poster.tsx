@@ -1,12 +1,13 @@
 import { BaseStateComponent } from '../../../../state-manager/base-state-component';
 import { P } from '../../../../state-manager/page/page-state-parser';
 import { ShieldOptionType, ShieldOrderInfo } from '../../../../state-manager/state-types';
-import { logoImg, decImg } from './image';
+import { logoImg, decImg, logoDisSize } from './image';
 import { SldDecimal, SldDecPercent } from '../../../../util/decimal';
 import { styleMerge } from '../../../../util/string';
 import { fontCss } from '../../../i18n/font-switch';
 import { i18n } from '../../../i18n/i18n-fn';
 import styles from './poster.module.less';
+import { SLD_ENV_CONF } from '../../const/env';
 
 type IState = {
   isMobile: boolean;
@@ -62,7 +63,7 @@ export class Poster extends BaseStateComponent<IProps, IState> {
     }
 
     this.drawBg({ x: 0, y: 0 });
-    this.drawLogo({ x: 40, y: 30 });
+    this.drawLogo({ x: 40, y: 40 });
     this.drawSubTitle({ x: 42, y: 100 });
     this.drawInner({ x: 50, y: 140 });
     this.drawDecorate({ x: 340, y: 110 });
@@ -87,7 +88,7 @@ export class Poster extends BaseStateComponent<IProps, IState> {
       return;
     }
 
-    this.context2D.drawImage(logoImg, pos.x, pos.y, 185, 51);
+    this.context2D.drawImage(logoImg, pos.x, pos.y, logoDisSize.w, logoDisSize.h);
   }
 
   private drawDecorate(pos: Pos) {
@@ -197,6 +198,28 @@ export class Poster extends BaseStateComponent<IProps, IState> {
     this.context2D.fillText(i18n('trade-option-type-put').toUpperCase(), pos.x + fontOffsetX, pos.y + fontOffsetY);
   }
 
+  private drawAmount(pos: Pos) {
+    if (!this.context2D) {
+      return;
+    }
+
+    const textHeight = 22;
+
+    this.context2D.font = '22px Gilroy-Bold, sans-serif';
+    this.context2D.fillStyle = '#555555';
+
+    const amountStr: string = this.props.curOrder.orderAmount.format() || '';
+    const measure = this.context2D.measureText(amountStr);
+    this.context2D.fillText(amountStr, pos.x + 120, pos.y + textHeight);
+
+    this.context2D.font = '16px Gilroy-Medium, sans-serif';
+    this.context2D.fillStyle = '#999999';
+
+    const underlying = this.props.curOrder.indexUnderlying;
+
+    this.context2D.fillText(underlying || '', pos.x + 120 + measure.width + 8, pos.y + textHeight);
+  }
+
   private drawPair(pos: Pos) {
     if (!this.context2D) {
       return;
@@ -260,14 +283,15 @@ export class Poster extends BaseStateComponent<IProps, IState> {
       return;
     }
 
-    this.context2D.fillStyle = '#059a05';
+    this.context2D.fillStyle = '#1346ff';
     this.context2D.fillRect(pos.x, pos.y, this.width, 30);
 
     const textHeight = 20;
     this.context2D.textAlign = 'right';
-    this.context2D.fillStyle = 'rgba(255,255,255)';
+    this.context2D.fillStyle = 'rgba(255,255,255,0.8)';
     this.context2D.font = '16px sans-serif';
-    this.context2D.fillText('fufuture.io', pos.x + 460, pos.y + textHeight);
+
+    this.context2D.fillText(SLD_ENV_CONF.Brand.Domain, pos.x + 460, pos.y + textHeight);
     this.context2D.textAlign = 'left';
   }
 
@@ -279,7 +303,7 @@ export class Poster extends BaseStateComponent<IProps, IState> {
     const url: string = this.canvas.toDataURL('image/png');
 
     const a: HTMLAnchorElement = document.createElement('a');
-    a.download = 'shield_options';
+    a.download = SLD_ENV_CONF.Brand.Project + '_options';
     a.href = url;
     document.body.appendChild(a);
     a.click();

@@ -1,0 +1,55 @@
+@import '../../../../../shield-option-common/common';
+
+.poolList {
+  overflow-y: scroll;
+  margin-right: -16px;
+  margin-left: -16px;
+  padding: 0 16px;
+}
+
+.emptyList {
+  .flexCenter();
+  .font(15, @color-desc);
+}
+
+.poolItem {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid @color-divider;
+
+  .leftTitle {
+    display: grid;
+    grid-template-columns: 24px auto;
+    grid-template-areas:
+      'a b'
+      'a c';
+    align-items: center;
+    grid-column-gap: 8px;
+    grid-row-gap: 8px;
+
+    .poolTokenIcon {
+      grid-area: a;
+    }
+
+    .poolTokenSymbol {
+      grid-area: b;
+      line-height: 1;
+      font-size: 16px;
+    }
+
+    .poolTokenVolume {
+      grid-area: c;
+      line-height: 1;
+      .font(12, @color-desc);
+    }
+  }
+
+  .rightLiquidity {
+    .numFont {
+      .font(15, @color-normal-font) !important;
+    }
+  }
+}

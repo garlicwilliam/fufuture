@@ -245,7 +245,14 @@ export class MenuListImp extends BaseStateComponent<IProps, IState> {
         contentClassName={styleMerge('sld-menu-list-mobile-overlay-content', this.props.overlayContentClassName)}
         visibleChange={this.onVisibleChange.bind(this)}
       >
-        <div className={styleMr(styles.mobileDropdownBtn, 'sld-menu-list-mobile', this.props.mobileBtnClassName)}>
+        <div
+          className={styleMr(
+            styles.mobileDropdownBtn,
+            'sld-menu-list-mobile',
+            'sld-menu-list-mobile-trigger',
+            this.props.mobileBtnClassName
+          )}
+        >
           {this.state.isVisible ? <CloseOutlined /> : <MenuOutlined />}
         </div>
       </SldOverlay>

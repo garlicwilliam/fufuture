@@ -5,6 +5,7 @@ import { MenuOption, ShieldMenuList } from '../../../common/menu/menu-list';
 import { RouteKey } from '../../../../constant/routes';
 import { I18n } from '../../../i18n/i18n';
 import { LocationProps, withLocation } from '../../../common/utils/location-wrapper';
+import { styleMerge } from '../../../../util/string';
 
 type IState = {
   isMobile: boolean;
@@ -13,10 +14,11 @@ type IState = {
 type IProps = {
   isDark?: boolean;
   isHome?: boolean;
+  height?: 'default' | 'mini';
 } & LocationProps;
 
 function menuOptions(pathname: string, isHome: boolean): MenuOption[] {
-  const appUrl = 'https://app.fufuture.io/u/';
+  const appUrl = 'https://app.shieldex.io/u/';
 
   return [
     {
@@ -29,11 +31,6 @@ function menuOptions(pathname: string, isHome: boolean): MenuOption[] {
       content: <I18n id={'trade-menu-pool'} />,
       url: isHome ? appUrl + RouteKey.pools : undefined,
     },
-    // {
-    //   router: RouteKey.swapBurn,
-    //   content: <I18n id={'menu-swap-burn'} />,
-    //   url: isHome ? appUrl + RouteKey.swapBurn : undefined,
-    // },
     {
       router: RouteKey.referral,
       content: <I18n id={'trade-menu-referral'} />,
@@ -56,12 +53,18 @@ export class OptionMenuListImp extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
+    const cssName = this.props.isDark
+      ? this.props.height === 'mini'
+        ? styles.darkMini
+        : styles.darkDefault
+      : styles.lightDefault;
+
     return (
       <ShieldMenuList
         menus={menuOptions(this.props.location.pathname, !!this.props.isHome)}
         mobileBtnClassName={this.props.isDark ? styles.mobileBtnDark : styles.mobileBtnLight}
-        deskOuterClassName={this.props.isDark ? styles.dark : styles.light}
-        overlayContentClassName={styles.menuOverlayContent}
+        deskOuterClassName={styleMerge(cssName)}
+        overlayContentClassName={styleMerge(styles.menuOverlayContent, cssName)}
       />
     );
   }

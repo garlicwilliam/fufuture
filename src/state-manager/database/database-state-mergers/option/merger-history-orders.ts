@@ -8,16 +8,16 @@ import {
   TokenErc20,
 } from '../../../state-types';
 import { PageIndex, PageSize } from '../list.types';
-import { BehaviorSubject, from, mergeMap, Observable, of, switchMap, zip } from 'rxjs';
+import { BehaviorSubject, concatMap, from, mergeMap, Observable, of, switchMap, zip } from 'rxjs';
 import { httpPost } from '../../../../util/http';
-import { finalize, map, tap, toArray } from 'rxjs/operators';
+import { filter, finalize, map, startWith, tap, toArray } from 'rxjs/operators';
 import { BigNumber } from 'ethers';
 import { erc20InfoByAddressGetter } from '../../../contract/contract-getter-sim-erc20';
 import { SldDecimal, SldDecPrice } from '../../../../util/decimal';
 import { snRep } from '../../../interface-util';
 import * as _ from 'lodash';
 import { IndexUnderlyingDecimal } from '../../../../components/shield-option-trade/const/assets';
-import { SUB_GRAPH_API } from '../../../../components/shield-option-trade/const/default';
+import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
 
 type RsType = {
   blockTimestamp: string;
@@ -58,6 +58,48 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
 
   pending(): Observable<boolean> {
     return this.isPending;
+  }
+
+  doGet1(user: string, pageSize: number, pageIndex: number): Observable<ShieldOrderInfo[]> {
+    const url = SLD_ENV_CONF.SubGraphUrl;
+
+    if (!url) {
+      return of([]);
+    }
+
+    const count = pageSize * (pageIndex + 1);
+    const param = this.postParam(user, count);
+
+    return httpPost(url, param).pipe(
+      startWith(0),
+      filter(v => {
+        this.isPending.next(true);
+        return v !== 0;
+      }),
+      switchMap((res: any) => {
+        const isOK = _.get(res, 'status', 400) === 200 && !_.isEmpty(_.get(res, 'body.data'));
+
+        if (isOK) {
+          const body = _.get(res, 'body');
+          const orders: any[] = _.get(body, 'data.closeOrders');
+
+          return from(orders).pipe(
+            concatMap(order => {
+              return this.convert(order, user);
+            }),
+            toArray(),
+            map(orderArr => {
+              return orderArr.filter(Boolean) as ShieldOrderInfo[];
+            })
+          );
+        }
+
+        return of([]);
+      }),
+      finalize(() => {
+        this.isPending.next(false);
+      })
+    );
   }
 
   public doGet(user: string, pageSize: number, pageIndex: number): Observable<ShieldHistoryOrderRs> {
@@ -111,7 +153,7 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
   }
 
   public getPreData(user: string): Observable<MidRes> {
-    const url = SUB_GRAPH_API;
+    const url = SLD_ENV_CONF.SubGraphUrl;
 
     if (!url) {
       return of(emptyMidRes);
@@ -164,7 +206,7 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
   }
 
   public getAppendData(orders: string[]): Observable<RsType[]> {
-    const url = SUB_GRAPH_API;
+    const url = SLD_ENV_CONF.SubGraphUrl;
 
     if (!url || orders.length === 0) {
       return of([]);
@@ -204,6 +246,30 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
                   closePrice
                 }
               }`,
+      variables: {},
+    };
+  }
+
+  private postParam(user: string, count: number): any {
+    return {
+      query: `{closeOrders(
+            orderBy: blockTimestamp,
+            orderDirection: desc,
+            where: { holder: "${user}", state_not: 0 },
+            first: ${count}) {
+              holder,
+              token,
+              orderID,
+              blockTimestamp,
+              state,
+              isBuy,
+              name,
+              number,
+              fundingFeePaid,
+              openPrice,
+              closePrice
+            }
+          }`,
       variables: {},
     };
   }

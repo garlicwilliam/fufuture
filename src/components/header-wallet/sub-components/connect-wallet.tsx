@@ -10,7 +10,7 @@ type IState = {
 };
 type IProps = {
   className?: string;
-  size?: 'large' | 'huge' | 'small';
+  size?: 'large' | 'huge' | 'small' | 'tiny';
 };
 
 export class ConnectWallet extends BaseStateComponent<IProps, IState> {

@@ -1,0 +1,35 @@
+@import '../../../shield-option-common/common';
+
+.balance {
+  .flexCenter();
+  height: 40px;
+  border-radius: @border-radius-btn2;
+  background-color: @color-bg-f7;
+  padding: 0 16px;
+  cursor: pointer;
+  user-select: none;
+  column-gap: 8px;
+  transition-property: width;
+  transition-duration: 300ms;
+
+  &.mobile {
+    padding: 0 8px;
+    column-gap: 6px;
+  }
+
+  .numValue {
+    .font(14, @color-normal-font);
+
+    &.mobile {
+      .font(14, @color-normal-font);
+    }
+  }
+
+  .symUnit {
+    .font(14, @color-desc);
+
+    &.mobile {
+      .font(12, @color-desc);
+    }
+  }
+}

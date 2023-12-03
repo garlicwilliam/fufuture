@@ -130,7 +130,7 @@ export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
       symbol: NetworkCurrency[NET_BNB],
       decimals: 18,
     },
-    rpcUrls: ['https://bsc-dataseed.binance.org/'],
+    rpcUrls: ['https://bsc-dataseed.binance.org'],
     blockExplorerUrls: ['https://bscscan.com'],
   },
   [NET_BASE]: {
@@ -158,7 +158,7 @@ export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
   [NET_ETHEREUM]: {
     chainId: '0x1',
     chainName: NetworkNames[NET_ETHEREUM],
-    rpcUrls: ['http://mainnet.infura.io/v3/abc4c36a4ae54715bc7a4ecedd5a8490'],
+    rpcUrls: ['https://eth.public-rpc.com'],
     blockExplorerUrls: ['https://etherscan.io'],
     nativeCurrency: {
       name: NetworkCurrency[NET_ETHEREUM],
@@ -305,4 +305,11 @@ export function chainScanAddressExploreUrl(network: Network, address: string): s
   host = _.trimEnd(host, '/');
 
   return host + '/address/' + address;
+}
+
+export function chainScanTxExploreUrl(network: Network, txHash: string): string {
+  let host = NetworkParams[network].blockExplorerUrls[0];
+  host = _.trimEnd(host, '/');
+
+  return host + '/tx/' + txHash;
 }

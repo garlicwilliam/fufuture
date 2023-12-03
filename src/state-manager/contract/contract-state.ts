@@ -24,6 +24,7 @@ import {
 } from 'rxjs/operators';
 import { ExpectedError } from '../state-util-type';
 import { ArgIllegal } from '../state-types';
+import * as _ from 'lodash';
 
 export class ContractStateImp<T> implements ContractState<T> {
   private state: BehaviorSubject<T | null> = new BehaviorSubject<T | null>(null);
@@ -386,4 +387,91 @@ export class ContractStateRef<T> implements ContractState<T> {
       console.log(this.debugLabel, ...message);
     }
   }
+}
+
+export class StateArgWrapper<A> {
+  private argSubject: BehaviorSubject<A | null> = new BehaviorSubject<A | null>(null);
+  private subs: Subscription[] = [];
+
+  constructor(public readonly name: string) {}
+
+  public isWrapper(): boolean {
+    return true;
+  }
+
+  public setArg(arg: Observable<A>): this {
+    const sub = arg.subscribe(a => {
+      this.argSubject.next(a);
+    });
+
+    this.subs.push(sub);
+    return this;
+  }
+
+  public destroy() {
+    this.subs.forEach(one => one.unsubscribe());
+    this.argSubject.complete();
+  }
+
+  public watch(): Observable<A> {
+    return this.argSubject.pipe(
+      filter(a => a !== null),
+      map(one => one as A)
+    );
+  }
+}
+
+export class ContractStateGenerator<T, A extends string> {
+  private wrappedArgs: { [n: string]: StateArgWrapper<any> } = {};
+  private finalArgs: Observable<any>[] = [];
+
+  constructor(depends: (Observable<any> | StateArgWrapper<any>)[], private getter: StateGetter<T>) {
+    this.finalArgs = new Array(depends.length);
+    depends.map((one, index: number) => {
+      if (one['isWrapper'] && (one as StateArgWrapper<any>).isWrapper()) {
+        const wrapped = one as StateArgWrapper<any>;
+        this.wrappedArgs[wrapped.name] = wrapped;
+
+        this.finalArgs[index] = wrapped.watch();
+      } else {
+        this.finalArgs[index] = one as Observable<any>;
+      }
+    });
+  }
+
+  public destroy() {
+    Object.values(this.wrappedArgs).forEach(one => one.destroy());
+  }
+
+  public gen(args: { [n in A]: Observable<any> }, path?: string): ContractState<T> {
+    try {
+      Object.keys(this.wrappedArgs).map(name => {
+        const arg = _.get(args, name);
+        const wrp = _.get(this.wrappedArgs, name);
+
+        if (!!arg && !!wrp) {
+          wrp.setArg(arg);
+        } else {
+          console.warn(arg, wrp, path);
+          throw Error('State Args not match.');
+        }
+      });
+
+      return new ContractStateImp(this.finalArgs, this.getter, path || '', false);
+    } catch (err) {
+      console.warn('gen state error', err, args);
+      throw err;
+    }
+  }
+}
+
+export function generatorCreator<T, A extends string>(params: {
+  _depends: (Observable<any> | StateArgWrapper<any>)[];
+  _getter: StateGetter<T>;
+}) {
+  return new ContractStateGenerator<T, A>(params._depends, params._getter);
+}
+
+export function genArgWrapper<A>(name: string): StateArgWrapper<A> {
+  return new StateArgWrapper<A>(name);
 }

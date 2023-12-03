@@ -9,7 +9,11 @@ export const isBscNetworkGroup = (network: Network): boolean => {
   return NETWORKS_BNB.indexOf(network as NetworkTypeBNB) >= 0;
 };
 
-export const isInNetworkGroup = (network: Network, networks: readonly Network[] | string[]): boolean => {
+export const isInNetworkGroup = (network: Network | null | undefined, networks: readonly Network[] | string[]): boolean => {
+  if (!network) {
+    return false;
+  }
+
   return networks.indexOf(network) >= 0;
 };
 

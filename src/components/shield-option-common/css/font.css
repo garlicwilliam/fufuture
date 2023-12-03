@@ -1,64 +1,64 @@
 @font-face {
   font-family: Gilroy-Black;
-  src: url('https://static.fufuture.io/fonts/gilroy_black.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_black.otf');
 }
 
 @font-face {
   font-family: Gilroy-BlackItalic;
-  src: url('https://static.fufuture.io/fonts/gilroy_blackitalic.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_blackitalic.otf');
 }
 
 @font-face {
   font-family: Gilroy-Bold;
-  src: url('https://static.fufuture.io/fonts/gilroy_bold.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_bold.otf');
 }
 
 @font-face {
   font-family: Gilroy-Regular;
-  src: url('https://static.fufuture.io/fonts/gilroy_regular.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_regular.otf');
 }
 
 @font-face {
   font-family: Gilroy-Medium;
-  src: url('https://static.fufuture.io/fonts/gilroy_medium.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_medium.otf');
 }
 
 @font-face {
   font-family: Gilroy-Light;
-  src: url('https://static.fufuture.io/fonts/gilroy_light.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_light.otf');
 }
 
 @font-face {
   font-family: Gilroy-LightItalic;
-  src: url('https://static.fufuture.io/fonts/gilroy_lightitalic.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_lightitalic.otf');
 }
 
 @font-face {
   font-family: Gilroy-Thin;
-  src: url('https://static.fufuture.io/fonts/fonts/gilroy_thin.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_thin.otf');
 }
 
 @font-face {
   font-family: Gilroy-ThinItalic;
-  src: url('https://static.fufuture.io/fonts/gilroy_thinitalic.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_thinitalic.otf');
 }
 
 @font-face {
   font-family: Gilroy-Heavy;
-  src: url('https://static.fufuture.io/fonts/gilroy_heavy.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_heavy.otf');
 }
 
 @font-face {
   font-family: Gilroy-HeavyItalic;
-  src: url('https://static.fufuture.io/fonts/gilroy_heavyitalic.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_heavyitalic.otf');
 }
 
 @font-face {
   font-family: Gilroy-ExtraBold;
-  src: url('https://static.fufuture.io/fonts/gilroy_extrabold.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_extrabold.otf');
 }
 
 @font-face {
   font-family: Gilroy-ExtraBoldItalic;
-  src: url('https://static.fufuture.io/fonts/gilroy_extrabolditalic.otf');
+  src: url('src/assets/fonts/gilroy/gilroy_extrabolditalic.otf');
 }

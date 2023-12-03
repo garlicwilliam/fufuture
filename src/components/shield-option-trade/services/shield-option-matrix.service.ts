@@ -1,6 +1,6 @@
 import { from, mergeMap, Observable, of, switchMap } from 'rxjs';
 import { SldDecPercent } from '../../../util/decimal';
-import { shieldOptionTradeContracts } from '../../../state-manager/const/shield-option-trade-contract';
+import { shieldOptionTradeContracts } from '../contract/shield-option-trade-contract';
 import { map, take, tap, toArray } from 'rxjs/operators';
 import { Network } from '../../../constant/network';
 import { Contract } from 'ethers';

@@ -2,8 +2,7 @@ import { BaseStateComponent } from '../../../../../../state-manager/base-state-c
 import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../../../../util/string';
 import styles from './index-funding-pair.module.less';
-import { IndexUnderlyingType } from '../../../../const/assets';
-import { TokenErc20 } from '../../../../../../state-manager/state-types';
+import {ShieldUnderlyingType, TokenErc20} from '../../../../../../state-manager/state-types';
 import { tokenCacheService } from '../../../../services/token-cache.service';
 import { Observable, of, switchMap } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -14,7 +13,7 @@ import { IndexUnderlyingIcon } from '../../../common/index-underlying-icon';
 
 type IState = {
   isMobile: boolean;
-  indexUnderlying: IndexUnderlyingType;
+  indexUnderlying: ShieldUnderlyingType;
   token: TokenErc20 | null;
   tokenIcon: string | undefined;
 };

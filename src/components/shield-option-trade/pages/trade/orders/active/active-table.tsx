@@ -2,7 +2,12 @@ import { BaseStateComponent } from '../../../../../../state-manager/base-state-c
 import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { TableForDesktop } from '../../../../../table/table-desktop';
 import { ColumnType } from 'antd/lib/table/interface';
-import { ShieldOptionType, ShieldOrderInfo, TokenErc20 } from '../../../../../../state-manager/state-types';
+import {
+  ShieldOptionType,
+  ShieldOrderInfo,
+  ShieldUnderlyingType,
+  TokenErc20
+} from '../../../../../../state-manager/state-types';
 import { I18n } from '../../../../../i18n/i18n';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
 import { formatDate } from '../../../../../../util/time';
@@ -10,9 +15,8 @@ import { TokenAmountInline } from '../../../../../common/content/token-amount-in
 import { SldDecimal, SldDecPrice } from '../../../../../../util/decimal';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { combineLatest, Observable } from 'rxjs';
-import { IndexUnderlyingType } from '../../../../const/assets';
 import { computeOrderPnl } from '../../../../utils/compute';
-import { cssPick, styleMerge } from '../../../../../../util/string';
+import { styleMerge } from '../../../../../../util/string';
 import { TextBtn } from '../../../../../common/buttons/text-btn';
 import { CloseOrderConfirm } from './close-confirm';
 import { PairLabel } from '../../../common/pair-label';
@@ -21,7 +25,7 @@ import styles from './active-table.module.less';
 import { shieldOrderService } from '../../../../services/shield-order.service';
 import { TableMobileTitle } from '../../../../../table/table-mobile-title';
 import { TableForMobile } from '../../../../../table/table-mobile';
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { VerticalItem } from '../../../../../common/content/vertical-item';
 import { OrderFundingSchedule } from './funding-schedule';
 import { ShareOrder } from '../../../share/share';
@@ -126,7 +130,9 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
       dataIndex: 'markPrice',
       key: 'markPrice',
       align: 'right',
-      render: (price: SldDecPrice, row: ShieldOrderInfo) => <TokenAmountInline amount={price} token={''} />,
+      render: (price: SldDecPrice, row: ShieldOrderInfo) => {
+        return <TokenAmountInline amount={price} token={''} />;
+      },
     },
     {
       title: <I18n id={'trade-fees-funding'} />,
@@ -281,6 +287,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
   componentDidMount() {
     this.registerIsMobile('isMobile');
     this.registerObservable('orders', this.mergeOrders());
+
+    this.tickInterval(5000, S.Option.Oracle.BTC, S.Option.Oracle.ETH);
   }
 
   componentWillUnmount() {
@@ -291,25 +299,28 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
     const prices$ = combineLatest([S.Option.Oracle.BTC.watch(), S.Option.Oracle.ETH.watch()]).pipe(
       map(([btc, eth]) => {
         return {
-          [IndexUnderlyingType.ETH]: eth,
-          [IndexUnderlyingType.BTC]: btc,
+          [ShieldUnderlyingType.ETH]: eth,
+          [ShieldUnderlyingType.BTC]: btc,
         };
       })
     );
 
-    const orders$: Observable<ShieldOrderInfo[]> = S.Option.Order.ActiveList.watch();
+    const orders$: Observable<ShieldOrderInfo[]> = S.Option.Order.ActiveList.watch().pipe(
+      switchMap(orders => {
+        return shieldOrderService.fillOrdersFundPhaseInfo(orders);
+      })
+    );
 
     return combineLatest([prices$, orders$]).pipe(
       map(([prices, orders]) => {
+        orders = orders.map(one => ({ ...one }));
+
         orders.forEach(one => {
           one.markPrice = prices[one.indexUnderlying];
           one.pnl = computeOrderPnl(one);
         });
 
         return orders;
-      }),
-      switchMap((orders: ShieldOrderInfo[]) => {
-        return shieldOrderService.fillOrdersFundPhaseInfo(orders);
       }),
       tap((orders: ShieldOrderInfo[]) => {
         P.Option.Trade.OrderList.ActiveList.set(orders);
@@ -390,14 +401,14 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
       <>
         {this.state.isMobile ? (
           <TableForMobile
-            datasource={this.state.orders}
+            datasource={[...(this.state.orders || [])]}
             columns={this.columnsMobile}
             rowKey={(row: ShieldOrderInfo) => row.id.toString()}
             rowRender={this.genRowRender.bind(this)}
           />
         ) : (
           <TableForDesktop
-            datasource={this.state.orders}
+            datasource={[...(this.state.orders || [])]}
             columns={this.columns}
             rowKey={(row: ShieldOrderInfo) => row.id.toString()}
           />

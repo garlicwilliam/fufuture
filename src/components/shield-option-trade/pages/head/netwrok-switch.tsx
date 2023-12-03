@@ -5,12 +5,12 @@ import { walletState } from '../../../../state-manager/wallet/wallet-state';
 import { NetworkIcons, NetworkNames } from '../../../../constant/network-conf';
 import { ReactNode } from 'react';
 import ModalRender from '../../../modal-render';
-import { SUPPORT_NETWORK } from '../../const/default';
 import { I18n } from '../../../i18n/i18n';
 import styles from './network-switch.module.less';
 import { bindStyleMerger } from '../../../../util/string';
 import { ItemsBox } from '../../../common/content/items-box';
 import { fontCss } from '../../../i18n/font-switch';
+import { SLD_ENV_CONF } from '../../const/env';
 
 type IState = {
   isMobile: boolean;
@@ -36,7 +36,12 @@ export class ShieldNetworkSwitch extends BaseStateComponent<IProps, IState> {
   genNetworkIcon(): ReactNode {
     return this.state.curNetwork ? (
       <div>
-        <img src={NetworkIcons[this.state.curNetwork]} alt={''} height={24} width={24} />
+        <img
+          src={NetworkIcons[this.state.curNetwork]}
+          alt={''}
+          height={this.state.isMobile ? 20 : 24}
+          width={this.state.isMobile ? 20 : 24}
+        />
       </div>
     ) : (
       <></>
@@ -44,7 +49,7 @@ export class ShieldNetworkSwitch extends BaseStateComponent<IProps, IState> {
   }
 
   onSwitch() {
-    walletState.switchNetwork(SUPPORT_NETWORK);
+    walletState.switchNetwork(SLD_ENV_CONF.CurNetwork);
   }
 
   render() {
@@ -52,7 +57,7 @@ export class ShieldNetworkSwitch extends BaseStateComponent<IProps, IState> {
     const styleMr = bindStyleMerger(mobileCss);
 
     const icon: ReactNode = this.genNetworkIcon();
-    const isWrongNetwork = this.state.curNetwork ? this.state.curNetwork !== SUPPORT_NETWORK : false;
+    const isWrongNetwork = this.state.curNetwork ? this.state.curNetwork !== SLD_ENV_CONF.CurNetwork : false;
 
     return (
       <>
@@ -76,8 +81,8 @@ export class ShieldNetworkSwitch extends BaseStateComponent<IProps, IState> {
               </div>
 
               <div className={styleMr(styles.chainBtn)} onClick={this.onSwitch.bind(this)}>
-                <img src={NetworkIcons[SUPPORT_NETWORK]} alt={''} width={24} />
-                <div className={styleMr()}>{NetworkNames[SUPPORT_NETWORK]}</div>
+                <img src={NetworkIcons[SLD_ENV_CONF.CurNetwork]} alt={''} width={24} />
+                <div className={styleMr()}>{NetworkNames[SLD_ENV_CONF.CurNetwork]}</div>
               </div>
             </div>
           </ItemsBox>

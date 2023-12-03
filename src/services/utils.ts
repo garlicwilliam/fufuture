@@ -1,6 +1,6 @@
 import Mask from '../components/mask/index';
 import { EMPTY, Observable } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 export const loadingObs = <T extends boolean | string>(
   obs: Observable<T>,

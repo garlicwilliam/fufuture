@@ -1,0 +1,8 @@
+<svg viewBox="0 0 15 15" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g id="for-T" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect id="rect" fill="#333333" x="0" y="7.03125" width="15" height="1"/>
+    <circle id="oval" stroke="#333333" stroke-width="0.9375" cx="7.5" cy="7.5" r="7.03125"/>
+    <ellipse id="oval-1" stroke="#1346FF" stroke-width="0.9375" cx="7.5" cy="7.5" rx="2.34375"
+             ry="7.03125"/>
+  </g>
+</svg>

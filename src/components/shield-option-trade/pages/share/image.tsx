@@ -1,14 +1,17 @@
-import svgLogo from '../../../../../src/assets/imgs/logo/fufuture-1-dark.svg';
 import svgDecorate from '../../../../../src/assets/imgs/poster/decorate.svg';
+import { SLD_ENV_CONF } from '../../const/env';
 
-const logo: HTMLImageElement = new Image(370, 102);
-logo.src = svgLogo;
+const logoSize = SLD_ENV_CONF.Logo.WebDark.size;
+const logo = new Image(logoSize.w, logoSize.h);
+logo.src = SLD_ENV_CONF.Logo.WebDark.url;
 
-export const logoImg: HTMLImageElement = logo;
+export const logoImg = logo;
+
+export const logoDisSize = { w: logoSize.w * (40 / logoSize.h), h: 40 };
 
 // -------------------------------------------------------------------------------
 
-const decorate: HTMLImageElement = new Image(102, 87);
+const decorate = new Image(102, 87);
 decorate.src = svgDecorate;
 
-export const decImg: HTMLImageElement = decorate;
+export const decImg = decorate;

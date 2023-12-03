@@ -6,16 +6,15 @@ import { BlockTitle } from '../../../common/block-title';
 import { I18n } from '../../../../../i18n/i18n';
 import { ItemsBox } from '../../../../../common/content/items-box';
 import { HorizonItem } from '../../../../../common/content/horizon-item';
-import { TokenErc20 } from '../../../../../../state-manager/state-types';
+import {ShieldUnderlyingType, TokenErc20} from '../../../../../../state-manager/state-types';
 import { TokenIndex } from '../../../common/token-index';
-import { IndexUnderlyingType } from '../../../../const/assets';
 import { SldDecimal, SldDecPercent } from '../../../../../../util/decimal';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
 import { TokenAmountInline } from '../../../../../common/content/token-amount-inline';
 
 type IState = {
   isMobile: boolean;
-  baseToken: IndexUnderlyingType;
+  baseToken: ShieldUnderlyingType;
   quoteToken: TokenErc20 | null;
   riskFundBalance: SldDecimal;
   tradingFeeRate: SldDecPercent;

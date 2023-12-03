@@ -5,9 +5,8 @@ import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { walletState } from '../../state-manager/wallet/wallet-state';
 import { map } from 'rxjs/operators';
 import {
-  bitizen,
-  bitKeep,
   bitget,
+  bitizen,
   coin98,
   coinbase,
   hyperpay,
@@ -35,7 +34,7 @@ const isImToken: boolean = (window as any).ethereum?.isImToken || false;
 const isMetaMask: boolean = (window as any).ethereum?.isMetaMask || false;
 const isTrustWallet: boolean = (window as any).ethereum?.isTrust || false;
 const isMathWallet: boolean = (window as any).ethereum?.isMathWallet || false;
-const isCoin98: boolean = (window as any).ethereum?.isCoin98 || false;
+const isCoin98: boolean = (window as any).coin98?.provider?.isCoin98 || false;
 const isBitKeep: boolean = (window as any).ethereum?.isBitKeep || false;
 const isCoinBase: boolean =
   (window as any).ethereum?.isCoinbaseWallet || (window as any).ethereum?.selectedProvider?.isCoinbaseWallet;
@@ -225,6 +224,8 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
         return { icon: okex, name: 'OKX Wallet' };
       } else if (this.props.targetProvider === EthereumProviderName.TrustWallet) {
         return { icon: trust, name: 'Trust Wallet' };
+      } else if (this.props.targetProvider === EthereumProviderName.Coin98) {
+        return { icon: coin98, name: 'Coin98' };
       }
     }
 
@@ -253,6 +254,8 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
       return { icon: okex, name: 'OKX Wallet' };
     } else if (this.props.targetProvider === EthereumProviderName.TrustWallet) {
       return { icon: trust, name: 'Trust Wallet' };
+    } else if (this.props.targetProvider === EthereumProviderName.Coin98) {
+      return { icon: coin98, name: 'Coin98' };
     } else if (this.props.targetProvider === EthereumProviderName.MetaMaskLike) {
       if (isBitizen) {
         return { icon: bitizen, name: 'Bitizen' };
@@ -284,6 +287,7 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
         return { icon: '', name: 'Wallet' };
       }
     }
+
     return { icon: metamask, name: 'MetaMask' };
   }
 
