@@ -4,7 +4,7 @@ import { bindStyleMerger } from '../../../../../../util/string';
 import styles from './kline.module.less';
 import { asyncScheduler } from 'rxjs';
 
-import {ShieldUnderlyingType} from "../../../../../../state-manager/state-types";
+import { ShieldUnderlyingType } from '../../../../../../state-manager/state-types';
 
 type IState = {
   isMobile: boolean;

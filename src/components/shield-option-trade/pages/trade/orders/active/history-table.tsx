@@ -45,12 +45,12 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
 
   private columns: ColumnType<ShieldOrderInfo>[] = [
     {
-      title: <I18n id={'trade-order-id'} />,
+      title: '#',
       dataIndex: 'id',
       key: 'id',
       align: 'left',
       render: (id, row: ShieldOrderInfo) => {
-        return <span className={styleMerge(styles.label)}>#{id.toString()}</span>;
+        return <span className={styleMerge(styles.label)}>{id.toString()}</span>;
       },
     },
     {
@@ -108,25 +108,16 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       },
     },
     {
-      title: <I18n id={'trade-index-open-price'} />,
+      title: <I18n id={'trade-index-open-close-price'} />,
       dataIndex: 'openPrice',
       key: 'openPrice',
       align: 'right',
       render: (openPrice: SldDecPrice, row: ShieldOrderInfo) => {
-        return openPrice.format();
+        return openPrice.format() + ' / ' + row.closePrice.format();
       },
     },
     {
-      title: <I18n id={'trade-index-close-price'} />,
-      dataIndex: 'closePrice',
-      key: 'closePrice',
-      align: 'right',
-      render: (closePrice: SldDecPrice, row: ShieldOrderInfo) => {
-        return closePrice.format();
-      },
-    },
-    {
-      title: <I18n id={'trade-fees-funding'} />,
+      title: <I18n id={'trade-funding-fee-paid'} />,
       dataIndex: 'fundingFee',
       key: 'fundingFee',
       align: 'right',
@@ -148,6 +139,8 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
             token={row.token.symbol}
             numClassName={pnl.gtZero() ? 'longStyle' : pnl.lt(SldDecimal.ZERO) ? 'shortStyle' : undefined}
             symClassName={styles.label}
+            short={true}
+            sign={true}
           />
         );
       },
@@ -164,11 +157,12 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
   ];
   private columnsMobile: ColumnType<ShieldOrderInfo>[] = [
     {
-      title: <TableMobileTitle itemTop={<I18n id={'trade-order-id'} />} />,
+      title: <TableMobileTitle itemTop={'#'} />,
       dataIndex: 'id',
       key: 'id',
+      className: styles.idColMobile,
       render: (id: BigNumber) => {
-        return <span className={styleMerge(styles.label)}>#{id.toString()}</span>;
+        return <span className={styleMerge(styles.cellDesc)}>{id.toString()}</span>;
       },
     },
     {
@@ -246,6 +240,8 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
                   cssPick(row.pnl?.pnl.ltZero(), styles.cellDescShort)
                 )}
                 symClassName={styles.cellDesc}
+                short={true}
+                sign={true}
               />
             </div>
           </div>
@@ -308,6 +304,20 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
         >
           <TokenAmountInline
             amount={row.closePrice}
+            token={row.token.symbol}
+            numClassName={styles.value}
+            symClassName={styles.label}
+          />
+        </VerticalItem>
+
+        <VerticalItem
+          label={<I18n id={'trade-funding-fee-paid'} />}
+          align={'left'}
+          labelClassName={styleMerge(styles.label)}
+          gap={gap}
+        >
+          <TokenAmountInline
+            amount={row.fundingFee.paid}
             token={row.token.symbol}
             numClassName={styles.value}
             symClassName={styles.label}

@@ -3,7 +3,7 @@ import {
   ShieldPoolAddress,
   ShieldPoolAddressList,
   ShieldUnderlyingType,
-  TokenErc20
+  TokenErc20,
 } from '../../../state-manager/state-types';
 import { filter, map, mergeMap, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { walletState } from '../../../state-manager/wallet/wallet-state';
@@ -47,14 +47,14 @@ export class ShieldPoolLiquidityService {
   private privatePoolCache = new Map<string, PrivatePool>();
   private publicPoolCache = new Map<string, PublicPool>();
 
-  private poolList: Map<ShieldUnderlyingType, BehaviorSubject<TokenPool[]>> = this.initListMap();
+  private poolList: Map<ShieldUnderlyingType, BehaviorSubject<TokenPool[] | undefined>> = this.initListMap();
 
   private liquidityCache = new Map<string, BehaviorSubject<SldDecimal | undefined>>();
 
-  private initListMap(): Map<ShieldUnderlyingType, BehaviorSubject<TokenPool[]>> {
-    const rs = new Map<ShieldUnderlyingType, BehaviorSubject<TokenPool[]>>();
+  private initListMap(): Map<ShieldUnderlyingType, BehaviorSubject<TokenPool[] | undefined>> {
+    const rs = new Map<ShieldUnderlyingType, BehaviorSubject<TokenPool[] | undefined>>();
     Object.values(ShieldUnderlyingType).forEach(underlying => {
-      rs.set(underlying, new BehaviorSubject<TokenPool[]>([]));
+      rs.set(underlying, new BehaviorSubject<TokenPool[] | undefined>(undefined));
     });
 
     return rs;
@@ -69,8 +69,11 @@ export class ShieldPoolLiquidityService {
   //
 
   public watchPoolList(underlying: ShieldUnderlyingType): Observable<TokenPoolList> {
-    return (this.poolList.get(underlying) || of([] as TokenPool[])).pipe(
+    const pools$: Observable<TokenPool[]> = this.poolList.get(underlying)!.pipe(filter(Boolean));
+
+    return pools$.pipe(
       map((pools: TokenPool[]) => {
+        console.log('pools is', pools);
         return { pools, underlying } as TokenPoolList;
       })
     );
@@ -89,6 +92,7 @@ export class ShieldPoolLiquidityService {
 
     if (this.poolList.has(indexUnderlying)) {
       return this.poolList.get(indexUnderlying)!.pipe(
+        filter(Boolean),
         map((tokens: TokenPool[]) => {
           return tokens.filter(one => {
             const isHasKey: boolean = one.token.symbol.toLowerCase().indexOf(searchKey) >= 0;

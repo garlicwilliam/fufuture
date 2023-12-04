@@ -1,6 +1,11 @@
-import { NET_BNB, Network } from '../../../constant/network';
+import { NET_BNB, NET_GOERLI, Network } from '../../../constant/network';
 import { ShieldTradePair, ShieldUnderlyingType } from '../../../state-manager/state-types';
 import { ShieldOptionTradeConfigAddress } from './shield-option-address';
+import logo from '../../../assets/imgs/logo/shield/logo-light.svg';
+import logoDark from '../../../assets/imgs/logo/shield/logo-black.svg';
+import mobile from '../../../assets/imgs/logo/shield/logo-mobile.svg';
+import openLogo from '../../../assets/imgs/logo/openspace/openspace.svg';
+import doptionLogo from '../../../assets/imgs/logo/doption/doption.svg';
 import fufutureLogoDark from '../../../assets/imgs/logo/fufuture/fufuture-1-dark.svg';
 import fufutureLogo from '../../../assets/imgs/logo/fufuture/fufuture-1-light.svg';
 import fufutureMobile from '../../../assets/imgs/logo/fufuture/fufuture-1.svg';

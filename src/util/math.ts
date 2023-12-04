@@ -12,6 +12,7 @@ export type FormatOption = {
   removeZero?: boolean;
   debug?: boolean;
   short?: boolean;
+  sign?: boolean;
 };
 
 export enum NumAbbreviation {
@@ -30,44 +31,6 @@ const NumAbb = {
   '12': NumAbbreviation.Trillion,
 };
 
-export const format = (value: any, withZero: boolean = true, fixed: number = 2) => {
-  if (isNumberLike(value)) {
-    let str = numeral(new Decimal(value).toFixed(fixed)).format(
-      `0,0.${Array.from({ length: fixed })
-        .map(v => '0')
-        .join('')}`
-    );
-    if (!withZero) {
-      str = _.trimEnd(str, '0');
-      str = _.trimEnd(str, '.');
-    }
-    return str;
-  }
-  return '';
-};
-
-export const multiple = (one: any, two: any, original?: boolean) => {
-  if (isNumberLike(one) && isNumberLike(two)) {
-    const val = new Decimal(Number(one)).times(Number(two)).toNumber();
-    if (original) {
-      return val;
-    }
-    const res = Number(new Decimal(val).toFixed(2));
-    return isNaN(res) ? NaN : res;
-  }
-  return NaN;
-};
-
-export const percentage = (dividend: any, divisor: any) => {
-  if (isNumberLike(dividend) && isNumberLike(divisor)) {
-    if (Number(divisor) === 0) {
-      return '0';
-    }
-    return new Decimal(Number(dividend)).times(100).div(Number(divisor)).toFixed(2);
-  }
-  return '';
-};
-
 export function percentageCompute(total: number | BigNumber, part: number | BigNumber): number {
   const isTotalANum = typeof total === 'number';
   if ((isTotalANum && total === 0) || (!isTotalANum && total.eq(0))) {
@@ -84,14 +47,6 @@ export function percentageCompute(total: number | BigNumber, part: number | BigN
 
   return 0;
 }
-
-export const isNumberLike = (value: any) => {
-  return (
-    (typeof value === 'string' && !!value.match(/^-?[0-9]+\.?[0-9]*$/)) ||
-    (typeof value === 'number' && !isNaN(value)) ||
-    String(Number(value)) === String(value)
-  );
-};
 
 export const numString = (num: number): string => {
   const str = num.toString().toLowerCase();
@@ -135,7 +90,13 @@ export function numStrFormat(num: string, opt?: FormatOption): string {
     num = _.trimEnd(num, '.');
   }
 
-  return num + abb;
+  let numStr = num + abb;
+
+  if (opt?.sign && !numStr.startsWith('-')) {
+    numStr = '+' + numStr;
+  }
+
+  return numStr;
 }
 
 function numInsertSep(num: string): string {

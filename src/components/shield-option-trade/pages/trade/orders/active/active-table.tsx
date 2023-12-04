@@ -6,7 +6,7 @@ import {
   ShieldOptionType,
   ShieldOrderInfo,
   ShieldUnderlyingType,
-  TokenErc20
+  TokenErc20,
 } from '../../../../../../state-manager/state-types';
 import { I18n } from '../../../../../i18n/i18n';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
@@ -30,6 +30,7 @@ import { VerticalItem } from '../../../../../common/content/vertical-item';
 import { OrderFundingSchedule } from './funding-schedule';
 import { ShareOrder } from '../../../share/share';
 import { SharePopup } from '../../../share/share-popup';
+import { SldButton } from '../../../../../common/buttons/sld-button';
 
 type IState = {
   isMobile: boolean;
@@ -46,11 +47,11 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
   //private columns = [];
   columns: ColumnType<ShieldOrderInfo>[] = [
     {
-      title: <I18n id={'trade-order-id'} />,
+      title: '#',
       dataIndex: 'id',
       key: 'id',
       render: (id: BigNumber, row: ShieldOrderInfo) => {
-        return <span className={styleMerge(styles.label)}>#{id.toString()}</span>;
+        return <span className={styleMerge(styles.label)}>{id.toString()}</span>;
       },
     },
     {
@@ -135,7 +136,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
       },
     },
     {
-      title: <I18n id={'trade-fees-funding'} />,
+      title: <I18n id={'trade-funding-fee-paid'} />,
       dataIndex: 'fundingFee',
       key: 'fundingFee',
       align: 'right',
@@ -169,6 +170,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
             numClassName={upl.gtZero() ? 'longStyle' : upl.isZero() ? '' : 'shortStyle'}
             symClassName={styles.label}
             short={true}
+            sign={true}
           />
         );
       },
@@ -199,12 +201,13 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
   ];
   columnsMobile: ColumnType<ShieldOrderInfo>[] = [
     {
-      title: <TableMobileTitle itemTop={<I18n id={'trade-order-id'} />} />,
+      title: <TableMobileTitle pullRight={false} itemTop={'#'} />,
       dataIndex: 'id',
       key: 'id',
       align: 'left',
+      className: styles.idColMobile,
       render: (id: BigNumber) => {
-        return <span className={styleMerge(styles.label)}>#{id.toString()}</span>;
+        return <span className={styleMerge(styles.label, styles.smallSize)}>{id.toString()}</span>;
       },
     },
     {
@@ -277,6 +280,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               token={row.token.symbol}
               numClassName={styleMerge(upl.gtZero() ? 'longStyle' : upl.isZero() ? '' : 'shortStyle', styles.smallSize)}
               symClassName={styleMerge(styles.smallSize, styles.line1, styles.descColor)}
+              short={true}
+              sign={true}
             />
           </div>
         );
@@ -368,7 +373,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
           </VerticalItem>
 
           <VerticalItem
-            label={<I18n id={'trade-fees-funding'} />}
+            label={<I18n id={'trade-funding-fee-paid'} />}
             align={'right'}
             labelClassName={styles.label}
             valueClassName={styles.value}
@@ -381,34 +386,40 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               short={true}
             />
           </VerticalItem>
-        </div>
 
-        <TextBtn
-          className={styleMerge('highlightStyle', styles.closeBtnMobile)}
-          onClick={() => {
-            P.Option.Trade.OrderList.Close.Order.set(row);
-            P.Option.Trade.OrderList.Close.Visible.set(true);
-          }}
-        >
-          <I18n id={'trade-order-close'} textUpper={'uppercase'} />
-        </TextBtn>
+          <SldButton
+            size={'tiny'}
+            type={'none'}
+            className={styles.btnOutline}
+            onClick={() => {
+              P.Option.Trade.OrderList.Close.Order.set(row);
+              P.Option.Trade.OrderList.Close.Visible.set(true);
+            }}
+          >
+            <I18n id={'trade-order-close'} textUpper={'uppercase'} />
+          </SldButton>
+
+          <ShareOrder order={row} isText={false} />
+        </div>
       </>
     );
   }
 
   render() {
+    const datasource = this.state.orders === undefined ? undefined : [...this.state.orders];
+
     return (
       <>
         {this.state.isMobile ? (
           <TableForMobile
-            datasource={[...(this.state.orders || [])]}
+            datasource={datasource}
             columns={this.columnsMobile}
             rowKey={(row: ShieldOrderInfo) => row.id.toString()}
             rowRender={this.genRowRender.bind(this)}
           />
         ) : (
           <TableForDesktop
-            datasource={[...(this.state.orders || [])]}
+            datasource={datasource}
             columns={this.columns}
             rowKey={(row: ShieldOrderInfo) => row.id.toString()}
           />

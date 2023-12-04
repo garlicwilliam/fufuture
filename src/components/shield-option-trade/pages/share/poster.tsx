@@ -310,9 +310,17 @@ export class Poster extends BaseStateComponent<IProps, IState> {
     a.remove();
   }
 
+  public url(): string | null {
+    if (!this.canvas) {
+      return null;
+    }
+
+    return this.canvas.toDataURL('image/png');
+  }
+
   render() {
-    const dw = this.props.forceWidth ? this.props.forceWidth : this.disWidth;
-    const dh = this.props.forceWidth ? this.props.forceWidth * (this.disHeight / this.disWidth) : this.disHeight;
+    const dw = this.props.forceWidth ? Math.min(this.props.forceWidth, this.disWidth) : this.disWidth;
+    const dh = this.props.forceWidth ? dw * (this.disHeight / this.disWidth) : this.disHeight;
 
     return (
       <canvas

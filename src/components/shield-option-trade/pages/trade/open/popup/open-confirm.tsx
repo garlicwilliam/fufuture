@@ -220,7 +220,7 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
               </HorizonItem>
 
               <HorizonItem
-                label={<I18n id={'trade-fees-funding'} />}
+                label={<I18n id={'trade-funding-fee-init'} />}
                 align={'justify'}
                 labelClass={styleMr(styles.paramLabel, fontCss.bold)}
               >

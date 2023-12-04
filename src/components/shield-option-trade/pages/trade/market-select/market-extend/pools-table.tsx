@@ -5,12 +5,10 @@ import styles from './pools-table.module.less';
 import { TokenAmountInline } from '../../../../../common/content/token-amount-inline';
 import { SldDecimal } from '../../../../../../util/decimal';
 import { I18n } from '../../../../../i18n/i18n';
-import { S } from '../../../../../../state-manager/contract/contract-state-parser';
 import {
-  ShieldTokenPoolLiquidity,
-  ShieldTokenPoolLiquidityList,
   ShieldTokenTradingVolume,
-  ShieldTradingVolume, ShieldUnderlyingType,
+  ShieldTradingVolume,
+  ShieldUnderlyingType,
   TokenErc20,
 } from '../../../../../../state-manager/state-types';
 import { TokenLabel } from '../../../common/token-label';
@@ -126,7 +124,7 @@ export class PoolsTable extends BaseStateComponent<IProps, IState> {
         : undefined;
 
     if (source2 && this.state.volumes && this.state.volumes.indexUnderlying === this.state.tableList2?.underlying) {
-      source2.map(one => {
+      source2.forEach(one => {
         const vol: ShieldTokenTradingVolume | undefined = this.state.volumes?.tokens.find(tokenVol =>
           isSameAddress(one.token.address, tokenVol.token)
         );
@@ -153,6 +151,8 @@ export class PoolsTable extends BaseStateComponent<IProps, IState> {
     const scrollY = this.state.isMobile ? Math.max(window.innerHeight - 500, 120) : 300;
 
     const { source, underlying } = this.getSource();
+
+    console.log('source', source);
 
     return this.state.isMobile ? (
       <PoolsList

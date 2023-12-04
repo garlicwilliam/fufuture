@@ -4,6 +4,23 @@
   display: block;
   width: 500px !important;
 
+  &.mobile {
+    width: (min(100vw, 416px)) !important;
+
+    :global {
+      .ant-modal-content {
+        height: auto;
+
+        .ant-modal-body {
+          padding: 8px 8px !important;
+          height: auto !important;
+          width: auto !important;
+          line-height: 0;
+        }
+      }
+    }
+  }
+
   :global {
     .ant-modal-content {
       height: 710px;
@@ -38,6 +55,11 @@
   display: grid;
   grid-template-columns: 1fr 140px;
 
+  &.mobile {
+    height: 32px;
+    grid-template-columns: 1fr;
+  }
+
   .qr {
     line-height: 0;
     display: grid;
@@ -55,6 +77,16 @@
 
   .down {
     line-height: 0;
+    .flexCenter();
+  }
+
+  .downloadLink {
+    border-radius: @border-radius-btn1;
+    background-color: @color-highlight;
+    text-align: center;
+    line-height: 1;
+
+    .font(14, @color-white);
     .flexCenter();
   }
 }

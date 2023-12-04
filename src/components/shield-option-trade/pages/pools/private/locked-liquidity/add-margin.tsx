@@ -148,7 +148,7 @@ export class MakerAddMargin extends BaseStateComponent<IProps, IState> {
             </HorizonItem>
 
             <HorizonItem
-              label={<I18n id={'trade-open-amount'} />}
+              label={<I18n id={'trade-position-amount'} />}
               align={'justify'}
               labelClass={styleMr(styles.label)}
               valueClass={styleMr(styles.value)}

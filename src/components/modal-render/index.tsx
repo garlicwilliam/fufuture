@@ -36,6 +36,9 @@ export default class ModalRender extends BaseStateComponent<IProps, IState> {
     const { visible, children, title, height, closable, onCancel, maskClosable } = this.props;
     const realTitle = <span className={fontCss.bold}>{title}</span>;
 
+    let maskCssStyle = { backgroundColor: this.props.isDark ? 'rgba(255, 255, 255, 0.3)' : undefined };
+    maskCssStyle = Object.assign(maskCssStyle, this.props.maskStyle || {});
+
     return this.state.isMobile && !this.props.banDrawer ? (
       <Drawer
         closable={closable}
@@ -57,7 +60,7 @@ export default class ModalRender extends BaseStateComponent<IProps, IState> {
         maskClosable={maskClosable}
         title={realTitle}
         onCancel={onCancel}
-        maskStyle={{ backgroundColor: this.props.isDark ? 'rgba(255, 255, 255, 0.3)' : undefined }}
+        maskStyle={maskCssStyle}
         className={styleMerge('modalRender', this.props.className, fontCss.mediumLatin)}
       >
         {children}

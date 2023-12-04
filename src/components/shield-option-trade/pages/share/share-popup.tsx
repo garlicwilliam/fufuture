@@ -7,11 +7,12 @@ import { ShieldOrderInfo } from '../../../../state-manager/state-types';
 import { Poster } from './poster';
 import QRCode from 'qrcode.react';
 import { SldButton } from '../../../common/buttons/sld-button';
-import { styleMerge } from '../../../../util/string';
+import { bindStyleMerger, cssPick, styleMerge } from '../../../../util/string';
 import { fontCss } from '../../../i18n/font-switch';
 import React from 'react';
 import { RouteKey } from '../../../../constant/routes';
 import { prefixPath } from '../../../common/utils/location-wrapper';
+import { Visible } from '../../../builtin/hidden';
 
 type IState = {
   isMobile: boolean;
@@ -52,6 +53,11 @@ export class SharePopup extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
+    const mobileCss = this.state.isMobile ? styles.mobile : '';
+    const styleMr = bindStyleMerger(mobileCss);
+
+    const forceWidth = this.state.isMobile ? Math.min(window.innerWidth - 32, 400) : undefined;
+
     return (
       <ModalRender
         footer={null}
@@ -59,25 +65,35 @@ export class SharePopup extends BaseStateComponent<IProps, IState> {
         visible={this.state.isVisible}
         onCancel={this.hide.bind(this)}
         onClose={this.hide.bind(this)}
-        className={styles.shareModal}
+        className={styleMerge(styles.shareModal, cssPick(this.state.isMobile, styles.mobile))}
         banDrawer={true}
+        maskStyle={{ backgroundColor: this.state.isMobile ? '#000000' : undefined }}
       >
-        {this.state.curOrder ? <Poster ref={this.poster} curOrder={this.state.curOrder} /> : <></>}
+        {this.state.curOrder ? (
+          <Poster
+            forceWidth={this.state.isMobile ? forceWidth : undefined}
+            ref={this.poster}
+            curOrder={this.state.curOrder}
+          />
+        ) : (
+          <></>
+        )}
+        <Visible when={!this.state.isMobile}>
+          <div className={styleMr(styles.foot)}>
+            <div className={styles.qr}>
+              <QRCode size={80} value={this.qrUrl()} />
+              <div className={styleMerge(styles.desc, fontCss.medium)}>
+                <I18n id={'trade-share-qr-desc'} />
+              </div>
+            </div>
 
-        <div className={styles.foot}>
-          <div className={styles.qr}>
-            <QRCode size={80} value={this.qrUrl()} />
-            <div className={styleMerge(styles.desc, fontCss.medium)}>
-              <I18n id={'trade-share-qr-desc'} />
+            <div className={styles.down}>
+              <SldButton size={'large'} type={'primary'} className={styles.btn} onClick={() => this.onDownload()}>
+                <I18n id={'trade-download'} textUpper={'uppercase'} />
+              </SldButton>
             </div>
           </div>
-
-          <div className={styles.down}>
-            <SldButton size={'large'} type={'primary'} className={styles.btn} onClick={() => this.onDownload()}>
-              <I18n id={'trade-download'} textUpper={'uppercase'} />
-            </SldButton>
-          </div>
-        </div>
+        </Visible>
       </ModalRender>
     );
   }

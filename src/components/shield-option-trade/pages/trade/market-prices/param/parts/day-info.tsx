@@ -10,7 +10,7 @@ import { ReactNode } from 'react';
 import { HorizonItem } from '../../../../../../common/content/horizon-item';
 import { D } from '../../../../../../../state-manager/database/database-state-parser';
 import { map } from 'rxjs/operators';
-import {ShieldUnderlyingType} from "../../../../../../../state-manager/state-types";
+import { ShieldUnderlyingType } from '../../../../../../../state-manager/state-types';
 
 type IState = {
   isMobile: boolean;
@@ -42,19 +42,14 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
     this.destroyState();
   }
 
-  merge24Volume() {}
-
   gen24ChangeVertical(styleMr: StyleMerger): ReactNode {
+    const isIncrease: boolean = this.state.dayPriceChange.gtZero();
+    const isDecrease: boolean = this.state.dayPriceChange.lt(SldDecPercent.ZERO);
+
     return (
       <VerticalItem label={<I18n id={'trade-24h-change'} />} gap={'10px'} labelClassName={styleMr(styles.label)}>
-        <span
-          className={styleMr(
-            styles.line1,
-            cssPick(this.state.dayPriceChange.gtZero(), 'longStyle'),
-            cssPick(this.state.dayPriceChange.lt(SldDecPercent.ZERO), 'shortStyle')
-          )}
-        >
-          {this.state.dayPriceChange.percentFormat()}%
+        <span className={styleMr(styles.line1, cssPick(isIncrease, 'longStyle'), cssPick(isDecrease, 'shortStyle'))}>
+          {this.state.dayPriceChange.percentFormat({ sign: true })}%
         </span>
       </VerticalItem>
     );

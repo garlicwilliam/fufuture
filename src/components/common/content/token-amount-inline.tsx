@@ -21,6 +21,7 @@ type IProps = {
   split?: boolean;
   round?: 0 | 1 | -1;
   short?: boolean;
+  sign?: boolean;
   maxDisplay?: SldDecimal | SldUsdValue | SldDecPrice | number;
 };
 
@@ -68,6 +69,7 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
       ceil,
       floor,
       short: this.props.short,
+      sign: this.props.sign
     };
 
     let prefix = '';
