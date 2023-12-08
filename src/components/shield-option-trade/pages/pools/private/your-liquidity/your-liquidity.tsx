@@ -15,6 +15,8 @@ import { Visible } from '../../../../../builtin/hidden';
 import { Empty } from 'antd';
 import { ShieldLoading } from '../../../common/loading';
 import { D } from '../../../../../../state-manager/database/database-state-parser';
+import noData from '../../../../../../assets/imgs/trade/no-data.svg';
+import {SldEmpty} from "../../../../../common/content/empty";
 
 type IState = {
   isMobile: boolean;
@@ -62,7 +64,7 @@ export class YourLiquidity extends BaseStateComponent<IProps, IState> {
 
             <Visible when={!!this.state.liquidityList && this.state.liquidityList.length === 0}>
               <FixPadding top={40} bottom={0} mobTop={30} mobBottom={0}>
-                <Empty />
+                <SldEmpty />
               </FixPadding>
             </Visible>
 

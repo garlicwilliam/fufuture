@@ -33,7 +33,7 @@ export default {
   'trade-claim-all-commission': '領取所有傭金',
   'trade-close-order-confirm': '平倉資訊',
   'trade-column-name-pair': '交易對',
-  'trade-commission-balance': '傭金余額',
+  'trade-commission-balance': '傭金餘額',
   'trade-confirm': '確認',
   'trade-copy-referral': '復制邀請鏈接',
   'trade-copy-referral-short': '復制',

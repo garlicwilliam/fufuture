@@ -108,9 +108,7 @@ export class KLineCharts extends BaseStateComponent<IProps, IState> {
 
     asyncScheduler.schedule(() => {
       this.widget = new TradingView.widget(options);
-      this.widget.postMessage.on('symbolInfo', arg => {
-        console.log('arg', arg);
-      });
+      this.widget.postMessage.on('symbolInfo', arg => {});
     });
   }
 

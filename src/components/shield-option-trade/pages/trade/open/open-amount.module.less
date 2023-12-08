@@ -1,6 +1,8 @@
 @import '../../../../shield-option-common/common';
 
 .wrapperOpen {
+  position: relative;
+
   .title {
     .font(14);
     color: @color-desc;
@@ -9,7 +11,7 @@
   .form {
     border-bottom: 1px solid fade(@color-divider2, 30%);
     border-radius: 0;
-    height: 64px;
+    height: 50px;
     background-color: transparent;
 
     &:global(.sld_dec_num_input_error) {
@@ -23,6 +25,10 @@
   .input {
     .font(24);
     padding: 0;
+
+    &.inPercent {
+      .font(24, @color-desc);
+    }
 
     &::placeholder {
       .font(22);
@@ -40,6 +46,19 @@
 
     &:hover {
       color: @color-normal-font;
+    }
+  }
+
+  .suffixPercent {
+    .font(18, @color-highlight);
+    background-color: @color-bg-f5;
+    height: 32px;
+    width: 70px;
+    .flexCenter();
+
+    border-radius: @border-radius-btn2;
+
+    &.mobile {
     }
   }
 }

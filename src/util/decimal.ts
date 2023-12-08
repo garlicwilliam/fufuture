@@ -315,6 +315,10 @@ export class SldDecimal {
   public castDecimal(newDecimal: number): SldDecimal {
     return SldDecimal.fromE18(this.toE18(), newDecimal);
   }
+
+  public fix(fix: number): SldDecimal {
+    return SldDecimal.fromNumeric(this.castDecimal(fix).toNumeric(), this.getOriginDecimal());
+  }
   // ----------------------------------------------------------------------------------------------------
 
   private originToE18() {
@@ -708,6 +712,11 @@ export class SldDecPercent {
     const dec: SldDecimal = SldDecimal.fromE18(e18, this.originDecObj.getOriginDecimal());
 
     return SldDecPercent.fromDecimal(dec);
+  }
+
+  public times(times: SldDecimal): SldDecPercent {
+    const targetOrigin = this.originDecObj.mul(times.toE18()).div(E18);
+    return SldDecPercent.fromDecimal(targetOrigin);
   }
 
   public div(divisor: BigNumber): SldDecPercent {

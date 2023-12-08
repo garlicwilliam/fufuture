@@ -72,7 +72,7 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
             cssPick(this.state.dayPriceChange.lt(SldDecPercent.ZERO), 'shortStyle')
           )}
         >
-          {this.state.dayPriceChange.percentFormat()}%
+          {this.state.dayPriceChange.percentFormat({ sign: true })}%
         </span>
       </HorizonItem>
     );

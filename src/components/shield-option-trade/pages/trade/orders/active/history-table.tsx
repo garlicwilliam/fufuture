@@ -183,7 +183,10 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
     },
     {
       title: (
-        <TableMobileTitle itemTop={<I18n id={'trade-option-type'} />} itemBottom={<I18n id={'trade-open-time'} />} />
+        <TableMobileTitle
+          itemTop={<I18n id={'trade-option-type'} />}
+          itemBottom={<I18n id={'trade-order-close-time'} />}
+        />
       ),
       dataIndex: 'openTime',
       key: 'time',
@@ -225,7 +228,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
             <div className={styleMerge(styles.cellMain)}>
               <TokenAmountInline
                 amount={amount}
-                token={row.token.symbol}
+                token={row.indexUnderlying}
                 numClassName={styles.value}
                 symClassName={styles.cellDesc}
               />
@@ -290,7 +293,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
         >
           <TokenAmountInline
             amount={row.openPrice}
-            token={row.token.symbol}
+            token={''}
             numClassName={styles.value}
             symClassName={styles.label}
           />
@@ -304,7 +307,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
         >
           <TokenAmountInline
             amount={row.closePrice}
-            token={row.token.symbol}
+            token={''}
             numClassName={styles.value}
             symClassName={styles.label}
           />

@@ -12,6 +12,8 @@ import { ShieldLoading } from '../../../common/loading';
 import { FixPadding } from '../../../../../common/content/fix-padding';
 import { Empty } from 'antd';
 import { D } from '../../../../../../state-manager/database/database-state-parser';
+import noData from '../../../../../../assets/imgs/trade/no-data.svg';
+import { SldEmpty } from '../../../../../common/content/empty';
 
 type IState = {
   isMobile: boolean;
@@ -59,7 +61,7 @@ export class PoolShare extends BaseStateComponent<IProps, IState> {
 
           <Visible when={!!this.state.poolList && this.state.poolList.length === 0}>
             <FixPadding top={40} bottom={0} mobTop={30} mobBottom={0}>
-              <Empty />
+              <SldEmpty />
             </FixPadding>
           </Visible>
         </div>

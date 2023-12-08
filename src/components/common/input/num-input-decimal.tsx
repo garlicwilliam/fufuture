@@ -21,6 +21,8 @@ type IProps = {
   onChange?: (value: SldDecimal | null) => void;
   doChangeIfError?: boolean;
   onErrorChange?: (isError: boolean, errType?: ErrorType | null) => void;
+  onFocus?: (isFocus: boolean) => void;
+  blur?: any;
 
   isDark?: boolean;
   noBorder?: boolean;
@@ -117,6 +119,10 @@ export class DecimalNumInput extends BaseStateComponent<IProps, IState> {
 
     if (isValue || isMax || isMaxIllegal || isMin || isMinIllegal || isMustInt || isFixChange || isDecimalChange) {
       this.updateCondition();
+    }
+
+    if (this.props.blur !== prevProps.blur) {
+      this.inputRef.current?.blur();
     }
   }
 
@@ -379,6 +385,9 @@ export class DecimalNumInput extends BaseStateComponent<IProps, IState> {
 
   onFocus(isFocus: boolean) {
     this.updateState({ isFocus });
+    if (this.props.onFocus) {
+      this.props.onFocus(isFocus);
+    }
   }
 
   onValueChange(event: BaseSyntheticEvent) {

@@ -17,6 +17,7 @@ import { isValidAddress } from '../../../../util/address';
 import { snRep } from '../../../../state-manager/interface-util';
 import { TokenBalance } from './token-balance';
 import { ReactNode } from 'react';
+import {SldEmpty} from "../../../common/content/empty";
 
 type TProps = {
   token: TokenErc20;
@@ -165,7 +166,7 @@ export class SearchToken extends BaseStateComponent<IProps, IState> {
                   return <TokenItem key={i} token={token} onSelected={() => this.onSelect(token)} />;
                 })
               ) : (
-                <Empty />
+                <SldEmpty />
               )}
             </div>
           </ItemsBox>

@@ -14,6 +14,8 @@ import { Empty } from 'antd';
 import { FixPadding } from '../../../../common/content/fix-padding';
 import { shieldOptionTradeService } from '../../../services/shield-option-trade.service';
 import { D } from '../../../../../state-manager/database/database-state-parser';
+import noData from '../../../../../assets/imgs/trade/no-data.svg';
+import { SldEmpty } from '../../../../common/content/empty';
 
 type IState = {
   isMobile: boolean;
@@ -99,7 +101,7 @@ export class TradeMyReferral extends BaseStateComponent<IProps, IState> {
 
           <Visible when={this.state.rewards.length === 0}>
             <FixPadding top={40} bottom={0} mobTop={30} mobBottom={0}>
-              <Empty />
+              <SldEmpty />
             </FixPadding>
           </Visible>
 

@@ -73,7 +73,6 @@ export class ShieldPoolLiquidityService {
 
     return pools$.pipe(
       map((pools: TokenPool[]) => {
-        console.log('pools is', pools);
         return { pools, underlying } as TokenPoolList;
       })
     );

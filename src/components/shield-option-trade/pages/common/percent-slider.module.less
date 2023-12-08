@@ -1,0 +1,162 @@
+@import '../../../shield-option-common/common';
+
+@background: #ffffff;
+@point-size: 10px;
+@line-width: 4px;
+
+@color-bg-off: #dddddd;
+
+.bgAni() {
+  transition-duration: 200ms;
+  transition-property: background-color;
+  transition-timing-function: ease-in;
+}
+
+.outerWrapper {
+  display: block;
+  height: 32px;
+  line-height: 0;
+  width: 100%;
+  padding-top: 16px;
+  user-select: none;
+  touch-action: none;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: @point-size 1fr @point-size 1fr @point-size 1fr @point-size 1fr @point-size;
+  align-items: center;
+  position: relative;
+}
+
+.lineWrapper {
+  width: 100%;
+  height: @line-width;
+  line-height: 0;
+
+  background-color: @color-bg-off;
+
+  .lineInner {
+    height: @line-width;
+    line-height: 0;
+
+    background-color: @color-highlight;
+  }
+}
+
+.pointWrapper {
+  line-height: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  .flexCenter();
+
+  transform: rotate(45deg);
+  transform-origin: center;
+  background-color: @color-bg-off;
+  cursor: pointer;
+
+  .bgAni();
+
+  &.active {
+    background-color: @color-white;
+  }
+
+  &:hover:not(.active) {
+    background-color: @color-white;
+
+    .pointInner {
+      background-color: @color-bg-off;
+    }
+  }
+
+  &:hover:is(.active) {
+    .pointInner {
+      background-color: lighten(@color-highlight, 20%);
+    }
+  }
+
+  .pointInner {
+    line-height: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 1px;
+    background-color: @color-white;
+    .bgAni();
+
+    &.active {
+      background-color: @color-highlight;
+    }
+  }
+}
+
+.sliderWrapper {
+  display: block;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  line-height: 0;
+  border-radius: 4px;
+  .flexCenter();
+  transform: rotate(45deg);
+  transform-origin: center;
+  background-color: @color-highlight;
+  .bgAni();
+  cursor: pointer;
+  touch-action: none;
+
+  .sliderInner {
+    height: 8px;
+    width: 8px;
+    line-height: 0;
+    border-radius: 2px;
+    .flexCenter();
+
+    background-color: @color-white;
+    .bgAni();
+  }
+
+  .valueDisplay {
+    position: absolute;
+    top: -20px;
+    left: -24px;
+    height: 36px;
+    width: 64px;
+    line-height: 1;
+    transform: rotate(-45deg);
+    transform-origin: 32px 28px;
+    pointer-events: none;
+    text-align: center;
+    .font(14, @color-highlight);
+
+    visibility: hidden;
+
+    &.visible {
+      visibility: visible;
+    }
+  }
+
+  .tap {
+    position: absolute;
+    line-height: 1;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: none;
+    &.mobile {
+      display: block;
+    }
+  }
+}
+
+.on {
+  background-color: @color-highlight;
+}
+
+.off {
+  background-color: #dddddd;
+}
+
+.none {
+  background-color: @background;
+}
