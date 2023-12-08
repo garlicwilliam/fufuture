@@ -152,8 +152,6 @@ export class PoolsTable extends BaseStateComponent<IProps, IState> {
 
     const { source, underlying } = this.getSource();
 
-    console.log('source', source);
-
     return this.state.isMobile ? (
       <PoolsList
         onSelect={this.onSelect2.bind(this)}
