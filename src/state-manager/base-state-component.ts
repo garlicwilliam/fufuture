@@ -273,6 +273,17 @@ export class BaseStateComponent<O, S> extends Component<O, S> {
     states.forEach(one => one.tick());
   }
 
+  public tickDelay(delay: number, ...states: (ContractState<any> | DatabaseState<any>)[]) {
+    asyncScheduler.schedule(() => {
+      this.tickState(...states);
+    }, delay);
+  }
+
+  public tickAndLater(delay: number, ...states: (ContractState<any> | DatabaseState<any>)[]) {
+    this.tickState(...states);
+    this.tickDelay(delay, ...states);
+  }
+
   public tickInterval(time: number, ...states: (ContractState<any> | DatabaseState<any>)[]): void {
     const sub = interval(time).subscribe(() => {
       this.tickState(...states);

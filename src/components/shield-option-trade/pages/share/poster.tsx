@@ -248,7 +248,11 @@ export class Poster extends BaseStateComponent<IProps, IState> {
     this.context2D.font = '80px Gilroy-Bold, sans-serif';
     this.context2D.textAlign = 'left';
     this.context2D.fillStyle = '#15b384';
-    this.context2D.fillText('+' + percent.percentFormat({ fix: 1, removeZero: true }) + '%', pos.x, pos.y + textHeight);
+    this.context2D.fillText(
+      '+' + percent.percentFormat({ fix: 1, removeZero: true, split: false }) + '%',
+      pos.x,
+      pos.y + textHeight
+    );
   }
 
   private drawPrice(pos: Pos) {

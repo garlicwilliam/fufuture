@@ -2,14 +2,16 @@ import { BaseStateComponent } from '../../../../../../state-manager/base-state-c
 import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../../../../util/string';
 import styles from './index-funding-pair.module.less';
-import {ShieldUnderlyingType, TokenErc20} from '../../../../../../state-manager/state-types';
+import { ShieldUnderlyingType, TokenErc20 } from '../../../../../../state-manager/state-types';
 import { tokenCacheService } from '../../../../services/token-cache.service';
-import { Observable, of, switchMap } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest, Observable, of, switchMap } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { fontCss } from '../../../../../i18n/font-switch';
 import { I18n } from '../../../../../i18n/i18n';
 import { TokenIcon } from '../../../common/token-icon';
 import { IndexUnderlyingIcon } from '../../../common/index-underlying-icon';
+import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
+import { SLD_ENV_CONF } from '../../../../const/env';
 
 type IState = {
   isMobile: boolean;

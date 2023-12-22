@@ -1,4 +1,4 @@
-import { from, mergeMap, Observable, of, switchMap } from 'rxjs';
+import { AsyncSubject, from, mergeMap, Observable, of, Subscription, switchMap } from 'rxjs';
 import { SldDecPercent } from '../../../util/decimal';
 import { shieldOptionTradeContracts } from '../contract/shield-option-trade-contract';
 import { map, take, tap, toArray } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import {
 import { contractNetwork } from '../../../state-manager/const/contract-creator';
 import { walletState } from '../../../state-manager/wallet/wallet-state';
 import { arrayInteger } from '../../../util/array';
+import * as net from 'net';
 
 export type RateStruct = {
   rate: SldDecPercent;
@@ -20,48 +21,76 @@ export type RateStruct = {
 
 export class ShieldOptionMatrixService {
   private cache: Map<Network, Map<number, SldDecPercent>> = new Map<Network, Map<number, SldDecPercent>>();
+  private matrixInit: Map<Network, AsyncSubject<boolean>> = new Map<Network, AsyncSubject<boolean>>();
 
+  private sub: Subscription | null = null;
   constructor() {
     this.init();
   }
 
+  private matrixInitStatus(network: Network): Observable<boolean> {
+    if (!this.matrixInit.has(network)) {
+      this.matrixInit.set(network, new AsyncSubject<boolean>());
+    }
+
+    return this.matrixInit.get(network) as AsyncSubject<boolean>;
+  }
+
+  private matrixInitialized(network: Network) {
+    if (!this.matrixInit.has(network)) {
+      this.matrixInit.set(network, new AsyncSubject<boolean>());
+    }
+
+    const initSubject = this.matrixInit.get(network) as AsyncSubject<boolean>;
+    initSubject.next(true);
+    initSubject.complete();
+  }
+
+  private initMatrixCache(network: Network, rates: SldDecPercent[]) {
+    const cacheMap = new Map<number, SldDecPercent>();
+
+    rates.forEach((rate: SldDecPercent, i: number) => {
+      cacheMap.set(i, rate);
+    });
+
+    this.cache.set(network, cacheMap);
+    this.matrixInitialized(network);
+  }
+
   private init() {
-    this.contract()
+    const sub = this.contract()
       .pipe(
         switchMap((contract: Contract) => {
           return paramFundingRateMatrixGetter(contract).pipe(
             map((rates: SldDecPercent[]) => {
-              return { rates, network: contractNetwork(contract) };
+              return { rates, network: contractNetwork(contract)! };
             })
           );
         }),
         tap(({ rates, network }) => {
-          rates.forEach((rate, i) => {
-            const struct: RateStruct = { rate, network: network!, dayIndex: i };
-            this.setCache(struct);
-          });
+          this.initMatrixCache(network, rates);
         })
       )
       .subscribe();
   }
 
-  public getRate(dayIndex: number): Observable<SldDecPercent> {
-    return this.getRateStruct(dayIndex).pipe(map(res => res.rate));
+  public getRate(dayIndex: number, network: Network): Observable<SldDecPercent> {
+    return this.getRateStruct(dayIndex, network).pipe(map(res => res.rate));
   }
 
-  public getRates(dayIndex: number[]): Observable<SldDecPercent[]> {
-    return this.getRatesList(dayIndex).pipe(map(rates => rates.map(one => one.rate)));
+  public getRates(dayIndex: number[], network: Network): Observable<SldDecPercent[]> {
+    return this.getRatesList(dayIndex, network).pipe(map(rates => rates.map(one => one.rate)));
   }
 
-  public getDayRates(fromDay: number, dayCount: number): Observable<SldDecPercent[]> {
+  public getDayRates(fromDay: number, dayCount: number, network: Network): Observable<SldDecPercent[]> {
     const indexes = arrayInteger(dayCount, fromDay);
-    return this.getRates(indexes);
+    return this.getRates(indexes, network);
   }
 
-  public getRatesList(dayIndexes: number[]): Observable<RateStruct[]> {
+  public getRatesList(dayIndexes: number[], network: Network): Observable<RateStruct[]> {
     return from(dayIndexes).pipe(
       mergeMap((dayIndex: number) => {
-        return this.getRateStruct(dayIndex);
+        return this.getRateStruct(dayIndex, network);
       }),
       toArray(),
       map((rates: RateStruct[]) => {
@@ -72,79 +101,32 @@ export class ShieldOptionMatrixService {
 
   // ------------------------------------------------------------------------------------------------------
 
-  private getRateStruct(dayIndex: number): Observable<RateStruct> {
-    if (dayIndex > 364) {
-      throw Error('Funding Rate Matrix Overflow');
-    }
-
-    const res = this.getCache(dayIndex);
-    if (res) {
-      return of(res);
-    }
-
-    return this.doQuery(dayIndex).pipe(
-      tap((res: RateStruct) => {
-        this.setCache(res);
+  private getRateStruct(dayIndex: number, network: Network): Observable<RateStruct> {
+    return this.matrixInitStatus(network).pipe(
+      map(() => {
+        return this.getCacheStruct(dayIndex, network);
       })
     );
   }
 
-  private setCache(res: RateStruct) {
-    if (!this.cache.has(res.network)) {
-      this.cache.set(res.network, new Map<number, SldDecPercent>());
+  private getCacheStruct(dayIndex: number, network: Network): RateStruct {
+    const cacheMap = this.cache.get(network) as Map<number, SldDecPercent>;
+
+    if (dayIndex >= cacheMap.size) {
+      dayIndex = cacheMap.size - 1;
     }
 
-    const cacheMap = this.cache.get(res.network) as Map<number, SldDecPercent>;
-    if (!cacheMap.has(res.dayIndex)) {
-      cacheMap.set(res.dayIndex, res.rate);
-    }
-  }
+    const rate: SldDecPercent = cacheMap.get(dayIndex) as SldDecPercent;
 
-  private getCacheStruct(dayIndex: number, network: Network): RateStruct | null {
-    const cacheMap = this.cache.get(network);
-    if (cacheMap) {
-      const rate = cacheMap.get(dayIndex);
-      if (rate) {
-        return {
-          rate,
-          network,
-          dayIndex,
-        };
-      }
-    }
-
-    return null;
-  }
-
-  private getCache(dayIndex: number): RateStruct | null {
-    const network = walletState.getCurNetwork();
-    if (!network) {
-      return null;
-    }
-
-    return this.getCacheStruct(dayIndex, network);
-  }
-
-  private doQuery(dayIndex: number): Observable<RateStruct> {
-    return this.contract().pipe(
-      switchMap((contract: Contract) => {
-        return paramFundingRateGetter(contract, dayIndex).pipe(
-          map((rate: SldDecPercent): RateStruct => {
-            const network: Network = contractNetwork(contract)!;
-
-            return {
-              rate,
-              network,
-              dayIndex,
-            };
-          })
-        );
-      })
-    );
+    return {
+      rate,
+      network,
+      dayIndex,
+    };
   }
 
   private contract(): Observable<Contract> {
-    return shieldOptionTradeContracts.CONTRACTS.optionTrade.pipe(take(1));
+    return shieldOptionTradeContracts.CONTRACTS.optionTrade;
   }
 }
 

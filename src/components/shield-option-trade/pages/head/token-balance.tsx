@@ -9,6 +9,9 @@ import { S } from '../../../../state-manager/contract/contract-state-parser';
 import { walletState } from '../../../../state-manager/wallet/wallet-state';
 import { Visible } from '../../../builtin/hidden';
 import { TokenIcon } from '../common/token-icon';
+import { combineLatest, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { SLD_ENV_CONF } from '../../const/env';
 
 type IState = {
   isMobile: boolean;
@@ -31,10 +34,25 @@ export class TokenBalance extends BaseStateComponent<IProps, IState> {
     this.registerState('balance', S.Option.User.Deposit.Max);
     this.registerState('curToken', P.Option.Trade.Pair.Quote);
     this.registerObservable('isConnected', walletState.IS_CONNECTED);
+
+    this.sub(this.watchInitToken());
   }
 
   componentWillUnmount() {
     this.destroyState();
+  }
+
+  private watchInitToken(): Observable<any> {
+    return combineLatest([walletState.NETWORK, P.Option.Trade.Pair.Quote.watch()]).pipe(
+      tap(([network, quoteToken]) => {
+        if (quoteToken === null || quoteToken.network !== network) {
+          const token: TokenErc20 | undefined = SLD_ENV_CONF.Supports[network]?.DefaultToken;
+          if (token) {
+            P.Option.Trade.Pair.Quote.set(token);
+          }
+        }
+      })
+    );
   }
 
   onRefresh() {

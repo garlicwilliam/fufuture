@@ -164,12 +164,13 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
                 disabled={this.props.disableConnection}
               />
 
+              <MetamaskButton
+                targetProvider={EthereumProviderName.Coin98}
+                styleType={buttonType}
+                disabled={this.props.disableConnection}
+              />
+
               <Visible when={appName !== AppName.Stone}>
-                <MetamaskButton
-                  targetProvider={EthereumProviderName.Coin98}
-                  styleType={buttonType}
-                  disabled={this.props.disableConnection}
-                />
                 <MetamaskButton
                   targetProvider={EthereumProviderName.Onto}
                   styleType={buttonType}

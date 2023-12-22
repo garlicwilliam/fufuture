@@ -11,7 +11,7 @@ import { SldDecimal, SldDecPercent } from '../../../../../../util/decimal';
 import { DecimalNumInput } from '../../../../../common/input/num-input-decimal';
 import { I18n } from '../../../../../i18n/i18n';
 import { TokenAmountInline } from '../../../../../common/content/token-amount-inline';
-import {ShieldOrderOpenResult, ShieldUnderlyingType, TokenErc20} from '../../../../../../state-manager/state-types';
+import { ShieldOrderOpenResult, ShieldUnderlyingType, TokenErc20 } from '../../../../../../state-manager/state-types';
 import { ItemsBox } from '../../../../../common/content/items-box';
 import { OverlayClose } from '../../../../../common/icon/overlay-close';
 import { HorizonItem } from '../../../../../common/content/horizon-item';
@@ -27,6 +27,7 @@ import { combineLatest, Observable, of, switchMap, zip } from 'rxjs';
 import { filter, finalize, map, startWith, take } from 'rxjs/operators';
 import { PendingHolder } from '../../../../../common/progress/pending-holder';
 import { computeOrderLaterPhaseFundingFee } from '../../../../utils/compute';
+import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
 
 type PState = { isMobile: boolean };
 type PProps = {
@@ -207,7 +208,11 @@ export class Calc extends BaseStateComponent<IProps, IState> {
 
   private mergeDefaultPhaseFundingFee(): Observable<SldDecimal[]> {
     const first$ = this.watchStateChange('firstFundingFee');
-    const rates$ = shieldOptionMatrixService.getDayRates(0, this.defaultPhases.length);
+    const rates$ = walletState.NETWORK.pipe(
+      switchMap(network => {
+        return shieldOptionMatrixService.getDayRates(0, this.defaultPhases.length, network);
+      })
+    );
     const times$ = S.Option.Params.Funding.DailyTimes.get().pipe(map(times => times.toNumber()));
 
     return combineLatest([first$, rates$, times$]).pipe(
@@ -231,20 +236,20 @@ export class Calc extends BaseStateComponent<IProps, IState> {
   }
 
   private mergePhaseHoldFundingFee(): Observable<SldDecimal> {
-    const phaseCount$ = P.Option.Trade.Calculator.PhaseHold.watch().pipe(
+    const phaseCount$: Observable<number> = P.Option.Trade.Calculator.PhaseHold.watch().pipe(
       map(count => {
         return count ? Number(count.toNumeric()) : 0;
       })
     );
     const firstFund$ = this.watchStateChange('firstFundingFee');
-
-    return combineLatest([firstFund$, phaseCount$]).pipe(
-      switchMap(([firstFund, phaseCount]) => {
+    const network$ = walletState.NETWORK;
+    return combineLatest([firstFund$, phaseCount$, network$]).pipe(
+      switchMap(([firstFund, phaseCount, network]) => {
         if (!phaseCount || !firstFund || firstFund.fundingFee.isZero()) {
           return of(SldDecimal.ZERO);
         }
 
-        const dayRates$: Observable<SldDecPercent[]> = shieldOptionMatrixService.getDayRates(0, phaseCount);
+        const dayRates$: Observable<SldDecPercent[]> = shieldOptionMatrixService.getDayRates(0, phaseCount, network);
         const dayTimes$ = S.Option.Params.Funding.DailyTimes.get().pipe(map(times => times.toNumber()));
 
         return zip(dayTimes$, dayRates$).pipe(

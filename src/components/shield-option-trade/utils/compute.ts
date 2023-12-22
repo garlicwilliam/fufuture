@@ -1,4 +1,5 @@
 import {
+  ShieldClosedOrderInfo,
   ShieldMakerOrderInfo,
   ShieldOptionType,
   ShieldOrderInfo,
@@ -20,6 +21,23 @@ export type OrderNextPhaseFundingMetaInfo = {
   owedFundingFee?: PhaseFundingFeeMeta[];
   overFundingFee?: PhaseFundingFeeMeta[];
 };
+
+export function computeClosedOrderPnl(order: ShieldClosedOrderInfo): SldDecimal {
+  const positionProfit: SldDecimal =
+    order.optionType === ShieldOptionType.Call
+      ? order.closePrice.gt(order.openPrice)
+        ? order.orderAmount.toUsdValue(order.closePrice.sub(order.openPrice), order.token.decimal).toTokenDecimal()
+        : SldDecimal.ZERO
+      : order.openPrice.gt(order.closePrice)
+      ? order.orderAmount.toUsdValue(order.openPrice.sub(order.closePrice), order.token.decimal).toTokenDecimal()
+      : SldDecimal.ZERO;
+
+  const fundingFee: SldDecimal = order.fundingFeePaid;
+
+  const pnl = positionProfit.sub(fundingFee);
+
+  return pnl;
+}
 
 export function computeOrderPnl(order: ShieldOrderInfo): {
   unrealizedPnl: SldDecimal;

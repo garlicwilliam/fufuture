@@ -21,6 +21,7 @@ type IState = {
 
 type IProps = {
   max?: SldDecimal;
+  maxLimit?: SldDecimal;
   value?: SldDecimal | null;
   token?: TokenErc20;
   onChange?: (val: null | SldDecimal) => void;
@@ -57,11 +58,13 @@ export class TokenInput extends BaseStateComponent<IProps, IState> {
     if (this.props.token) {
       const icon$ = tokenCacheService.getTokenIcon(this.props.token).pipe(
         tap((icon: string | null) => {
-          this.updateState({ tokenIcon: icon || '' });
+          this.updateState({ tokenIcon: icon || undefined });
         })
       );
 
       this.subOnce(icon$);
+    } else {
+      this.updateState({ tokenIcon: undefined });
     }
   }
 
@@ -108,7 +111,11 @@ export class TokenInput extends BaseStateComponent<IProps, IState> {
     const styleMr = bindStyleMerger(mobileCss);
     const placeholder = this.props.placeholderName ? this.props.placeholderName : i18n('trade-max');
 
-    const max: SldDecimal = this.props.max ? this.props.max : this.state.balance || SldDecimal.ZERO;
+    const max: SldDecimal = this.props.max
+      ? this.props.max
+      : this.props.maxLimit && this.state.balance
+      ? SldDecimal.min(this.state.balance, this.props.maxLimit)
+      : this.state.balance || SldDecimal.ZERO;
 
     return (
       <div className={styleMr(styles.wrapper)}>

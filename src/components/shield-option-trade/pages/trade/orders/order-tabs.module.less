@@ -9,3 +9,34 @@
     padding: 0 4px 16px 4px;
   }
 }
+
+.tabRefresh {
+  position: absolute;
+  right: 0;
+  cursor: pointer;
+  color: @color-desc;
+  line-height: 0;
+
+  transition-property: color;
+  transition-duration: 350ms;
+
+  &.mobile {
+    right: 6px;
+  }
+
+  &:hover {
+    color: @color-normal-font;
+  }
+}
+
+.pending1 {
+  transition-property: transform;
+  transition-duration: 1000ms;
+  transform: rotate(0deg);
+}
+
+.pending2 {
+  transition-property: transform;
+  transition-duration: 1000ms;
+  transform: rotate(360deg);
+}

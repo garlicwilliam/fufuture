@@ -1,4 +1,4 @@
-import { ShieldOptionTradeConfigAbi } from './shield-option-address';
+import { ShieldOptionTradeABIs } from './shield-option-address';
 type Abi = any[];
 export const ABI_CHAIN_LINK: Abi = [
   {
@@ -4695,13 +4695,9 @@ export const ABI_BROKER: Abi = [
   },
 ];
 
-export const SHIELD_OPTION_TRADE_ABI: ShieldOptionTradeConfigAbi = {
-  ethOracle: ABI_CHAIN_LINK,
-  btcOracle: ABI_CHAIN_LINK,
+export const SHIELD_OPTION_TRADE_ABI: ShieldOptionTradeABIs = {
   optionTrade: ABI_OPTION_TRADE,
   liquidityManager: ABI_LIQUIDITY_MANAGER,
   liquidityFactory: ABI_LIQUIDITY_FACTORY,
-  underlyingBTC: ABI_UNDERLYING_ASSET,
-  underlyingETH: ABI_UNDERLYING_ASSET,
   broker: ABI_BROKER,
 };

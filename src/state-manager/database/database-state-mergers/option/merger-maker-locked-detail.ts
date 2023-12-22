@@ -1,5 +1,5 @@
 import { DatabaseStateMerger } from '../../../interface';
-import { ShieldMakerOrderInfo, ShieldMakerPrivatePoolInfo } from '../../../state-types';
+import { ShieldMakerOrderInfo, ShieldMakerOrderInfoRs, ShieldMakerPrivatePoolInfo } from '../../../state-types';
 import { BehaviorSubject, Observable, of, switchMap, zip } from 'rxjs';
 import { httpPost } from '../../../../util/http';
 import { finalize, map, take, tap } from 'rxjs/operators';
@@ -7,35 +7,44 @@ import * as _ from 'lodash';
 import { makerPriPoolOrdersGetter } from '../../../contract/contract-getter-cpx-shield';
 import { shieldOptionTradeContracts } from '../../../../components/shield-option-trade/contract/shield-option-trade-contract';
 import { BigNumber } from 'ethers';
-import {SLD_ENV_CONF} from "../../../../components/shield-option-trade/const/env";
+import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
 
 type OrderId = {
   orderID: string;
   makerID: string;
 };
 
-export class MergerMakerLockedDetail
-  implements DatabaseStateMerger<ShieldMakerOrderInfo[], [ShieldMakerPrivatePoolInfo]>
-{
+type InfoResult = ShieldMakerOrderInfoRs | undefined;
+type PoolArgument = ShieldMakerPrivatePoolInfo | null;
+
+export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, [PoolArgument]> {
   private isPending: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  mergeWatch(...args: [ShieldMakerPrivatePoolInfo]): Observable<ShieldMakerOrderInfo[]> {
+  mergeWatch(...args: [PoolArgument]): Observable<InfoResult> {
+    if (!args[0]) {
+      return of(undefined);
+    }
+
     return this.doGet(args[0]);
   }
 
-  mock(args?: [ShieldMakerPrivatePoolInfo]): Observable<ShieldMakerOrderInfo[]> | ShieldMakerOrderInfo[] {
-    return [];
+  mock(args?: [PoolArgument]): Observable<InfoResult> | InfoResult {
+    return undefined;
   }
 
   pending(): Observable<boolean> {
     return this.isPending;
   }
 
-  private doGet(pool: ShieldMakerPrivatePoolInfo): Observable<ShieldMakerOrderInfo[]> {
-    const url = SLD_ENV_CONF.SubGraphUrl;
+  private doGet(pool: PoolArgument): Observable<InfoResult> {
+    if (!pool) {
+      return of(undefined);
+    }
 
-    if (!url || !pool) {
-      return of([]);
+    const url: string | undefined = SLD_ENV_CONF.Supports[pool.token.network]?.SubGraphUrl;
+
+    if (!url) {
+      return of(undefined);
     }
 
     const info$ = httpPost(url, this.genParam(pool.holder, pool.priPoolAddress)).pipe(
@@ -73,6 +82,14 @@ export class MergerMakerLockedDetail
         return orders.sort((a, b) => {
           return b.id.sub(a.id).toNumber();
         });
+      }),
+      map((orders: ShieldMakerOrderInfo[]): ShieldMakerOrderInfoRs => {
+        return {
+          orders,
+          maker: pool.holder,
+          network: pool.network,
+          pool: pool.priPoolAddress,
+        };
       })
     );
 

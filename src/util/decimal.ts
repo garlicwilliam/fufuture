@@ -575,6 +575,10 @@ export class SldUsdValue {
     return this.decimalObj;
   }
 
+  public toTokenDecimal() {
+    return this.decimalObj.castDecimal(this.tokenOriginDecimal);
+  }
+
   public add(val: SldUsdValue): SldUsdValue {
     if (this === SldUsdValue.ZERO || this.isZero()) {
       return val;

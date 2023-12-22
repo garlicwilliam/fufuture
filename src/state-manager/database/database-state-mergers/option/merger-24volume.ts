@@ -9,14 +9,16 @@ import { BigNumber } from 'ethers';
 import { ZERO } from '../../../../constant';
 import { IndexUnderlyingDecimal } from '../../../../components/shield-option-trade/const/assets';
 import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
-import {ShieldTokenTradingVolume, ShieldTradingVolume, ShieldUnderlyingType} from '../../../state-types';
+import { ShieldTokenTradingVolume, ShieldTradingVolume, ShieldUnderlyingType } from '../../../state-types';
 import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
+import { NET_BNB, Network } from '../../../../constant/network';
 
-function emptyRs(name: ShieldUnderlyingType): ShieldTradingVolume {
+function emptyRs(name: ShieldUnderlyingType, network: Network): ShieldTradingVolume {
   return {
     indexUnderlying: name,
     total: SldDecimal.ZERO,
     tokens: [],
+    network: network ? network : NET_BNB,
   };
 }
 
@@ -37,15 +39,11 @@ class VolumeCache {
   get(token: string): BigNumber {
     const key: string = token.toLowerCase();
 
-    if (this.volume.has(key)) {
-      return this.volume.get(key)!;
-    }
-
-    return ZERO;
+    return this.volume.has(key) ? this.volume.get(key) || ZERO : ZERO;
   }
 
   toVolumes(): ShieldTokenTradingVolume[] {
-    return Array.from(this.volume.keys()).map(token => {
+    return Array.from(this.volume.keys()).map((token: string) => {
       return {
         token,
         volume: SldDecimal.fromOrigin(this.volume.get(token)!, IndexUnderlyingDecimal),
@@ -54,28 +52,28 @@ class VolumeCache {
   }
 }
 
-export class Merger24volume implements DatabaseStateMerger<ShieldTradingVolume, [string]> {
-  mergeWatch(...args: [string]): Observable<ShieldTradingVolume> {
-    return this.doGet(args[0] as ShieldUnderlyingType);
+export class Merger24volume implements DatabaseStateMerger<ShieldTradingVolume, [ShieldUnderlyingType, Network]> {
+  mergeWatch(...args: [ShieldUnderlyingType, Network]): Observable<ShieldTradingVolume> {
+    return this.doGet(args[0], args[1]);
   }
 
-  mock(args?: [string]): Observable<ShieldTradingVolume> | ShieldTradingVolume {
-    return args ? emptyRs(args[0] as ShieldUnderlyingType) : emptyRs(ShieldUnderlyingType.ETH);
+  mock(args?: [ShieldUnderlyingType, Network]): Observable<ShieldTradingVolume> | ShieldTradingVolume {
+    return args ? emptyRs(args[0], args[1]) : emptyRs(ShieldUnderlyingType.ETH, NET_BNB);
   }
 
   pending(): Observable<boolean> {
     return of(false);
   }
 
-  doGet(name: ShieldUnderlyingType): Observable<ShieldTradingVolume> {
-    const url = SLD_ENV_CONF.SubGraphUrl;
+  doGet(name: ShieldUnderlyingType, network: Network): Observable<ShieldTradingVolume> {
+    const url: string | undefined = SLD_ENV_CONF.Supports[network]?.SubGraphUrl;
 
     if (!url) {
-      return of(emptyRs(name));
+      return of(emptyRs(name, network));
     }
 
     const volume$ = httpPost(url, this.genParam(name)).pipe(
-      map(res => {
+      map((res): ShieldTradingVolume => {
         const isOK = _.get(res, 'status', 400) === 200 && !_.isEmpty(_.get(res, 'body.data'));
 
         const volume = new VolumeCache();
@@ -106,10 +104,11 @@ export class Merger24volume implements DatabaseStateMerger<ShieldTradingVolume, 
             indexUnderlying: name,
             total,
             tokens: volume.toVolumes(),
-          } as ShieldTradingVolume;
+            network,
+          };
         }
 
-        return emptyRs(name);
+        return emptyRs(name, network);
       })
     );
 

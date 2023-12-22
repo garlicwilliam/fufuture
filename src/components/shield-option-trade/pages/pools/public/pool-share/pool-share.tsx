@@ -4,41 +4,60 @@ import { bindStyleMerger } from '../../../../../../util/string';
 import styles from './pool-share.module.less';
 import { fontCss } from '../../../../../i18n/font-switch';
 import { PoolItem } from './pool-item';
-import { ShieldMakerPublicPoolShare } from '../../../../../../state-manager/state-types';
+import { ShieldMakerPublicPoolShare, ShieldMakerPublicPoolShareRs } from '../../../../../../state-manager/state-types';
 import { WithdrawPublic } from './withdraw-public';
 import { I18n } from '../../../../../i18n/i18n';
 import { Visible } from '../../../../../builtin/hidden';
 import { ShieldLoading } from '../../../common/loading';
 import { FixPadding } from '../../../../../common/content/fix-padding';
-import { Empty } from 'antd';
 import { D } from '../../../../../../state-manager/database/database-state-parser';
-import noData from '../../../../../../assets/imgs/trade/no-data.svg';
 import { SldEmpty } from '../../../../../common/content/empty';
+import { Network } from '../../../../../../constant/network';
+import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
+import { isSameAddress } from '../../../../../../util/address';
 
 type IState = {
   isMobile: boolean;
-  poolList: ShieldMakerPublicPoolShare[] | undefined;
+  network: Network | null;
+  maker: string | null;
+  shareRs: ShieldMakerPublicPoolShareRs | undefined;
 };
 type IProps = {};
 
 export class PoolShare extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
-    poolList: undefined,
+    network: null,
+    maker: null,
+    shareRs: undefined,
   };
 
   componentDidMount() {
     this.registerIsMobile('isMobile');
-    this.registerState('poolList', D.Option.Maker.YourShareInPools);
+    this.registerState('shareRs', D.Option.Maker.YourShareInPools);
+    this.registerObservable('network', walletState.NETWORK);
+    this.registerObservable('maker', walletState.USER_ADDR);
   }
 
   componentWillUnmount() {
     this.destroyState();
   }
 
+  getShareList(): ShieldMakerPublicPoolShare[] | undefined {
+    const isLoading: boolean =
+      !this.state.shareRs ||
+      this.state.shareRs.network !== this.state.network ||
+      !this.state.maker ||
+      !isSameAddress(this.state.maker, this.state.shareRs.maker);
+
+    return isLoading ? undefined : this.state.shareRs?.pools;
+  }
+
   render() {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
+
+    const shares = this.getShareList();
 
     return (
       <div className={styleMr(styles.wrapperShare)}>
@@ -47,19 +66,19 @@ export class PoolShare extends BaseStateComponent<IProps, IState> {
         </div>
 
         <div className={styleMr(styles.poolList)}>
-          <Visible when={this.state.poolList === undefined}>
+          <Visible when={!shares}>
             <FixPadding top={40} bottom={0} mobTop={30} mobBottom={0}>
               <ShieldLoading size={40} />
             </FixPadding>
           </Visible>
 
-          <Visible when={!!this.state.poolList && this.state.poolList.length > 0}>
-            {this.state.poolList?.map((one: ShieldMakerPublicPoolShare, index: number) => {
+          <Visible when={!!shares && shares.length > 0}>
+            {shares?.map((one: ShieldMakerPublicPoolShare, index: number) => {
               return <PoolItem key={index} pubShare={one} />;
             })}
           </Visible>
 
-          <Visible when={!!this.state.poolList && this.state.poolList.length === 0}>
+          <Visible when={!!shares && shares.length === 0}>
             <FixPadding top={40} bottom={0} mobTop={30} mobBottom={0}>
               <SldEmpty />
             </FixPadding>

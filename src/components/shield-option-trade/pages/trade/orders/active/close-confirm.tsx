@@ -46,8 +46,6 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
     this.registerState('isVisible', P.Option.Trade.OrderList.Close.Visible);
     this.registerState('order', P.Option.Trade.OrderList.Close.Order);
     this.registerState('curPrice', this.mergeCurPrice());
-
-    this.tickInterval(10000, S.Option.Oracle.ETH, S.Option.Oracle.BTC);
   }
 
   componentWillUnmount() {
@@ -89,7 +87,12 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
     this.subOnce(close$, (done: boolean) => {
       if (done) {
         this.hide();
-        this.tickState(S.Option.Order.ActiveList, S.Option.User.Account.Info);
+        this.tickState(
+          S.Option.Order.ActiveList,
+          S.Option.User.Account.Info,
+          S.Option.Pool.Info,
+          S.Option.Order.Open.Max
+        );
       }
     });
   }

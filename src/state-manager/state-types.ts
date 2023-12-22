@@ -135,14 +135,17 @@ export type StonePoolInfo = {
   chainIcon: string;
   lpAddress: string;
   lpName: string;
+  lpUrl?: string;
   miningAddress: string;
   gNftAddress: string;
   protocolUrl: string;
   protocolIcon: string;
   protocolName: string;
   stakeType: StateAssetTypeForGNFT;
+  displayCheckId?: string;
 };
 export type StonePoolHasStaked = {
+  poolAddr: string;
   user: string;
   hasPosition: boolean;
 };
@@ -203,10 +206,12 @@ export enum ShieldOrderState {
 export type ShieldPoolAddress = {
   poolAddress: string;
   tokenAddress: string;
+  network: Network;
 };
 export type ShieldPoolAddressList = {
   private: ShieldPoolAddress[];
   public: ShieldPoolAddress[];
+  network: Network;
 };
 export type ShieldUserAccountInfo = {
   availableBalance: SldDecimal;
@@ -219,6 +224,7 @@ export type ShieldTokenTradingVolume = {
   volume: SldDecimal;
 };
 export type ShieldTradingVolume = {
+  network: Network;
   indexUnderlying: ShieldUnderlyingType;
   total: SldDecimal;
   tokens: ShieldTokenTradingVolume[];
@@ -249,9 +255,42 @@ export type ShieldOrderInfo = {
     pnl: SldDecimal;
   };
 };
+export type ShieldClosedOrderInfo = {
+  id: BigNumber;
+  taker: string;
+  underlying: ShieldUnderlyingType;
+  token: TokenErc20;
+  optionType: ShieldOptionType;
+  orderState: ShieldOrderState;
+  orderAmount: SldDecimal;
+  openPrice: SldDecPrice;
+  openTime: number;
+  fundingFeePaid: SldDecimal;
+  tradingFee: SldDecimal;
+  closePrice: SldDecPrice;
+  closeTime: number;
+  pnl: SldDecimal;
+};
+export type ShieldClosedOrderInfoRs = {
+  orders: ShieldClosedOrderInfo[];
+  taker: string;
+  network: Network;
+};
+export type ShieldActiveOrderRs = {
+  network: Network;
+  taker: string;
+  orders: ShieldOrderInfo[];
+};
 export type ShieldHistoryOrderRs = {
   orders: ShieldOrderInfo[];
   taker: string;
+  network: Network;
+};
+export type ShieldMakerOrderInfoRs = {
+  network: Network;
+  maker: string;
+  pool: string;
+  orders: ShieldMakerOrderInfo[];
 };
 export type ShieldMakerOrderInfo = {
   id: BigNumber;
@@ -300,9 +339,14 @@ export type ShieldOrderFundPhaseInfo = {
     fundingFee: SldDecimal;
   }[];
 };
-
+export type ShieldTokenSearchList = {
+  tokens: TokenErc20[];
+  network: Network;
+};
 export type ShieldPoolInfo = {
   poolAddress: string;
+  network: Network;
+  token: TokenErc20;
   available: SldDecimal;
   locked: SldDecimal;
   total: SldDecimal;
@@ -335,16 +379,22 @@ export type ShieldOrderOpenResult = {
   isLackAvailable: boolean;
 };
 export type ShieldMakerPrivatePoolInfo = {
+  network: Network;
   priPoolAddress: string;
-  indexUnderlying: ShieldUnderlyingType;
-  token: TokenErc20;
   holder: string;
+  token: TokenErc20;
+  indexUnderlying: ShieldUnderlyingType;
   amount: SldDecimal;
   amountAvailable: SldDecimal;
   amountLocked: SldDecimal;
   marginFee: SldDecimal;
   isReject: boolean;
   isExclusive: boolean;
+};
+export type ShieldMakerPrivatePoolInfoRs = {
+  pools: ShieldMakerPrivatePoolInfo[];
+  maker: string;
+  network: Network;
 };
 export type ShieldMakerPublicPoolShare = {
   poolAddress: string;
@@ -354,6 +404,11 @@ export type ShieldMakerPublicPoolShare = {
   lpTotalSupply: SldDecimal;
   lpShare: SldDecPercent;
   lpPrice: SldDecimal;
+};
+export type ShieldMakerPublicPoolShareRs = {
+  pools: ShieldMakerPublicPoolShare[];
+  network: Network;
+  maker: string;
 };
 
 export type ShieldBrokerReward = {

@@ -6,7 +6,8 @@ import ModalRender from '../../../../../modal-render';
 import { I18n } from '../../../../../i18n/i18n';
 import {
   ShieldMakerPrivatePoolInfo,
-  ShieldTradePair, ShieldUnderlyingType,
+  ShieldTradePair,
+  ShieldUnderlyingType,
   StateNull,
   TokenErc20,
 } from '../../../../../../state-manager/state-types';
@@ -106,11 +107,8 @@ export class AddPrivateLiquidity extends BaseStateComponent<IProps, IState> {
     this.subOnce(add$, (done: boolean) => {
       if (done) {
         this.hide();
-        this.tickState(
-          S.Option.Pool.Maker.Liquidity.Private.Add.Current,
-          S.Option.Pool.Maker.Liquidity.Private.List,
-          D.Option.Maker.YourLiquidity
-        );
+        this.tickState(S.Option.Pool.Maker.Liquidity.Private.Add.Current);
+        this.tickAndLater(8000, D.Option.Maker.YourLiquidity);
         this.updateState({ inputValue: null });
       }
     });

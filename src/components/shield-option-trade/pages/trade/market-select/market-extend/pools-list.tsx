@@ -40,7 +40,7 @@ export class PoolsList extends BaseStateComponent<IProps, IState> {
     return (
       <div className={styleMr(styles.poolList)} style={{ maxHeight: pxStr(this.props.maxHeight) }}>
         {this.props.tokenPools ? (
-          this.props.tokenPools.pools.length > 0 ? (
+          this.props.tokenPools.pools && this.props.tokenPools.pools.length > 0 ? (
             this.props.tokenPools.pools.map(pool => {
               return (
                 <div
@@ -83,6 +83,7 @@ export class PoolsList extends BaseStateComponent<IProps, IState> {
           )
         ) : (
           <FixPadding top={20} bottom={0} mobTop={20} mobBottom={0}>
+            <PendingHolder loading={true} width={'100%'} height={24} />
             <PendingHolder loading={true} width={'100%'} height={24} />
           </FixPadding>
         )}

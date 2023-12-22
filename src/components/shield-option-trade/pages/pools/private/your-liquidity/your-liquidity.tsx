@@ -10,30 +10,46 @@ import { I18n } from '../../../../../i18n/i18n';
 import { AddPrivateLiquidity } from './add-liquidity';
 import { WithdrawPrivateLiquidity } from './withdraw-liquidity';
 import { FixPadding } from '../../../../../common/content/fix-padding';
-import { ShieldMakerPrivatePoolInfo } from '../../../../../../state-manager/state-types';
+import {
+  ShieldMakerPrivatePoolInfo,
+  ShieldMakerPrivatePoolInfoRs,
+  StateNullType,
+} from '../../../../../../state-manager/state-types';
 import { Visible } from '../../../../../builtin/hidden';
-import { Empty } from 'antd';
 import { ShieldLoading } from '../../../common/loading';
 import { D } from '../../../../../../state-manager/database/database-state-parser';
-import noData from '../../../../../../assets/imgs/trade/no-data.svg';
-import {SldEmpty} from "../../../../../common/content/empty";
+import { SldEmpty } from '../../../../../common/content/empty';
+import { Network } from '../../../../../../constant/network';
+import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
+import { isSameAddress } from '../../../../../../util/address';
+import { makerPriLiquidityGetter } from '../../../../../../state-manager/contract/contract-getter-cpx-shield';
+import { EMPTY_ADDRESS } from '../../../../../../constant';
+import { switchMap } from 'rxjs';
+import { ethers } from 'ethers';
+import { filter, map, take, tap } from 'rxjs/operators';
+import { isSN, snRep } from '../../../../../../state-manager/interface-util';
 
 type IState = {
   isMobile: boolean;
-  liquidityList: ShieldMakerPrivatePoolInfo[] | undefined;
+  liquidityRs: ShieldMakerPrivatePoolInfoRs | undefined;
+  network: Network | null;
+  userAddr: string | null;
 };
 type IProps = {};
 
 export class YourLiquidity extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
-    liquidityList: undefined,
+    liquidityRs: undefined,
+    network: null,
+    userAddr: null,
   };
 
   componentDidMount() {
     this.registerIsMobile('isMobile');
-    // this.registerState('liquidityList', S.Option.Pool.Maker.Liquidity.Private.List);
-    this.registerState('liquidityList', D.Option.Maker.YourLiquidity);
+    this.registerState('liquidityRs', D.Option.Maker.YourLiquidity);
+    this.registerObservable('network', walletState.NETWORK);
+    this.registerObservable('userAddr', walletState.USER_ADDR);
   }
 
   componentWillUnmount() {
@@ -44,9 +60,56 @@ export class YourLiquidity extends BaseStateComponent<IProps, IState> {
     P.Option.Pools.Private.Liquidity.Add.IsVisible.set(true);
   }
 
+  private refreshOne(pool: ShieldMakerPrivatePoolInfo) {
+    if (
+      this.state.liquidityRs?.pools &&
+      pool.network === walletState.getCurNetwork() &&
+      isSameAddress(pool.holder, walletState.getCurAccount() || EMPTY_ADDRESS)
+    ) {
+      const fresh$ = walletState.watchWeb3Provider().pipe(
+        take(1),
+        switchMap((provider: ethers.providers.Provider) => {
+          return makerPriLiquidityGetter(pool.holder, pool.priPoolAddress, provider);
+        }),
+        map((newPool: ShieldMakerPrivatePoolInfo | StateNullType) => {
+          return snRep(newPool);
+        }),
+        filter(Boolean),
+        tap((newPool: ShieldMakerPrivatePoolInfo) => {
+          if (
+            this.state.liquidityRs?.pools &&
+            isSameAddress(this.state.liquidityRs.maker, newPool.holder) &&
+            this.state.liquidityRs.network === newPool.network
+          ) {
+            const offset: number = this.state.liquidityRs.pools.findIndex(one =>
+              isSameAddress(one.priPoolAddress, newPool.priPoolAddress)
+            );
+
+            if (offset >= 0) {
+              const pools = this.state.liquidityRs.pools;
+              pools.splice(offset, 1, newPool);
+              console.log('update');
+              this.updateState({ liquidityRs: Object.assign({}, this.state.liquidityRs, { pools: [...pools] }) });
+            }
+          }
+        })
+      );
+
+      this.subOnce(fresh$);
+    }
+  }
+
   render() {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
+
+    const isLoading =
+      !this.state.liquidityRs ||
+      this.state.liquidityRs.network !== this.state.network ||
+      !this.state.userAddr ||
+      !isSameAddress(this.state.liquidityRs.maker, this.state.userAddr);
+
+    const listLength: number = this.state.liquidityRs?.pools.length || 0;
 
     return (
       <>
@@ -56,20 +119,21 @@ export class YourLiquidity extends BaseStateComponent<IProps, IState> {
           </div>
 
           <div className={styleMr(styles.cardList)}>
-            <Visible when={!this.state.liquidityList}>
+            <Visible when={isLoading}>
               <FixPadding top={40} bottom={0} mobTop={30} mobBottom={0}>
                 <ShieldLoading size={40} />
               </FixPadding>
             </Visible>
 
-            <Visible when={!!this.state.liquidityList && this.state.liquidityList.length === 0}>
+            <Visible when={!isLoading && listLength === 0}>
               <FixPadding top={40} bottom={0} mobTop={30} mobBottom={0}>
                 <SldEmpty />
               </FixPadding>
             </Visible>
 
-            <Visible when={!!this.state.liquidityList && this.state.liquidityList.length > 0}>
-              {this.state.liquidityList?.map((one, i) => {
+            {/* liquidity items list */}
+            <Visible when={!isLoading && listLength > 0}>
+              {this.state.liquidityRs?.pools?.map((one, i) => {
                 return <LiquidityCard key={i} poolInfo={one} />;
               })}
             </Visible>
@@ -89,9 +153,9 @@ export class YourLiquidity extends BaseStateComponent<IProps, IState> {
           </div>
         </div>
 
-        <LiquiditySetting />
+        <LiquiditySetting onDone={(pool: ShieldMakerPrivatePoolInfo) => this.refreshOne(pool)} />
         <AddPrivateLiquidity />
-        <WithdrawPrivateLiquidity />
+        <WithdrawPrivateLiquidity onDone={(pool: ShieldMakerPrivatePoolInfo) => this.refreshOne(pool)} />
       </>
     );
   }

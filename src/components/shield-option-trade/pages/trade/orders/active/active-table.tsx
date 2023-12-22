@@ -3,6 +3,7 @@ import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { TableForDesktop } from '../../../../../table/table-desktop';
 import { ColumnType } from 'antd/lib/table/interface';
 import {
+  ShieldActiveOrderRs,
   ShieldOptionType,
   ShieldOrderInfo,
   ShieldUnderlyingType,
@@ -31,21 +32,27 @@ import { OrderFundingSchedule } from './funding-schedule';
 import { ShareOrder } from '../../../share/share';
 import { SharePopup } from '../../../share/share-popup';
 import { SldButton } from '../../../../../common/buttons/sld-button';
+import { Network } from '../../../../../../constant/network';
+import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
+import { isSameAddress } from '../../../../../../util/address';
 
 type IState = {
   isMobile: boolean;
-  orders: ShieldOrderInfo[] | undefined;
+  ordersRs: ShieldActiveOrderRs | undefined;
+  network: Network | null;
+  userAddr: string | null;
 };
 type IProps = {};
 
 export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
-    orders: undefined,
+    ordersRs: undefined,
+    network: null,
+    userAddr: null,
   };
 
-  //private columns = [];
-  columns: ColumnType<ShieldOrderInfo>[] = [
+  private columns: ColumnType<ShieldOrderInfo>[] = [
     {
       title: '#',
       dataIndex: 'id',
@@ -199,7 +206,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
       fixed: 'right',
     },
   ];
-  columnsMobile: ColumnType<ShieldOrderInfo>[] = [
+  private columnsMobile: ColumnType<ShieldOrderInfo>[] = [
     {
       title: <TableMobileTitle pullRight={false} itemTop={'#'} />,
       dataIndex: 'id',
@@ -291,16 +298,16 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
 
   componentDidMount() {
     this.registerIsMobile('isMobile');
-    this.registerObservable('orders', this.mergeOrders());
-
-    this.tickInterval(5000, S.Option.Oracle.BTC, S.Option.Oracle.ETH);
+    this.registerObservable('ordersRs', this.mergeOrders());
+    this.registerObservable('network', walletState.NETWORK);
+    this.registerObservable('userAddr', walletState.USER_ADDR);
   }
 
   componentWillUnmount() {
     this.destroyState();
   }
 
-  mergeOrders(): Observable<ShieldOrderInfo[]> {
+  private mergeOrders(): Observable<ShieldActiveOrderRs> {
     const prices$ = combineLatest([S.Option.Oracle.BTC.watch(), S.Option.Oracle.ETH.watch()]).pipe(
       map(([btc, eth]) => {
         return {
@@ -310,30 +317,29 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
       })
     );
 
-    const orders$: Observable<ShieldOrderInfo[]> = S.Option.Order.ActiveList.watch().pipe(
-      switchMap(orders => {
-        return shieldOrderService.fillOrdersFundPhaseInfo(orders);
+    const ordersRs$: Observable<ShieldActiveOrderRs> = S.Option.Order.ActiveList.watch().pipe(
+      switchMap((ordersRs: ShieldActiveOrderRs) => {
+        return shieldOrderService.fillOrdersFundPhaseInfo(ordersRs);
       })
     );
 
-    return combineLatest([prices$, orders$]).pipe(
-      map(([prices, orders]) => {
-        orders = orders.map(one => ({ ...one }));
-
-        orders.forEach(one => {
+    return combineLatest([prices$, ordersRs$]).pipe(
+      map(([prices, ordersRs]) => {
+        ordersRs.orders = ordersRs.orders.map(one => ({ ...one }));
+        ordersRs.orders.forEach(one => {
           one.markPrice = prices[one.indexUnderlying];
           one.pnl = computeOrderPnl(one);
         });
 
-        return orders;
+        return ordersRs;
       }),
-      tap((orders: ShieldOrderInfo[]) => {
-        P.Option.Trade.OrderList.ActiveList.set(orders);
+      tap((ordersRs: ShieldActiveOrderRs) => {
+        P.Option.Trade.OrderList.ActiveList.set(ordersRs.orders);
       })
     );
   }
 
-  genRowRender(row: ShieldOrderInfo): ReactNode {
+  private genRowRender(row: ShieldOrderInfo): ReactNode {
     return (
       <>
         <div className={styleMerge(styles.rowRender)}>
@@ -405,8 +411,17 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
     );
   }
 
+  private getDataSource(): ShieldOrderInfo[] | undefined {
+    const isLoading =
+      this.state.ordersRs === undefined ||
+      (this.state.userAddr && !isSameAddress(this.state.userAddr, this.state.ordersRs.taker)) ||
+      this.state.ordersRs.network !== this.state.network;
+
+    return isLoading ? undefined : this.state.ordersRs?.orders;
+  }
+
   render() {
-    const datasource = this.state.orders === undefined ? undefined : [...this.state.orders];
+    const datasource: ShieldOrderInfo[] | undefined = this.getDataSource();
 
     return (
       <>

@@ -9,7 +9,7 @@ import { PendingHolder } from '../../../../../../common/progress/pending-holder'
 import { TokenIndex } from '../../../../common/token-index';
 import { interval } from 'rxjs';
 import { startWith, tap } from 'rxjs/operators';
-import {ShieldUnderlyingType} from "../../../../../../../state-manager/state-types";
+import { ShieldUnderlyingType } from '../../../../../../../state-manager/state-types';
 
 type IState = {
   isMobile: boolean;
@@ -42,12 +42,7 @@ export class TokenIndexPrice extends BaseStateComponent<IProps, IState> {
       (a, b) => a === b || (!!a && !!b && a.eq(b))
     );
 
-    this.sub(
-      interval(10000).pipe(
-        startWith(0),
-        tap(() => this.tickState(S.Option.Oracle.CurBaseToken))
-      )
-    );
+    this.tickInterval(10000, S.Option.Oracle.CurBaseToken);
   }
 
   componentWillUnmount() {

@@ -2,10 +2,11 @@ import * as ethers from 'ethers';
 import { Contract, providers, Signer } from 'ethers';
 import * as _ from 'lodash';
 import { Network } from '../../constant/network';
-import { from, Observable, zip } from 'rxjs';
+import { from, Observable, of, zip } from 'rxjs';
 import { walletState } from '../wallet/wallet-state';
 import { map, take } from 'rxjs/operators';
 import { ERC20 } from '../../wallet/abi';
+import { providerChainId } from '../contract/contract-provider-utils';
 
 const signKeyVersion = '_creationVersion' as const;
 const signKeyNetwork = '_creationNetwork' as const;
@@ -36,9 +37,18 @@ export function createContractByProvider(
   provider: ethers.providers.Provider | ethers.Signer
 ): Observable<Contract> {
   const isSigner: boolean = ethers.Signer.isSigner(provider);
-  const chainId$ = isSigner
-    ? from((provider as ethers.Signer).getChainId())
-    : from((provider as ethers.providers.Provider).getNetwork()).pipe(map(network => network.chainId));
+
+  let chainId$: Observable<number>;
+  if (isSigner) {
+    chainId$ = from((provider as ethers.Signer).getChainId());
+  } else {
+    const chainId: number | undefined = providerChainId(provider as ethers.providers.Provider);
+
+    chainId$ =
+      chainId !== undefined
+        ? of(chainId)
+        : from((provider as ethers.providers.Provider).getNetwork()).pipe(map(network => network.chainId));
+  }
 
   return chainId$.pipe(
     map((chain: number) => {

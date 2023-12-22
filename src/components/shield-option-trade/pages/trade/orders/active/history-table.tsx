@@ -3,9 +3,9 @@ import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { cssPick, styleMerge } from '../../../../../../util/string';
 import styles from './history-table.module.less';
 import {
-  ShieldHistoryOrderRs,
+  ShieldClosedOrderInfo,
+  ShieldClosedOrderInfoRs,
   ShieldOptionType,
-  ShieldOrderInfo,
   ShieldOrderState,
 } from '../../../../../../state-manager/state-types';
 import { TableForDesktop } from '../../../../../table/table-desktop';
@@ -16,22 +16,22 @@ import { I18n } from '../../../../../i18n/i18n';
 import { PairLabel } from '../../../common/pair-label';
 import { SldDecimal, SldDecPrice } from '../../../../../../util/decimal';
 import { TokenAmountInline } from '../../../../../common/content/token-amount-inline';
-import { computeOrderPnl } from '../../../../utils/compute';
 import { TableMobileTitle } from '../../../../../table/table-mobile-title';
 import { BigNumber } from 'ethers';
 import { TableForMobile } from '../../../../../table/table-mobile';
-import { map } from 'rxjs/operators';
 import { VerticalItem } from '../../../../../common/content/vertical-item';
 import { OrderStatusNode } from '../../../../const/status';
-import { Observable } from 'rxjs';
 import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
 import { isSameAddress } from '../../../../../../util/address';
+import { Network } from '../../../../../../constant/network';
 
 type IState = {
   isMobile: boolean;
   curUserAddress: string;
-  orders: ShieldHistoryOrderRs | undefined;
-  ordersPending: boolean;
+  ordersRs: ShieldClosedOrderInfoRs | undefined;
+  ordersRsPending: boolean;
+
+  network: Network | null;
 };
 type IProps = {};
 
@@ -39,17 +39,18 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
     curUserAddress: '',
-    orders: undefined,
-    ordersPending: false,
+    ordersRs: undefined,
+    ordersRsPending: false,
+    network: null,
   };
 
-  private columns: ColumnType<ShieldOrderInfo>[] = [
+  private columns: ColumnType<ShieldClosedOrderInfo>[] = [
     {
       title: '#',
       dataIndex: 'id',
       key: 'id',
       align: 'left',
-      render: (id, row: ShieldOrderInfo) => {
+      render: (id, row: ShieldClosedOrderInfo) => {
         return <span className={styleMerge(styles.label)}>{id.toString()}</span>;
       },
     },
@@ -58,11 +59,11 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       dataIndex: 'id',
       key: 'pair',
       align: 'left',
-      render: (id, row: ShieldOrderInfo) => {
+      render: (id, row: ShieldClosedOrderInfo) => {
         return (
           <>
             <PairLabel
-              pair={{ indexUnderlying: row.indexUnderlying, quoteToken: row.token }}
+              pair={{ indexUnderlying: row.underlying, quoteToken: row.token }}
               size={'small'}
               hideName={true}
               align={'left'}
@@ -76,7 +77,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       title: <I18n id={'trade-order-close-time'} />,
       dataIndex: 'closeTime',
       key: 'closeTime',
-      render: (timestamp: number, row: ShieldOrderInfo) => {
+      render: (timestamp: number, row: ShieldClosedOrderInfo) => {
         return <>{formatMinute(timestamp)}</>;
       },
     },
@@ -84,7 +85,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       title: <I18n id={'trade-option-type'} />,
       dataIndex: 'optionType',
       key: 'optionType',
-      render: (type: ShieldOptionType, row: ShieldOrderInfo) => {
+      render: (type: ShieldOptionType, row: ShieldClosedOrderInfo) => {
         return type === ShieldOptionType.Call ? (
           <div className={'longStyle'}>
             <I18n id={'trade-option-type-call'} textUpper={'uppercase'} />
@@ -101,10 +102,8 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       dataIndex: 'orderAmount',
       key: 'orderAmount',
       align: 'right',
-      render: (amount: SldDecimal, row: ShieldOrderInfo) => {
-        return (
-          <TokenAmountInline amount={amount} token={row.indexUnderlying} symClassName={styleMerge(styles.label)} />
-        );
+      render: (amount: SldDecimal, row: ShieldClosedOrderInfo) => {
+        return <TokenAmountInline amount={amount} token={row.underlying} symClassName={styleMerge(styles.label)} />;
       },
     },
     {
@@ -112,27 +111,25 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       dataIndex: 'openPrice',
       key: 'openPrice',
       align: 'right',
-      render: (openPrice: SldDecPrice, row: ShieldOrderInfo) => {
+      render: (openPrice: SldDecPrice, row: ShieldClosedOrderInfo) => {
         return openPrice.format() + ' / ' + row.closePrice.format();
       },
     },
     {
       title: <I18n id={'trade-funding-fee-paid'} />,
-      dataIndex: 'fundingFee',
-      key: 'fundingFee',
+      dataIndex: 'fundingFeePaid',
+      key: 'fundingFeePaid',
       align: 'right',
-      render: (fundingFee: { paid: SldDecimal }, row: ShieldOrderInfo) => {
-        return <TokenAmountInline amount={fundingFee.paid} token={row.token.symbol} symClassName={styles.label} />;
+      render: (fundingFee: SldDecimal, row: ShieldClosedOrderInfo) => {
+        return <TokenAmountInline amount={fundingFee} token={row.token.symbol} symClassName={styles.label} />;
       },
     },
     {
       title: <I18n id={'trade-pnl'} />,
-      dataIndex: 'fundingFee',
+      dataIndex: 'pnl',
       key: 'pnl',
       align: 'right',
-      render: (fee, row: ShieldOrderInfo) => {
-        const { pnl } = computeOrderPnl(row);
-
+      render: (pnl, row: ShieldClosedOrderInfo) => {
         return (
           <TokenAmountInline
             amount={pnl}
@@ -155,7 +152,8 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       },
     },
   ];
-  private columnsMobile: ColumnType<ShieldOrderInfo>[] = [
+
+  private columnsMobile: ColumnType<ShieldClosedOrderInfo>[] = [
     {
       title: <TableMobileTitle itemTop={'#'} />,
       dataIndex: 'id',
@@ -169,10 +167,10 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       title: <TableMobileTitle itemTop={<I18n id={'trade-column-name-pair'} />} />,
       dataIndex: 'id',
       key: 'pair',
-      render: (id: BigNumber, row: ShieldOrderInfo) => {
+      render: (id: BigNumber, row: ShieldClosedOrderInfo) => {
         return (
           <PairLabel
-            pair={{ indexUnderlying: row.indexUnderlying, quoteToken: row.token }}
+            pair={{ indexUnderlying: row.underlying, quoteToken: row.token }}
             size={'tiny'}
             hideName={true}
             align={'left'}
@@ -190,7 +188,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       ),
       dataIndex: 'openTime',
       key: 'time',
-      render: (time: number, row: ShieldOrderInfo) => {
+      render: (time: number, row: ShieldClosedOrderInfo) => {
         return (
           <div className={styleMerge(styles.cellGroup)}>
             <div
@@ -222,13 +220,13 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       dataIndex: 'orderAmount',
       key: 'orderAmount',
       align: 'right',
-      render: (amount: SldDecimal, row: ShieldOrderInfo) => {
+      render: (amount: SldDecimal, row: ShieldClosedOrderInfo) => {
         return (
           <div className={styles.cellGroup}>
             <div className={styleMerge(styles.cellMain)}>
               <TokenAmountInline
                 amount={amount}
-                token={row.indexUnderlying}
+                token={row.underlying}
                 numClassName={styles.value}
                 symClassName={styles.cellDesc}
               />
@@ -236,11 +234,11 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
 
             <div className={styleMerge(styles.cellDesc)}>
               <TokenAmountInline
-                amount={row.pnl?.pnl}
+                amount={row.pnl}
                 token={row.token.symbol}
                 numClassName={styleMerge(
-                  cssPick(row.pnl?.pnl.gtZero(), styles.cellDescLong),
-                  cssPick(row.pnl?.pnl.ltZero(), styles.cellDescShort)
+                  cssPick(row.pnl.gtZero(), styles.cellDescLong),
+                  cssPick(row.pnl.ltZero(), styles.cellDescShort)
                 )}
                 symClassName={styles.cellDesc}
                 short={true}
@@ -255,32 +253,21 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
 
   componentDidMount() {
     this.registerIsMobile('isMobile');
-    this.registerObservable('orders', this.mergeOrders());
-    this.registerStatePending('ordersPending', D.Option.HistoryOrders);
+    this.registerState('ordersRs', D.Option.ClosedOrders);
+    this.registerStatePending('ordersRsPending', D.Option.ClosedOrders);
     this.registerObservable('curUserAddress', walletState.USER_ADDR);
+    this.registerObservable('network', walletState.NETWORK);
   }
 
   componentWillUnmount() {
     this.destroyState();
   }
 
-  mergeOrders(): Observable<ShieldHistoryOrderRs> {
-    return D.Option.HistoryOrders.watch().pipe(
-      map((orders: ShieldHistoryOrderRs) => {
-        orders.orders.forEach(order => {
-          order.pnl = computeOrderPnl(order);
-        });
-
-        return orders;
-      })
-    );
-  }
-
   onClickMore() {
     P.Option.Trade.OrderHistory.PageIndex.set(P.Option.Trade.OrderHistory.PageIndex.get() + 1);
   }
 
-  rowRender(row: ShieldOrderInfo) {
+  rowRender(row: ShieldClosedOrderInfo) {
     const gap = '10px';
 
     return (
@@ -320,7 +307,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
           gap={gap}
         >
           <TokenAmountInline
-            amount={row.fundingFee.paid}
+            amount={row.fundingFeePaid}
             token={row.token.symbol}
             numClassName={styles.value}
             symClassName={styles.label}
@@ -330,37 +317,42 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
     );
   }
 
+  private getDataSource(): ShieldClosedOrderInfo[] | undefined {
+    const isLoading: boolean =
+      !this.state.ordersRs ||
+      this.state.ordersRs.network !== this.state.network ||
+      !isSameAddress(this.state.curUserAddress, this.state.ordersRs.taker);
+
+    return isLoading ? undefined : this.state.ordersRs?.orders;
+  }
+
   render() {
-    const len = this.state.orders?.orders?.length || 0;
+    const datasource: ShieldClosedOrderInfo[] | undefined = this.getDataSource();
+
+    const len = datasource?.length || 0;
     const index = P.Option.Trade.OrderHistory.PageIndex.get();
     const size = P.Option.Trade.OrderHistory.PageSize.get();
     const maxCount = (index + 1) * size;
-    const hasMore = ((this.state.orders?.orders?.length || 0) > 0 && len >= maxCount) || this.state.ordersPending;
-
-    const orderList: ShieldOrderInfo[] | undefined = this.state.orders
-      ? isSameAddress(this.state.orders?.taker, this.state.curUserAddress)
-        ? this.state.orders.orders
-        : undefined
-      : undefined;
+    const hasMore = ((datasource?.length || 0) > 0 && len >= maxCount) || this.state.ordersRsPending;
 
     return this.state.isMobile ? (
       <TableForMobile
-        datasource={orderList}
+        datasource={datasource}
         columns={this.columnsMobile}
-        rowKey={(row: ShieldOrderInfo) => row.id.toString()}
+        rowKey={(row: ShieldClosedOrderInfo) => row.id.toString()}
         hasMore={hasMore}
         showMore={this.onClickMore.bind(this)}
-        loadingMore={this.state.ordersPending}
+        loadingMore={this.state.ordersRsPending}
         rowRender={this.rowRender.bind(this)}
       />
     ) : (
       <TableForDesktop
-        datasource={orderList}
+        datasource={datasource}
         columns={this.columns}
-        rowKey={(row: ShieldOrderInfo) => row.id.toString()}
+        rowKey={(row: ShieldClosedOrderInfo) => row.id.toString()}
         hasMore={hasMore}
         showMore={this.onClickMore.bind(this)}
-        loadingMore={this.state.ordersPending}
+        loadingMore={this.state.ordersRsPending}
       />
     );
   }

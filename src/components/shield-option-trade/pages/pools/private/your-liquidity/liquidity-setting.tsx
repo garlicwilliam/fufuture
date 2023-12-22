@@ -19,6 +19,7 @@ import { S } from '../../../../../../state-manager/contract/contract-state-parse
 import { shortAddress } from '../../../../../../util';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { Copy } from '../../../../../common/svg/copy';
+import { D } from '../../../../../../state-manager/database/database-state-parser';
 
 type IState = {
   isMobile: boolean;
@@ -28,7 +29,9 @@ type IState = {
   isTakingOrders: boolean;
   isExclusive: boolean;
 };
-type IProps = {};
+type IProps = {
+  onDone: (pool: ShieldMakerPrivatePoolInfo) => void;
+};
 
 export class LiquiditySetting extends BaseStateComponent<IProps, IState> {
   state: IState = {
@@ -80,10 +83,13 @@ export class LiquiditySetting extends BaseStateComponent<IProps, IState> {
       this.state.isExclusive
     );
 
+    const curPool: ShieldMakerPrivatePoolInfo = this.state.pool;
+
     this.subOnce(set$, (done: boolean) => {
       if (done) {
-        this.tickState(S.Option.Pool.Maker.Liquidity.Private.List);
+        // this.tickState(D.Option.Maker.YourLiquidity);
         this.hide();
+        this.props.onDone(curPool);
       }
     });
   }

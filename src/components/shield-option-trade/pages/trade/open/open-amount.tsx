@@ -11,7 +11,6 @@ import { ShieldUnderlyingType, TokenErc20 } from '../../../../../state-manager/s
 import { IndexUnderlyingDecimal } from '../../../const/assets';
 import { S } from '../../../../../state-manager/contract/contract-state-parser';
 import { SldPercentSlider } from '../../common/percent-slider';
-import { fontCss } from '../../../../i18n/font-switch';
 
 type IState = {
   isMobile: boolean;

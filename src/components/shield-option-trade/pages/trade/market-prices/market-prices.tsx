@@ -4,8 +4,9 @@ import { bindStyleMerger } from '../../../../../util/string';
 import styles from './market-prices.module.less';
 import { PriceParam } from './param/param';
 import { PriceCharts } from './charts/charts';
-import {ShieldUnderlyingType, TradeChartType} from '../../../../../state-manager/state-types';
+import { ShieldUnderlyingType, TradeChartType } from '../../../../../state-manager/state-types';
 import { KLineCharts } from './charts/kline';
+import { S } from '../../../../../state-manager/contract/contract-state-parser';
 
 type IState = {
   isMobile: boolean;
@@ -27,6 +28,8 @@ export class MarketPrices extends BaseStateComponent<IProps, IState> {
     this.registerIsMobile('isMobile');
     this.registerState('chartType', P.Option.Trade.Market.ChartType);
     this.registerState('indexUnderlying', P.Option.Trade.Pair.Base);
+
+    this.tickInterval(5000, S.Option.Oracle.BTC, S.Option.Oracle.ETH);
   }
 
   componentWillUnmount() {

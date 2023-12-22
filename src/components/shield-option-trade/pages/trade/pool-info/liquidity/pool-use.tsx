@@ -10,6 +10,7 @@ import { I18n } from '../../../../../i18n/i18n';
 import { ItemsBox } from '../../../../../common/content/items-box';
 import { progressWidth, progressWidthMobile } from '../../../../const/progress';
 import { ShieldPoolInfo, TokenErc20 } from '../../../../../../state-manager/state-types';
+import { PendingHolder } from '../../../../../common/progress/pending-holder';
 
 type IState = {
   isMobile: boolean;
@@ -19,6 +20,7 @@ type IProps = {
   poolTitle: ReactNode;
   token: TokenErc20 | null;
   poolInfo: ShieldPoolInfo | null;
+  loading: boolean;
 };
 
 export class PoolUseInfo extends BaseStateComponent<IProps, IState> {
@@ -45,6 +47,7 @@ export class PoolUseInfo extends BaseStateComponent<IProps, IState> {
     const percentage: SldDecPercent = this.props.poolInfo
       ? SldDecPercent.fromArgs(this.props.poolInfo?.total, this.props.poolInfo?.available)
       : SldDecPercent.ZERO;
+    const percentageStr: string = percentage.percentFormat();
 
     const { total, available } = this.props.poolInfo
       ? { total: this.props.poolInfo.total, available: this.props.poolInfo.available }
@@ -60,24 +63,31 @@ export class PoolUseInfo extends BaseStateComponent<IProps, IState> {
           labelClass={styleMr(styles.title)}
           valueClass={styleMr(styles.title)}
         >
-          {/*{this.props.poolInfo?.poolAddress} &nbsp;*/}
           <I18n id={'trade-liquidity-available'} />
         </HorizonItem>
 
         <ItemsBox gap={this.state.isMobile ? 6 : 8}>
           <HorizonItem
-            label={percentage.percentFormat() + '%'}
+            label={
+              <PendingHolder loading={this.props.loading} height={24} width={100}>
+                {percentageStr + '%'}
+              </PendingHolder>
+            }
             align={'justify'}
             labelClass={styleMr(styles.percent)}
             valueClass={styleMr(styles.liquidity)}
           >
-            {available.format({ short, fix })}/{total.format({ short, fix })}{' '}
-            <span className={styleMr(styles.unit)}>{this.props.token?.symbol}</span>
+            <PendingHolder loading={this.props.loading} height={24} width={150}>
+              <>
+                {available.format({ short, fix })}/{total.format({ short, fix })}{' '}
+                <span className={styleMr(styles.unit)}>{this.props.token?.symbol}</span>
+              </>
+            </PendingHolder>
           </HorizonItem>
 
           <SldProgress
             strokeWidth={this.state.isMobile ? progressWidthMobile : progressWidth}
-            percent={Number(percentage.percentFormat())}
+            percent={this.props.loading ? 0 : Number(percentageStr)}
           />
         </ItemsBox>
       </div>

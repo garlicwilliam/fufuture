@@ -13,7 +13,6 @@ import { SldDecimal } from '../../../../../../util/decimal';
 import { TradeFormFooter } from '../../../common/form-footer';
 import { fontCss } from '../../../../../i18n/font-switch';
 import { shieldOptionTradeService } from '../../../../services/shield-option-trade.service';
-import { S } from '../../../../../../state-manager/contract/contract-state-parser';
 
 type IState = {
   isMobile: boolean;
@@ -21,7 +20,9 @@ type IState = {
   pool: ShieldMakerPrivatePoolInfo | null;
   inputValue: SldDecimal | null;
 };
-type IProps = {};
+type IProps = {
+  onDone: (pool: ShieldMakerPrivatePoolInfo) => void;
+};
 
 export class WithdrawPrivateLiquidity extends BaseStateComponent<IProps, IState> {
   state: IState = {
@@ -51,12 +52,14 @@ export class WithdrawPrivateLiquidity extends BaseStateComponent<IProps, IState>
     }
 
     const move$ = shieldOptionTradeService.movePriPoolLiquidity(this.state.pool.priPoolAddress, this.state.inputValue);
+    const curPool: ShieldMakerPrivatePoolInfo = this.state.pool;
 
     this.subOnce(move$, (done: boolean) => {
       if (done) {
         this.updateState({ inputValue: null });
         this.hide();
-        this.tickState(S.Option.Pool.Maker.Liquidity.Private.List);
+
+        this.props.onDone(curPool);
       }
     });
   }

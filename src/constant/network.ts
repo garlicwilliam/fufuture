@@ -8,6 +8,7 @@ enum EthNetwork {
   base_goerli = '84531',
   arbitrum = '42161',
   arbitrum_goerli = '421613',
+  arbitrum_sepolia = '421614',
   polygon = '137',
   optimistic_ethereum = '10',
   linea_goerli = '59140',
@@ -29,6 +30,7 @@ export const NET_BASE = EthNetwork.base;
 export const NET_BASE_GOERLI = EthNetwork.base_goerli;
 export const NET_ARBITRUM = EthNetwork.arbitrum;
 export const NET_ARBITRUM_GOERLI = EthNetwork.arbitrum_goerli;
+export const NET_ARBITRUM_SEPOLIA = EthNetwork.arbitrum_sepolia;
 export const NET_POLYGON = EthNetwork.polygon;
 export const NET_OPT_ETH = EthNetwork.optimistic_ethereum;
 export const NET_LINEA_GOERLI = EthNetwork.linea_goerli;

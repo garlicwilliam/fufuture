@@ -140,7 +140,12 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
 
     this.subOnce(open$, (done: boolean) => {
       if (done) {
-        this.tickState(S.Option.User.Account.Info, S.Option.Order.ActiveList, S.Option.Order.Open.Max);
+        this.tickState(
+          S.Option.User.Account.Info,
+          S.Option.Order.ActiveList,
+          S.Option.Order.Open.Max,
+          S.Option.Pool.Info
+        );
         P.Option.Trade.Open.Amount.setToDefault();
         this.hide();
       }

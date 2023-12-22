@@ -185,6 +185,13 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
       const url = browser === 'CHROME' ? chromeUrl : otherUrl;
 
       window.open(url, '_blank');
+    } else if (this.props.targetProvider === EthereumProviderName.Coin98) {
+      const chromeUrl = 'https://chromewebstore.google.com/detail/coin98-wallet/aeachknmefphepccionboohckonoeemg';
+      const otherUrl = 'https://coin98.com/wallet';
+      const browser = this.detectBrowser();
+      const url = browser === 'CHROME' ? chromeUrl : otherUrl;
+
+      window.open(url, '_blank');
     }
   }
 

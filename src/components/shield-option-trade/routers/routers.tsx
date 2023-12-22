@@ -58,7 +58,7 @@ const router: Router = createBrowserRouter([
         element: <RefRedirect />,
       },
       {
-        path: RouteKey.poster + '/:oid',
+        path: RouteKey.poster + '/:oid/:nid?',
         element: <ShareOrderMobile />,
       },
     ],

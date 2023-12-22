@@ -7,8 +7,10 @@ import { I18n } from '../../../../../i18n/i18n';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
 import {
   ShieldMakerOrderInfo,
+  ShieldMakerOrderInfoRs,
   ShieldMakerPrivatePoolInfo,
-  ShieldOptionType, ShieldUnderlyingType,
+  ShieldOptionType,
+  ShieldUnderlyingType,
 } from '../../../../../../state-manager/state-types';
 import { PairLabel } from '../../../common/pair-label';
 import { TableForDesktop } from '../../../../../table/table-desktop';
@@ -40,6 +42,8 @@ import { D } from '../../../../../../state-manager/database/database-state-parse
 import { shieldOrderService } from '../../../../services/shield-order.service';
 import { fontCss } from '../../../../../i18n/font-switch';
 import { Visible } from '../../../../../builtin/hidden';
+import { Network } from '../../../../../../constant/network';
+import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
 
 type Statistic = {
   amountCall: SldDecimal;
@@ -60,11 +64,14 @@ type Statistic = {
 };
 type IState = {
   isMobile: boolean;
+  network: Network | null;
+  userAddr: string | null;
+
   liquidityList: ShieldMakerPrivatePoolInfo[];
   curPool: ShieldMakerPrivatePoolInfo | null;
 
-  lockedDetail: ShieldMakerOrderInfo[] | undefined;
-  lockedDetailPending: boolean;
+  lockedDetailRs: ShieldMakerOrderInfoRs | undefined;
+  lockedDetailRsPending: boolean;
 
   paramPeriod: BigNumber;
   needMigrations: BigNumber[];
@@ -75,11 +82,14 @@ type IProps = {};
 export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
+    network: null,
+    userAddr: null,
+
     liquidityList: [],
     curPool: null,
 
-    lockedDetail: undefined,
-    lockedDetailPending: false,
+    lockedDetailRs: undefined,
+    lockedDetailRsPending: false,
 
     paramPeriod: ZERO,
     needMigrations: [],
@@ -352,10 +362,12 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
 
   componentDidMount() {
     this.registerIsMobile('isMobile');
+    this.registerObservable('network', walletState.NETWORK);
+    this.registerObservable('userAddr', walletState.USER_ADDR);
     this.registerObservable('liquidityList', this.mergePoolList());
     this.registerState('curPool', P.Option.Pools.Private.LockedDetails.CurPool);
-    this.registerObservable('lockedDetail', this.mergeLockedDetails());
-    this.registerStatePending('lockedDetailPending', D.Option.Maker.LockedDetails);
+    this.registerObservable('lockedDetailRs', this.mergeLockedDetails());
+    this.registerStatePending('lockedDetailRsPending', D.Option.Maker.LockedDetails);
 
     this.registerState('paramPeriod', S.Option.Params.Funding.Period);
     this.registerObservable('needMigrations', this.mergeNeedMigrations());
@@ -371,10 +383,10 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
   mergeNeedMigrations(): Observable<BigNumber[]> {
     const now = curTimestamp();
 
-    return this.watchStateChange('lockedDetail').pipe(
+    return this.watchStateChange('lockedDetailRs').pipe(
       filter(Boolean),
-      map((details: ShieldMakerOrderInfo[]) => {
-        return details.filter(one => one.fundingInfo.scheduleMigration < now);
+      map((detailRs: ShieldMakerOrderInfoRs) => {
+        return detailRs.orders.filter(one => one.fundingInfo.scheduleMigration < now);
       }),
       map((details: ShieldMakerOrderInfo[]) => {
         return details.map(one => one.id);
@@ -403,12 +415,20 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
   }
 
   mergeStatistic(): Observable<Statistic> {
-    return this.watchStateChange('lockedDetail').pipe(
-      filter(Boolean),
-      map((details: ShieldMakerOrderInfo[]) => {
+    return combineLatest([
+      this.watchStateChange('lockedDetailRs'),
+      this.watchStateChange('curPool'),
+      this.watchStateChange('userAddr'),
+      this.watchStateChange('network'),
+    ]).pipe(
+      map(([detailRs, curPool, userAddr, network]) => {
         const statistic = this.emptyStatistic();
 
-        details.forEach((detail: ShieldMakerOrderInfo) => {
+        if (!detailRs || this.datasourceNotMatch()) {
+          return statistic;
+        }
+
+        detailRs.orders.forEach((detail: ShieldMakerOrderInfo) => {
           if (detail.optionType === ShieldOptionType.Call) {
             statistic.amountCall = statistic.amountCall.add(detail.orderAmount);
             statistic.positionLossCall = statistic.positionLossCall.add(detail.pnl?.positionLoss || SldDecimal.ZERO);
@@ -437,8 +457,8 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
 
   mergePoolList(): Observable<ShieldMakerPrivatePoolInfo[]> {
     return D.Option.Maker.YourLiquidity.watch().pipe(
-      map(pools => {
-        return pools.sort((a, b) => {
+      map(poolsRs => {
+        return poolsRs.pools.sort((a, b) => {
           const idA = a.indexUnderlying + a.token.symbol;
           const idB = b.indexUnderlying + b.token.symbol;
 
@@ -458,7 +478,8 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
       }),
       tap(([list, cur]) => {
         if (list.length === 0) {
-          P.Option.Pools.Private.LockedDetails.CurPool.set(null);
+          if (P.Option.Pools.Private.LockedDetails.CurPool.get() !== null)
+            P.Option.Pools.Private.LockedDetails.CurPool.set(null);
         } else {
           P.Option.Pools.Private.LockedDetails.CurPool.set(list[0]);
         }
@@ -489,32 +510,42 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
         return this.fillPnl([order], order.indexUnderlying);
       }),
       tap((orders: ShieldMakerOrderInfo[]) => {
-        if (!this.state.lockedDetail) {
+        if (!this.state.lockedDetailRs) {
           return;
         }
 
-        const newOrder = orders[0];
-        const newOrders = this.state.lockedDetail.map(one => {
+        const newOrder: ShieldMakerOrderInfo = orders[0];
+        const newOrders: ShieldMakerOrderInfo[] = this.state.lockedDetailRs.orders.map(one => {
           return one.id.eq(newOrder.id) ? newOrder : one;
         });
 
-        this.updateState({ lockedDetail: newOrders });
+        this.updateState({ lockedDetailRs: Object.assign({}, this.state.lockedDetailRs, { orders: newOrders }) });
       })
     );
 
     this.subOnce(refresh$);
   }
 
-  mergeLockedDetails(): Observable<ShieldMakerOrderInfo[]> {
+  private mergeLockedDetails(): Observable<ShieldMakerOrderInfoRs | undefined> {
     return D.Option.Maker.LockedDetails.watch().pipe(
-      switchMap((details: ShieldMakerOrderInfo[]) => {
-        if (details.length === 0) {
-          return of([]);
+      switchMap((detailRs: ShieldMakerOrderInfoRs | undefined) => {
+        if (!detailRs) {
+          return of(undefined);
         }
 
-        const assets = details[0].indexUnderlying;
+        const orders = detailRs.orders;
 
-        return this.fillPnl(details, assets);
+        if (orders.length === 0) {
+          return of(detailRs);
+        }
+
+        const assets: ShieldUnderlyingType = orders[0].indexUnderlying;
+
+        return this.fillPnl(orders, assets).pipe(
+          map((orders: ShieldMakerOrderInfo[]) => {
+            return Object.assign(detailRs, { orders });
+          })
+        );
       })
     );
   }
@@ -960,6 +991,7 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
             short={true}
           />
         </HorizonItem>
+
         <HorizonItem label={<I18n id={'trade-pnl'} />} align={'justify'} className={styleMr(styles.sym)}>
           <TokenAmountInline
             amount={this.state.statistic?.pnlTotal}
@@ -972,9 +1004,36 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
     );
   }
 
+  private getDataSource(): ShieldMakerOrderInfo[] | undefined {
+    if (this.state.curPool === null) {
+      return [];
+    }
+
+    return this.datasourceNotMatch() ? undefined : this.state.lockedDetailRs?.orders;
+  }
+
+  private datasourceNotMatch() {
+    const isMakerMatch: boolean =
+      !!this.state.lockedDetailRs &&
+      !!this.state.userAddr &&
+      isSameAddress(this.state.lockedDetailRs.maker, this.state.userAddr);
+
+    const isNetworkMatch: boolean =
+      !!this.state.lockedDetailRs && this.state.lockedDetailRs.network === this.state.network;
+
+    const isPoolMatch: boolean =
+      !!this.state.lockedDetailRs &&
+      !!this.state.curPool &&
+      isSameAddress(this.state.lockedDetailRs?.pool, this.state.curPool.priPoolAddress);
+
+    return !isNetworkMatch || !isMakerMatch || !isPoolMatch;
+  }
+
   render() {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
+
+    const datasource = this.getDataSource();
 
     return (
       <>
@@ -1021,18 +1080,18 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
               {this.state.isMobile ? (
                 <TableForMobile
                   rowKey={(row: ShieldMakerOrderInfo) => row.id.toString()}
-                  datasource={this.state.lockedDetail}
+                  datasource={datasource}
                   columns={this.columnsMobile}
                   rowRender={this.mobileRowRender.bind(this)}
-                  loading={this.state.lockedDetailPending}
+                  loading={this.state.lockedDetailRsPending}
                   pagination={{ pageSize: 5 }}
                 />
               ) : (
                 <TableForDesktop
                   rowKey={(row: ShieldMakerOrderInfo) => row.id.toString()}
-                  datasource={this.state.lockedDetail}
+                  datasource={datasource}
                   columns={this.columns}
-                  loading={this.state.lockedDetailPending}
+                  loading={this.state.lockedDetailRsPending}
                   rowRender={this.deskRowRender.bind(this)}
                   pagination={{ pageSize: 10 }}
                 />

@@ -4,6 +4,8 @@ import { map, tap } from 'rxjs/operators';
 import { keepE18Number } from '../../util/ethers';
 import { SldDecPrice } from '../../util/decimal';
 import { CACHE_1_MIN, CACHE_3_SEC, cacheService } from '../mem-cache/cache-contract';
+import { contractNetwork } from '../const/contract-creator';
+import { Network } from '../../constant/network';
 
 export function linkAnswerGetter(proxyContract: Contract): Observable<SldDecPrice> {
   type Rs = {
@@ -31,6 +33,8 @@ export function linkAnswerGetter(proxyContract: Contract): Observable<SldDecPric
     })
   );
 
-  const cacheKey: string = '_chain_link_linkAnswerGetter_' + proxyContract.address;
+  const network: Network | null = contractNetwork(proxyContract);
+  const cacheKey: string = '_chain_link_linkAnswerGetter_' + network?.toString() + proxyContract.address;
+
   return cacheService.tryUseCache(tokenPrice$, cacheKey, CACHE_3_SEC);
 }

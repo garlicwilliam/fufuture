@@ -2,7 +2,7 @@ import { BaseStateComponent } from '../../../../state-manager/base-state-compone
 import { P } from '../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../../util/string';
 import styles from './search-token.module.less';
-import { StateNull, TokenErc20 } from '../../../../state-manager/state-types';
+import { ShieldTokenSearchList, StateNull, TokenErc20 } from '../../../../state-manager/state-types';
 import { IconDropdown } from '../../../common/icon/dropdown';
 import { Visible } from '../../../builtin/hidden';
 import { TokenLabel } from './token-label';
@@ -17,7 +17,10 @@ import { isValidAddress } from '../../../../util/address';
 import { snRep } from '../../../../state-manager/interface-util';
 import { TokenBalance } from './token-balance';
 import { ReactNode } from 'react';
-import {SldEmpty} from "../../../common/content/empty";
+import { SldEmpty } from '../../../common/content/empty';
+import { Network } from '../../../../constant/network';
+import { walletState } from '../../../../state-manager/wallet/wallet-state';
+import { ShieldLoading } from './loading';
 
 type TProps = {
   token: TokenErc20;
@@ -64,7 +67,9 @@ class TokenItem extends BaseStateComponent<TProps, TState> {
 type IState = {
   isMobile: boolean;
   visible: boolean;
-  tokenSelectList: TokenErc20[];
+  network: Network | null;
+  tokenSelectList: ShieldTokenSearchList | undefined;
+  tokenSelectListPending: boolean;
   tokenSearchRs: TokenErc20 | typeof StateNull | undefined;
   searchKey: string | undefined;
 };
@@ -78,14 +83,18 @@ export class SearchToken extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
     visible: false,
-    tokenSelectList: [],
+    network: null,
+    tokenSelectList: undefined,
+    tokenSelectListPending: false,
     tokenSearchRs: undefined,
     searchKey: undefined,
   };
 
   componentDidMount() {
     this.registerIsMobile('isMobile');
+    this.registerObservable('network', walletState.NETWORK);
     this.registerState('tokenSelectList', S.Option.Token.SelectList);
+    this.registerStatePending('tokenSelectListPending', S.Option.Token.SelectList);
     this.registerState('tokenSearchRs', S.Option.Token.Search);
     this.registerState('searchKey', P.Option.Token.Search);
   }
@@ -116,16 +125,44 @@ export class SearchToken extends BaseStateComponent<IProps, IState> {
     P.Option.Token.Search.set(key);
   }
 
+  private searchRs(): TokenErc20 | null | undefined {
+    if (!this.state.searchKey || this.state.tokenSearchRs === undefined) {
+      return undefined;
+    }
+
+    const searchRs = snRep(this.state.tokenSearchRs);
+
+    if (searchRs === null) {
+      return null;
+    }
+
+    if (searchRs.network !== this.state.network) {
+      return null;
+    }
+
+    return searchRs;
+  }
+
+  private selections(): TokenErc20[] | undefined {
+    if (
+      this.state.tokenSelectList === undefined ||
+      this.state.tokenSelectList.network !== this.state.network ||
+      this.state.tokenSelectListPending
+    ) {
+      return undefined;
+    }
+
+    return this.state.tokenSelectList.tokens;
+  }
+
   render() {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 
-    const selectOps: TokenErc20[] = this.state.tokenSelectList;
-    const searchRes: TokenErc20 | null = snRep(this.state.tokenSearchRs) || null;
     const searchKey: string | undefined = this.state.searchKey;
-
-    const searchResArr: TokenErc20[] = searchRes ? [searchRes] : [];
-    const displayItems: TokenErc20[] = searchKey ? searchResArr : selectOps;
+    const searchRes: TokenErc20 | null | undefined = this.searchRs();
+    const selection: TokenErc20[] | undefined = this.selections();
+    const items: TokenErc20[] | undefined = searchRes ? [searchRes] : selection;
 
     return (
       <>
@@ -161,8 +198,10 @@ export class SearchToken extends BaseStateComponent<IProps, IState> {
             />
 
             <div className={styleMr(styles.tokenOptionList)}>
-              {displayItems.length > 0 ? (
-                displayItems.map((token, i) => {
+              {items === undefined ? (
+                <ShieldLoading size={40} />
+              ) : items.length > 0 ? (
+                items.map((token, i) => {
                   return <TokenItem key={i} token={token} onSelected={() => this.onSelect(token)} />;
                 })
               ) : (

@@ -5,7 +5,7 @@ import styles from './withdraw-public.module.less';
 import ModalRender from '../../../../../modal-render';
 import { I18n } from '../../../../../i18n/i18n';
 import { ItemsBox } from '../../../../../common/content/items-box';
-import { ShieldMakerPublicPoolShare } from '../../../../../../state-manager/state-types';
+import { ShieldMakerPublicPoolShare, ShieldPoolInfo } from '../../../../../../state-manager/state-types';
 import { TokenInput } from '../../../common/token-input';
 import { Visible } from '../../../../../builtin/hidden';
 import { SldDecimal } from '../../../../../../util/decimal';
@@ -24,6 +24,8 @@ type IState = {
   visible: boolean;
   current: ShieldMakerPublicPoolShare | null;
   inputValue: SldDecimal | null;
+  poolInfo: ShieldPoolInfo | null;
+  max: SldDecimal;
   inputError?: boolean;
   receiveToken: SldDecimal;
 };
@@ -35,6 +37,8 @@ export class WithdrawPublic extends BaseStateComponent<IProps, IState> {
     visible: P.Option.Pools.Public.Liquidity.Withdraw.IsVisible.get(),
     current: P.Option.Pools.Public.Liquidity.Withdraw.Current.get(),
     inputValue: P.Option.Pools.Public.Liquidity.Withdraw.Amount.get(),
+    poolInfo: null,
+    max: SldDecimal.ZERO,
     inputError: false,
     receiveToken: SldDecimal.ZERO,
   };
@@ -45,6 +49,8 @@ export class WithdrawPublic extends BaseStateComponent<IProps, IState> {
     this.registerState('current', P.Option.Pools.Public.Liquidity.Withdraw.Current);
     this.registerState('inputValue', P.Option.Pools.Public.Liquidity.Withdraw.Amount);
     this.registerState('receiveToken', S.Option.Pool.Maker.Liquidity.Public.Withdraw.Receive);
+    this.registerState('poolInfo', S.Option.Pool.Maker.Liquidity.Public.Withdraw.PoolInfo);
+    this.registerState('max', S.Option.Pool.Maker.Liquidity.Public.Withdraw.Max);
   }
 
   componentWillUnmount() {
@@ -72,8 +78,8 @@ export class WithdrawPublic extends BaseStateComponent<IProps, IState> {
 
     this.subOnce(move$, (done: boolean) => {
       if (done) {
-        this.updateState({ inputValue: null });
-        this.tickState(S.Option.Pool.Maker.Liquidity.Public.List, D.Option.Maker.YourShareInPools);
+        P.Option.Pools.Public.Liquidity.Withdraw.Amount.setToDefault();
+        this.tickState(D.Option.Maker.YourShareInPools, S.Option.Pool.Maker.Liquidity.Public.Withdraw.Max);
         tokenBalanceService.refresh();
         this.hide();
       }
@@ -113,6 +119,7 @@ export class WithdrawPublic extends BaseStateComponent<IProps, IState> {
             <TokenInput
               token={this.state.current.lp}
               value={this.state.inputValue}
+              maxLimit={this.state.max}
               onChange={this.onChangeValue.bind(this)}
               errorChange={this.onChangeError.bind(this)}
             />

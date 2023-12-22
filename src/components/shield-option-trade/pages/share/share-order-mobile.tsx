@@ -17,6 +17,7 @@ import '../../../shield-option-common/css/font-family.less';
 import { styleMerge } from '../../../../util/string';
 import { fontCss } from '../../../i18n/font-switch';
 import React from 'react';
+import { NET_BNB, Network } from '../../../../constant/network';
 
 type IState = {
   isMobile: boolean;
@@ -51,11 +52,13 @@ export class ShareOrderMobileImp extends BaseStateComponent<IProps, IState> {
 
   loadOrder() {
     const orderId = this.props.param['oid'];
+    const network: Network = (this.props.param['nid'] as Network) || NET_BNB;
+
     const orderIdNum = Math.floor(Number(orderId));
 
-    const order$ = shieldOrderService.getOrderByHttpRpc(orderIdNum).pipe(
+    const order$ = shieldOrderService.getOrderByHttpRpc(orderIdNum, network).pipe(
       switchMap((order: ShieldOrderInfo | null) => {
-        const price$ = order ? shieldOrderService.getOrderAssetsPrice(order.indexUnderlying) : of(null);
+        const price$ = order ? shieldOrderService.getOrderAssetsPrice(order.indexUnderlying, network) : of(null);
         return zip(of(order), price$);
       }),
       map(([order, price]) => {

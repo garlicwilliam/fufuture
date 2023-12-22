@@ -18,6 +18,7 @@ import { snRep } from '../../../interface-util';
 import * as _ from 'lodash';
 import { IndexUnderlyingDecimal } from '../../../../components/shield-option-trade/const/assets';
 import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
+import { NET_BNB, Network } from '../../../../constant/network';
 
 type RsType = {
   blockTimestamp: string;
@@ -31,7 +32,6 @@ type RsType = {
   state: ShieldOrderState;
   token: string;
 };
-
 type MidRes = {
   preHistory: RsType[];
   appendOrders: string[];
@@ -42,17 +42,20 @@ const emptyMidRes: MidRes = {
   appendOrders: [],
 };
 
-export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrderRs, [string, PageSize, PageIndex]> {
+export class MergerHistoryOrders
+  implements DatabaseStateMerger<ShieldHistoryOrderRs, [string, PageSize, PageIndex, Network]>
+{
   isPending = new BehaviorSubject(false);
 
-  mergeWatch(...args: [string, PageSize, PageIndex]): Observable<ShieldHistoryOrderRs> {
-    return this.doGet(args[0], args[1], args[2]);
+  mergeWatch(...args: [string, PageSize, PageIndex, Network]): Observable<ShieldHistoryOrderRs> {
+    return this.doGet(args[0], args[1], args[2], args[3]);
   }
 
-  mock(args?: [string, PageSize, PageIndex]): Observable<ShieldHistoryOrderRs> | ShieldHistoryOrderRs {
+  mock(args?: [string, PageSize, PageIndex, Network]): Observable<ShieldHistoryOrderRs> | ShieldHistoryOrderRs {
     return {
       orders: [],
       taker: '',
+      network: NET_BNB,
     };
   }
 
@@ -60,8 +63,8 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
     return this.isPending;
   }
 
-  doGet1(user: string, pageSize: number, pageIndex: number): Observable<ShieldOrderInfo[]> {
-    const url = SLD_ENV_CONF.SubGraphUrl;
+  doGet1(user: string, pageSize: number, pageIndex: number, network: Network): Observable<ShieldOrderInfo[]> {
+    const url: string | undefined = SLD_ENV_CONF.Supports[network]?.SubGraphUrl;
 
     if (!url) {
       return of([]);
@@ -102,7 +105,7 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
     );
   }
 
-  public doGet(user: string, pageSize: number, pageIndex: number): Observable<ShieldHistoryOrderRs> {
+  public doGet(user: string, pageSize: number, pageIndex: number, network: Network): Observable<ShieldHistoryOrderRs> {
     const count = pageSize * (pageIndex + 1);
 
     return of(user).pipe(
@@ -110,10 +113,10 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
         this.isPending.next(true);
       }),
       switchMap(user => {
-        return this.getPreData(user);
+        return this.getPreData(user, network);
       }),
       switchMap((rs: MidRes) => {
-        const appendOrders$ = this.getAppendData(rs.appendOrders);
+        const appendOrders$ = this.getAppendData(rs.appendOrders, network);
 
         return zip(appendOrders$, of(rs.preHistory));
       }),
@@ -138,13 +141,14 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
       map((orders: (ShieldOrderInfo | null)[]) => {
         return orders.filter(Boolean) as ShieldOrderInfo[];
       }),
-      map((orders: ShieldOrderInfo[]) => {
+      map((orders: ShieldOrderInfo[]): ShieldHistoryOrderRs => {
         orders = orders.sort((a, b) => (b.closeTime || 0) - (a.closeTime || 0));
 
         return {
           orders,
           taker: user,
-        } as ShieldHistoryOrderRs;
+          network,
+        };
       }),
       finalize(() => {
         this.isPending.next(false);
@@ -152,8 +156,8 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
     );
   }
 
-  public getPreData(user: string): Observable<MidRes> {
-    const url = SLD_ENV_CONF.SubGraphUrl;
+  public getPreData(user: string, network: Network): Observable<MidRes> {
+    const url: string | undefined = SLD_ENV_CONF.Supports[network]?.SubGraphUrl;
 
     if (!url) {
       return of(emptyMidRes);
@@ -205,8 +209,8 @@ export class MergerHistoryOrders implements DatabaseStateMerger<ShieldHistoryOrd
     };
   }
 
-  public getAppendData(orders: string[]): Observable<RsType[]> {
-    const url = SLD_ENV_CONF.SubGraphUrl;
+  public getAppendData(orders: string[], network: Network): Observable<RsType[]> {
+    const url: string | undefined = SLD_ENV_CONF.Supports[network]?.SubGraphUrl;
 
     if (!url || orders.length === 0) {
       return of([]);

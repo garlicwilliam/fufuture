@@ -5,6 +5,8 @@ import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/o
 import { Contract, providers, Signer } from 'ethers';
 import { createChainContract } from './contract-creator';
 
+export type ContractAddress = { address: string; network: Network };
+
 export abstract class BaseContractManager<F extends string> {
   abstract getContractAddress(network: Network, contractName: F): string | undefined;
 
@@ -55,7 +57,7 @@ export abstract class BaseContractManager<F extends string> {
     return of(this.getContractAbi(name));
   }
 
-  protected watchContractAddress(contractName: F): Observable<{ address: string; network: Network }> {
+  protected watchContractAddress(contractName: F): Observable<ContractAddress> {
     return this.watchNetwork().pipe(
       map((network: Network) => {
         const address: string | undefined = this.getContractAddress(network, contractName);

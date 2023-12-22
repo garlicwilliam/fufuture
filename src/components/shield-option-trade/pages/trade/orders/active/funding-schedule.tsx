@@ -67,7 +67,7 @@ export class OrderFundingSchedule extends BaseStateComponent<IProps, IState> {
   }
 
   mergeFundingFee(): Observable<SldDecimal> {
-    const daysRates$ = shieldOptionMatrixService.getDayRates(0, 364);
+    const daysRates$ = shieldOptionMatrixService.getDayRates(0, 364, this.props.order.token.network);
     const phaseCount$ = this.watchStateChange('phaseCount');
     const timesPerDay$ = S.Option.Params.Funding.DailyTimes.get();
     const order$ = this.watchStateChange('order');

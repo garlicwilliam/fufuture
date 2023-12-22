@@ -7,23 +7,14 @@ import { EMPTY_ADDRESS, MAX_UINT_256 } from '../../../constant';
 import {
   ShieldMakerOrderInfo,
   ShieldMakerPrivatePoolInfo,
-  ShieldOptionType, ShieldUnderlyingType,
+  ShieldOptionType,
+  ShieldUnderlyingType,
   TokenErc20,
 } from '../../../state-manager/state-types';
-import {
-  createContractByCurEnv,
-  createContractByEnv,
-  createErc20Contract,
-} from '../../../state-manager/const/contract-creator';
+import { createContractByCurEnv, createErc20Contract } from '../../../state-manager/const/contract-creator';
 import { loadingObs } from '../../../services/utils';
 import { i18n } from '../../i18n/i18n-fn';
 import { ABI_PRIVATE_POOL, ABI_PUBLIC_POOL } from '../const/shield-option-abi';
-import {
-  privatePoolLiquidityGetter,
-  privatePoolUnderlyingGetter,
-  publicPoolLiquidityGetter,
-} from '../../../state-manager/contract/contract-getter-cpx-shield';
-import { erc20InfoByAddressGetter } from '../../../state-manager/contract/contract-getter-sim-erc20';
 
 export class ShieldOptionTradeService {
   public approveAddLiquidity(token: TokenErc20) {
@@ -250,43 +241,6 @@ export class ShieldOptionTradeService {
 
     return loadingObs(risk$);
   }
-
-  public getPriPoolLiquidity(
-    poolAddress: string,
-    tokenAddress: string
-  ): Observable<{ underlying: ShieldUnderlyingType; liquidity: SldDecimal }> {
-    const token$ = erc20InfoByAddressGetter(tokenAddress);
-    const contract$ = shieldOptionTradeContracts.CONTRACTS.liquidityManager.pipe(take(1));
-    const privatePool$ = createContractByCurEnv(poolAddress, ABI_PRIVATE_POOL);
-    const underlying$ = privatePool$.pipe(switchMap(privatePool => privatePoolUnderlyingGetter(privatePool)));
-
-    return zip(token$, contract$).pipe(
-      switchMap(([token, contract]) => {
-        const liquidity$ = privatePoolLiquidityGetter(contract, poolAddress, token);
-
-        return zip(underlying$, liquidity$);
-      }),
-      map(([underlying, liquidity]) => {
-        return {
-          underlying,
-          liquidity,
-        };
-      })
-    );
-  }
-
-  public getPubPoolLiquidity(poolAddress: string, tokenAddress: string): Observable<SldDecimal> {
-    const token$ = erc20InfoByAddressGetter(tokenAddress);
-    const contract$ = shieldOptionTradeContracts.CONTRACTS.liquidityManager.pipe(take(1));
-
-    return zip(token$, contract$).pipe(
-      switchMap(([token, contract]) => {
-        return publicPoolLiquidityGetter(contract, token);
-      })
-    );
-  }
-
-
 
   // -------------------------------------------------------------------------------------------------------------------
 

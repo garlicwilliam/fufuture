@@ -3,14 +3,15 @@ import { Observable, of } from 'rxjs';
 import { httpPost } from '../../../../util/http';
 import { map } from 'rxjs/operators';
 import * as _ from 'lodash';
-import {SLD_ENV_CONF} from "../../../../components/shield-option-trade/const/env";
+import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
+import { Network } from '../../../../constant/network';
 
-export class MergerMyReferrals implements DatabaseStateMerger<number, [string]> {
-  mergeWatch(...args: [string]): Observable<number> {
-    return this.doGet(args[0]);
+export class MergerMyReferrals implements DatabaseStateMerger<number, [string, Network]> {
+  mergeWatch(...args: [string, Network]): Observable<number> {
+    return this.doGet(args[0], args[1]);
   }
 
-  mock(args?: [string]): Observable<number> | number {
+  mock(args?: [string, Network]): Observable<number> | number {
     return 0;
   }
 
@@ -18,8 +19,8 @@ export class MergerMyReferrals implements DatabaseStateMerger<number, [string]> 
     return of(false);
   }
 
-  doGet(inviter: string): Observable<number> {
-    const url = SLD_ENV_CONF.SubGraphUrl;
+  doGet(inviter: string, network: Network): Observable<number> {
+    const url: string | undefined = SLD_ENV_CONF.Supports[network]?.SubGraphUrl;
 
     if (!url) {
       return of(0);

@@ -13,6 +13,7 @@ import { MergerMakerLockedDetail } from './database-state-mergers/option/merger-
 import { MergerMakerLiquidity } from './database-state-mergers/option/merger-maker-liquidity';
 import { MergerMakerShare } from './database-state-mergers/option/merger-maker-share';
 import { MergerPoolAddress } from './database-state-mergers/option/merger-pool-address';
+import { MergerClosedOrders } from './database-state-mergers/option/merger-closed-orders';
 
 class DBStateReference implements DatabaseStateRef {
   private root: DatabaseStateTree<any> | null = null;
@@ -56,28 +57,42 @@ export const DATABASE_STATE = {
       _merger: new MergerTokenPricesChange(),
     },
     HistoryOrders: {
-      _depend: [walletState.USER_ADDR, P.Option.Trade.OrderHistory.PageSize, P.Option.Trade.OrderHistory.PageIndex],
+      _depend: [
+        walletState.USER_ADDR,
+        P.Option.Trade.OrderHistory.PageSize,
+        P.Option.Trade.OrderHistory.PageIndex,
+        walletState.NETWORK,
+      ],
       _merger: new MergerHistoryOrders(),
     },
+    ClosedOrders: {
+      _depend: [
+        walletState.USER_ADDR,
+        P.Option.Trade.OrderHistory.PageSize,
+        P.Option.Trade.OrderHistory.PageIndex,
+        walletState.NETWORK,
+      ],
+      _merger: new MergerClosedOrders(),
+    },
     Volume24h: {
-      _depend: [P.Option.Trade.Pair.Base],
+      _depend: [P.Option.Trade.Pair.Base, walletState.NETWORK],
       _merger: new Merger24volume(),
     },
     Volume24hOfToken: {
-      _depend: [P.Option.Trade.Select.IndexUnderlying],
+      _depend: [P.Option.Trade.Select.IndexUnderlying, walletState.NETWORK],
       _merger: new Merger24volume(),
     },
     MyReferrals: {
-      _depend: [walletState.USER_ADDR],
+      _depend: [walletState.USER_ADDR, walletState.NETWORK],
       _merger: new MergerMyReferrals(),
     },
     Maker: {
       YourShareInPools: {
-        _depend: [walletState.USER_ADDR],
+        _depend: [walletState.USER_ADDR, walletState.NETWORK],
         _merger: new MergerMakerShare(),
       },
       YourLiquidity: {
-        _depend: [walletState.USER_ADDR],
+        _depend: [walletState.USER_ADDR, walletState.NETWORK],
         _merger: new MergerMakerLiquidity(),
       },
       LockedDetails: {
@@ -87,7 +102,7 @@ export const DATABASE_STATE = {
     },
     Pool: {
       AllAddress: {
-        _depend: [],
+        _depend: [walletState.NETWORK],
         _merger: new MergerPoolAddress(),
       },
     },

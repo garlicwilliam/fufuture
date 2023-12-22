@@ -25,6 +25,7 @@ type IProps = {
     light?: { banPadding?: boolean; noBg?: boolean };
     offset?: { minWidth?: number; noBg?: boolean; align?: 'left' };
   };
+  tabTools?: ReactNode;
   noAnimation?: boolean;
   className?: string;
   tabClassName?: string;
@@ -167,6 +168,8 @@ export class SldTabs extends BaseStateComponent<IProps, IState> {
                 </div>
               );
             })}
+
+            {this.props.tabTools}
           </div>
         </Visible>
 

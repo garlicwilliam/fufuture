@@ -7,10 +7,13 @@ import { ReactNode } from 'react';
 import ModalRender from '../../../modal-render';
 import { I18n } from '../../../i18n/i18n';
 import styles from './network-switch.module.less';
-import { bindStyleMerger } from '../../../../util/string';
+import { bindStyleMerger, StyleMerger } from '../../../../util/string';
 import { ItemsBox } from '../../../common/content/items-box';
 import { fontCss } from '../../../i18n/font-switch';
 import { SLD_ENV_CONF } from '../../const/env';
+import { SldSelect, SldSelectOption } from '../../../common/selects/select';
+import { SldOverlay } from '../../../common/overlay/overlay';
+import { IconDropdown } from '../../../common/icon/dropdown';
 
 type IState = {
   isMobile: boolean;
@@ -33,8 +36,47 @@ export class ShieldNetworkSwitch extends BaseStateComponent<IProps, IState> {
     this.destroyState();
   }
 
-  genNetworkIcon(): ReactNode {
-    return this.state.curNetwork ? (
+  private genLabel(network: Network, styleMr: StyleMerger): ReactNode {
+    return (
+      <div className={styleMr(styles.nLabel)}>
+        <img src={NetworkIcons[network]} alt={''} height={24} />
+      </div>
+    );
+  }
+
+  private genNetworkIcon(styleMr: StyleMerger): ReactNode {
+    const networks = Object.keys(SLD_ENV_CONF.Supports) as Network[];
+    const isMulti: boolean = Object.keys(SLD_ENV_CONF.Supports).length > 1;
+
+    if (!this.state.curNetwork) {
+      return <></>;
+    }
+
+    if (isMulti) {
+      const overlay = (
+        <div className={styleMr(styles.nOverlay)}>
+          {networks.map((network: Network) => {
+            return (
+              <div className={styleMr(styles.nItem)} key={network} onClick={() => this.onSwitch(network)}>
+                <img src={NetworkIcons[network]} alt={''} height={24} width={24} />
+                <span>{NetworkNames[network]}</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+
+      return (
+        <SldOverlay zIndex={1200} overlay={overlay} placement={'bottom-end'} useArrow={false} offset={2}>
+          <div className={styleMr(styles.nTrigger)}>
+            {this.genLabel(this.state.curNetwork, styleMr)}
+            <IconDropdown width={10} pointTo={'down'} />
+          </div>
+        </SldOverlay>
+      );
+    }
+
+    return (
       <div>
         <img
           src={NetworkIcons[this.state.curNetwork]}
@@ -43,21 +85,22 @@ export class ShieldNetworkSwitch extends BaseStateComponent<IProps, IState> {
           width={this.state.isMobile ? 20 : 24}
         />
       </div>
-    ) : (
-      <></>
     );
   }
 
-  onSwitch() {
-    walletState.switchNetwork(SLD_ENV_CONF.CurNetwork);
+  private onSwitch(network: Network | null) {
+    if (network) {
+      walletState.switchNetwork(network);
+    }
   }
 
   render() {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 
-    const icon: ReactNode = this.genNetworkIcon();
-    const isWrongNetwork = this.state.curNetwork ? this.state.curNetwork !== SLD_ENV_CONF.CurNetwork : false;
+    const icon: ReactNode = this.genNetworkIcon(styleMr);
+    const supportsNet: Network[] = Object.keys(SLD_ENV_CONF.Supports).map(one => one as Network);
+    const isWrongNetwork: boolean = this.state.curNetwork ? supportsNet.indexOf(this.state.curNetwork) < 0 : false;
 
     return (
       <>
@@ -80,10 +123,14 @@ export class ShieldNetworkSwitch extends BaseStateComponent<IProps, IState> {
                 <I18n id={'trade-switch-network'} />
               </div>
 
-              <div className={styleMr(styles.chainBtn)} onClick={this.onSwitch.bind(this)}>
-                <img src={NetworkIcons[SLD_ENV_CONF.CurNetwork]} alt={''} width={24} />
-                <div className={styleMr()}>{NetworkNames[SLD_ENV_CONF.CurNetwork]}</div>
-              </div>
+              {supportsNet.map((one: Network) => {
+                return (
+                  <div key={one} className={styleMr(styles.chainBtn)} onClick={() => this.onSwitch(one)}>
+                    <img src={NetworkIcons[one]} alt={''} width={24} />
+                    <div className={styleMr()}>{NetworkNames[one]}</div>
+                  </div>
+                );
+              })}
             </div>
           </ItemsBox>
         </ModalRender>

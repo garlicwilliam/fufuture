@@ -1,5 +1,46 @@
 @import '../../../shield-option-common/common';
 
+.nLabel {
+  display: flex;
+  line-height: 1;
+  align-items: center;
+}
+
+.nTrigger {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  color: #666666;
+  column-gap: 4px;
+  background-color: @color-bg-f7;
+  padding: 0 16px;
+  border-radius: @border-radius-btn2;
+}
+
+.nOverlay {
+  display: block;
+  padding: 8px;
+  border-radius: @border-radius-btn2;
+  background-color: #ffffff;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+
+  .nItem {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    line-height: 1;
+    column-gap: 8px;
+    cursor: pointer;
+    border-radius: @border-radius-btn2;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: @color-bg-f5;
+    }
+  }
+}
+
 .desc {
   font-size: 14px;
   color: @color-desc;

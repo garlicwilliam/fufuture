@@ -10,11 +10,9 @@ import { ShieldBrokerReward, TokenErc20 } from '../../../../../state-manager/sta
 import { S } from '../../../../../state-manager/contract/contract-state-parser';
 import { TokenLabel } from '../../common/token-label';
 import { Visible } from '../../../../builtin/hidden';
-import { Empty } from 'antd';
 import { FixPadding } from '../../../../common/content/fix-padding';
 import { shieldOptionTradeService } from '../../../services/shield-option-trade.service';
 import { D } from '../../../../../state-manager/database/database-state-parser';
-import noData from '../../../../../assets/imgs/trade/no-data.svg';
 import { SldEmpty } from '../../../../common/content/empty';
 
 type IState = {

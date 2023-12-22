@@ -80,6 +80,15 @@ export class WalletState {
     return wallet.getNetwork();
   }
 
+  getCurAccount(): string | null {
+    const wallet: WalletInterface | null = this.manager.getCurWallet();
+    if (wallet === null) {
+      return null;
+    }
+
+    return wallet.getAccount();
+  }
+
   // user current selected network
   watchNetwork(): Observable<Network> {
     return this.watchWalletInstance().pipe(

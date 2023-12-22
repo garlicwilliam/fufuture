@@ -13,6 +13,7 @@ import { prefixPath } from '../../../common/utils/location-wrapper';
 import { RouteKey } from '../../../../constant/routes';
 import { message } from 'antd';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { genShareUrl } from './share-url';
 
 type IState = {
   isMobile: boolean;
@@ -46,7 +47,7 @@ export class ShareOrder extends BaseStateComponent<IProps, IState> {
   }
 
   genSelectOverlay(styleMr: StyleMerger): ReactNode {
-    const shareUrl = window.location.origin + prefixPath + '/' + RouteKey.poster + '/' + this.props.order.id.toString();
+    const shareUrl = genShareUrl(this.props.order.id, this.props.order.token.network);
 
     return (
       <div className={styleMr(styles.shareOverlay)}>

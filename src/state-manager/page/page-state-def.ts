@@ -5,7 +5,8 @@ import {
   ShieldMakerPublicPoolShare,
   ShieldOptionType,
   ShieldOrderInfo,
-  ShieldTradePair, ShieldUnderlyingType,
+  ShieldTradePair,
+  ShieldUnderlyingType,
   TokenErc20,
   TradeChartType,
 } from '../state-types';
@@ -13,7 +14,6 @@ import { confirmIsMobile, Size } from '../../util/layout';
 import { EMPTY_ADDRESS, Language } from '../../constant';
 import { getLanguage } from '../../locale/i18n';
 import { SldDecimal } from '../../util/decimal';
-import { SLD_ENV_CONF } from '../../components/shield-option-trade/const/env';
 
 export const PAGE_STATE = {
   Lang: {
@@ -59,10 +59,10 @@ export const PAGE_STATE = {
       },
       Pair: {
         Base: {
-          _default: SLD_ENV_CONF.DefaultPair.indexUnderlying as ShieldUnderlyingType,
+          _default: ShieldUnderlyingType.BTC as ShieldUnderlyingType,
         },
         Quote: {
-          _default: SLD_ENV_CONF.DefaultPair.quoteToken as TokenErc20 | null,
+          _default: null as TokenErc20 | null,
         },
       },
       SpecifiedMaker: {

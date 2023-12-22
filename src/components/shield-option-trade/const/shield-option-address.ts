@@ -1,14 +1,13 @@
+import { ShieldUnderlyingType } from '../../../state-manager/state-types';
+
 export const SHIELD_OPTION_TRADE_CONFIG_KEYS = [
-  'ethOracle',
-  'btcOracle',
   'optionTrade',
   'liquidityManager',
   'liquidityFactory',
-  'underlyingETH',
-  'underlyingBTC',
   'broker',
 ] as const;
 
-export type ShieldOptionTradeConfigField = typeof SHIELD_OPTION_TRADE_CONFIG_KEYS[number];
-export type ShieldOptionTradeConfigAddress = { [k in ShieldOptionTradeConfigField]: string };
-export type ShieldOptionTradeConfigAbi = { [k in ShieldOptionTradeConfigField]: any[] };
+export type ShieldOptionTradeField = typeof SHIELD_OPTION_TRADE_CONFIG_KEYS[number];
+export type ShieldOptionTradeContracts = { [k in ShieldOptionTradeField]: string };
+export type ShieldOptionTradeABIs = { [k in ShieldOptionTradeField]: any[] };
+export type ShieldUnderlyingContracts = { [k in ShieldUnderlyingType]?: string };

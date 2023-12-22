@@ -2,12 +2,15 @@ import { walletState } from '../wallet/wallet-state';
 import { isObservable, NEVER, Observable, of } from 'rxjs';
 import { ContractState, ContractStateTree, StateReference } from '../interface';
 import _ from 'lodash';
-import { filter, switchMap } from 'rxjs/operators';
+import { filter, map, switchMap } from 'rxjs/operators';
 import { P } from '../page/page-state-parser';
-import { MappedState } from './contract-state-def.util-map';
 import { erc20ApprovedAmountGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
 import { linkAnswerGetter } from './contract-getter-sim-link';
-import { shieldOptionTradeContracts } from '../../components/shield-option-trade/contract/shield-option-trade-contract';
+import {
+  shieldOptionTradeContracts,
+  shieldOracleContracts,
+  shieldUnderlyingContracts,
+} from '../../components/shield-option-trade/contract/shield-option-trade-contract';
 import {
   brokerAllRewardsGetter,
   calculatorFundingFeeGetter,
@@ -16,8 +19,7 @@ import {
   makerPriPoolApprovedGetter,
   makerPriPoolDetailsGetter,
   makerPriPoolInfoByPairGetter,
-  makerPriPoolInfoListGetter,
-  makerPubPoolInfoListGetter,
+  makerPubPoolMaxRemoveLpGetter,
   makerPubPoolWithdrawReceiveGetter,
   orderFundingFeeGetter,
   orderTradingFeeGetter,
@@ -29,6 +31,7 @@ import {
   paramTradingFeeRateGetter,
   poolLiquidityListGetter,
   poolTokenErc20ListGetter,
+  publicPoolInfoGetter1,
   riskFundBalanceGetter,
   searchTokenGetter,
   tokenPoolInfoGetter0,
@@ -94,16 +97,17 @@ export const CONTRACT_STATE = {
     },
     Oracle: {
       ETH: {
-        _depend: [shieldOptionTradeContracts.CONTRACTS.ethOracle],
+        _depend: [shieldOracleContracts.CONTRACTS.ETH],
         _getter: linkAnswerGetter,
       },
       BTC: {
-        _depend: [shieldOptionTradeContracts.CONTRACTS.btcOracle],
+        _depend: [shieldOracleContracts.CONTRACTS.BTC],
         _getter: linkAnswerGetter,
       },
       CurBaseToken: {
-        _depend: [MappedState.OPTION_CUR_ORACLE],
+        _depend: [Ref(P.Option.Trade.Pair.Base.watch().pipe(map(name => `Option.Oracle.${name}`)))],
         _getter: linkAnswerGetter,
+        _isRef: true,
       },
     },
     User: {
@@ -144,10 +148,6 @@ export const CONTRACT_STATE = {
       Maker: {
         Liquidity: {
           Private: {
-            List: {
-              _depend: [shieldOptionTradeContracts.CONTRACTS.liquidityManager, walletState.USER_ADDR],
-              _getter: makerPriPoolInfoListGetter,
-            },
             Add: {
               Current: {
                 _depend: [
@@ -168,10 +168,6 @@ export const CONTRACT_STATE = {
             },
           },
           Public: {
-            List: {
-              _depend: [shieldOptionTradeContracts.CONTRACTS.liquidityManager, walletState.USER_ADDR],
-              _getter: makerPubPoolInfoListGetter,
-            },
             Add: {
               Approved: {
                 _depend: [
@@ -183,6 +179,14 @@ export const CONTRACT_STATE = {
               },
             },
             Withdraw: {
+              Max: {
+                _depend: [P.Option.Pools.Public.Liquidity.Withdraw.Current, walletState.watchWeb3Provider()],
+                _getter: makerPubPoolMaxRemoveLpGetter,
+              },
+              PoolInfo: {
+                _depend: [P.Option.Pools.Public.Liquidity.Withdraw.Current, walletState.watchWeb3Provider()],
+                _getter: publicPoolInfoGetter1,
+              },
               Receive: {
                 _depend: [
                   P.Option.Pools.Public.Liquidity.Withdraw.Current,
@@ -250,10 +254,9 @@ export const CONTRACT_STATE = {
         },
         TradingFee: {
           _depend: [
-            shieldOptionTradeContracts.watchUnderlyingAddress(P.Option.Trade.Pair.Base.watch()),
+            shieldUnderlyingContracts.watchCurContract(P.Option.Trade.Pair.Base.watch()),
             P.Option.Trade.Open.Amount,
             Ref('Option.Oracle.CurBaseToken'),
-            walletState.watchSigner(),
           ],
           _getter: orderTradingFeeGetter,
         },
@@ -284,7 +287,7 @@ export const CONTRACT_STATE = {
         },
         MMarginRate: {
           _depend: [
-            shieldOptionTradeContracts.watchUnderlyingAddress(P.Option.Trade.Pair.Base.watch()),
+            shieldUnderlyingContracts.watchAddress(P.Option.Trade.Pair.Base.watch()),
             walletState.watchSigner(),
           ],
           _getter: paramMMarginRateGetter,
@@ -297,7 +300,7 @@ export const CONTRACT_STATE = {
       Trading: {
         FeeRate: {
           _depend: [
-            shieldOptionTradeContracts.watchUnderlyingAddress(P.Option.Trade.Pair.Base.watch()),
+            shieldUnderlyingContracts.watchCurContract(P.Option.Trade.Pair.Base.watch()),
             walletState.watchSigner(),
           ],
           _getter: paramTradingFeeRateGetter,

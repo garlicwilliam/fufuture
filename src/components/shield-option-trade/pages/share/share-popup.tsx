@@ -13,6 +13,7 @@ import React from 'react';
 import { RouteKey } from '../../../../constant/routes';
 import { prefixPath } from '../../../common/utils/location-wrapper';
 import { Visible } from '../../../builtin/hidden';
+import { genShareUrl } from './share-url';
 
 type IState = {
   isMobile: boolean;
@@ -48,8 +49,12 @@ export class SharePopup extends BaseStateComponent<IProps, IState> {
     this.poster.current?.download();
   }
 
-  qrUrl() {
-    return window.location.origin + prefixPath + '/' + RouteKey.poster + '/' + this.state.curOrder?.id.toString();
+  qrUrl(): string {
+    if (this.state.curOrder) {
+      return genShareUrl(this.state.curOrder.id, this.state.curOrder.token.network);
+    }
+
+    return '';
   }
 
   render() {

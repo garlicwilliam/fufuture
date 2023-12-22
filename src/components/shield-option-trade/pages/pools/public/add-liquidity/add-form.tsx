@@ -10,12 +10,16 @@ import { SldDecimal } from '../../../../../../util/decimal';
 import { SldButton } from '../../../../../common/buttons/sld-button';
 import { FixPadding } from '../../../../../common/content/fix-padding';
 import { I18n } from '../../../../../i18n/i18n';
-import {ShieldUnderlyingType, TokenErc20} from '../../../../../../state-manager/state-types';
+import { ShieldUnderlyingType, TokenErc20 } from '../../../../../../state-manager/state-types';
 import { shieldOptionTradeService } from '../../../../services/shield-option-trade.service';
 import { tokenBalanceService } from '../../../../services/token-balance.service';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
 import { Visible } from '../../../../../builtin/hidden';
-import {D} from "../../../../../../state-manager/database/database-state-parser";
+import { D } from '../../../../../../state-manager/database/database-state-parser';
+import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
+import { tap } from 'rxjs/operators';
+import { Network } from '../../../../../../constant/network';
+import { Observable } from 'rxjs';
 
 type IState = {
   isMobile: boolean;
@@ -39,10 +43,22 @@ export class AddPubLiquidityForm extends BaseStateComponent<IProps, IState> {
     this.registerIsMobile('isMobile');
     this.registerState('curSelectToken', P.Option.Pools.Public.Liquidity.Add.CurrentToken);
     this.registerState('approved', S.Option.Pool.Maker.Liquidity.Public.Add.Approved);
+
+    this.sub(this.watchNetSwitch());
   }
 
   componentWillUnmount() {
     this.destroyState();
+  }
+
+  watchNetSwitch(): Observable<any> {
+    return walletState.NETWORK.pipe(
+      tap((network: Network) => {
+        if (!!this.state.curSelectToken && this.state.curSelectToken.network !== network) {
+          P.Option.Pools.Public.Liquidity.Add.CurrentToken.setToDefault();
+        }
+      })
+    );
   }
 
   onChangeToken(token: TokenErc20) {
@@ -86,7 +102,7 @@ export class AddPubLiquidityForm extends BaseStateComponent<IProps, IState> {
 
     this.subOnce(add$, (done: boolean) => {
       if (done) {
-        this.tickState(S.Option.Pool.Maker.Liquidity.Public.List, D.Option.Maker.YourShareInPools);
+        this.tickAndLater(8000, D.Option.Maker.YourShareInPools);
         this.updateState({ inputValue: null });
         tokenBalanceService.refresh();
       }

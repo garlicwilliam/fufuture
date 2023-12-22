@@ -1,21 +1,37 @@
-import { NET_BNB, NET_GOERLI, Network } from '../../../constant/network';
-import { ShieldTradePair, ShieldUnderlyingType } from '../../../state-manager/state-types';
-import { ShieldOptionTradeConfigAddress } from './shield-option-address';
-import logo from '../../../assets/imgs/logo/shield/logo-light.svg';
-import logoDark from '../../../assets/imgs/logo/shield/logo-black.svg';
-import mobile from '../../../assets/imgs/logo/shield/logo-mobile.svg';
-import openLogo from '../../../assets/imgs/logo/openspace/openspace.svg';
-import doptionLogo from '../../../assets/imgs/logo/doption/doption.svg';
+import { NET_BNB, Network } from '../../../constant/network';
+import { ShieldUnderlyingType, TokenErc20 } from '../../../state-manager/state-types';
+import { ShieldOptionTradeContracts, ShieldUnderlyingContracts } from './shield-option-address';
 import fufutureLogoDark from '../../../assets/imgs/logo/fufuture/fufuture-1-dark.svg';
 import fufutureLogo from '../../../assets/imgs/logo/fufuture/fufuture-1-light.svg';
 import fufutureMobile from '../../../assets/imgs/logo/fufuture/fufuture-1.svg';
 
-type ImgConf = { url: string; size: { w: number; h: number } };
-type EnvConfig = {
+enum OracleType {
+  ChainLink,
+}
+
+type ImgConf = {
+  url: string;
+  size: {
+    w: number;
+    h: number;
+  };
+};
+export type OracleConf = {
+  type: OracleType;
+  address: string;
+};
+type EnvNetConfig = {
   CurNetwork: Network;
-  DefaultPair: ShieldTradePair;
+  DefaultToken: TokenErc20;
   SubGraphUrl: string;
-  Addresses: ShieldOptionTradeConfigAddress;
+  Addresses: {
+    trade: ShieldOptionTradeContracts;
+    underlying: ShieldUnderlyingContracts;
+  };
+  Oracles: { [k in ShieldUnderlyingType]?: OracleConf };
+};
+type EnvConfig = {
+  Supports: { [n in Network]?: EnvNetConfig };
   TokenIcon: string;
   Logo: {
     Web: ImgConf;
@@ -32,28 +48,41 @@ enum Env {
   Fufuture,
 }
 
-const env: { [k in Env]: EnvConfig } = {
+const env2: { [k in Env]: EnvConfig } = {
   [Env.Fufuture]: {
-    CurNetwork: NET_BNB,
-    DefaultPair: {
-      indexUnderlying: ShieldUnderlyingType.BTC,
-      quoteToken: {
-        symbol: 'POT',
-        address: '0x5150404c61706b6874cF43DC34c9CA88DaA5F9e3',
-        decimal: 18,
-        network: NET_BNB,
+    Supports: {
+      [NET_BNB]: {
+        CurNetwork: NET_BNB,
+        DefaultToken: {
+          symbol: 'FU',
+          address: '0x040f477b9bc3deab4a434631e1b98c193b7a1b5f',
+          decimal: 6,
+          network: NET_BNB,
+        },
+        SubGraphUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/fufutrue-history-bsc',
+        Addresses: {
+          trade: {
+            optionTrade: '0x1e933E0957e6236E519e64CD13f967146Fcb4755',
+            liquidityManager: '0x0CB5274a8Ff86b7b750933B09aba8B5eb3660977',
+            liquidityFactory: '0x1ee04f7f223C620274b92a77c415eb10e1f47C9d',
+            broker: '0x787eCb23Cd23D52200fB5cb010d8f9D12c398cF9',
+          },
+          underlying: {
+            ETH: '0xACe3062d01CAc4f2DC588d09D3cb09C71121C8c3',
+            BTC: '0x5ff1c7Bde624eb694Ff6ab466DF5121Fc0c23949',
+          },
+        },
+        Oracles: {
+          ETH: {
+            type: OracleType.ChainLink,
+            address: '0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e',
+          },
+          BTC: {
+            type: OracleType.ChainLink,
+            address: '0x264990fbd0A4796A3E3d8E37C4d5F87a3aCa5Ebf',
+          },
+        },
       },
-    },
-    SubGraphUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/fufutrue-history-bsc',
-    Addresses: {
-      ethOracle: '0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e',
-      btcOracle: '0x264990fbd0A4796A3E3d8E37C4d5F87a3aCa5Ebf',
-      optionTrade: '0x1e933E0957e6236E519e64CD13f967146Fcb4755',
-      liquidityManager: '0x0CB5274a8Ff86b7b750933B09aba8B5eb3660977',
-      liquidityFactory: '0x1ee04f7f223C620274b92a77c415eb10e1f47C9d',
-      underlyingETH: '0xACe3062d01CAc4f2DC588d09D3cb09C71121C8c3',
-      underlyingBTC: '0x5ff1c7Bde624eb694Ff6ab466DF5121Fc0c23949',
-      broker: '0x787eCb23Cd23D52200fB5cb010d8f9D12c398cF9',
     },
     TokenIcon: 'https://static.fufuture.io/token-icon.json',
     Logo: {
@@ -68,4 +97,4 @@ const env: { [k in Env]: EnvConfig } = {
   },
 };
 
-export const SLD_ENV_CONF = env[Env.Fufuture];
+export const SLD_ENV_CONF = env2[Env.Fufuture];
