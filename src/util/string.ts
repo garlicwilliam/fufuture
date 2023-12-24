@@ -85,3 +85,8 @@ export function pxStr(num?: number | undefined | null): string | undefined {
 export function padTimeStr(number: number): string {
   return _.padStart(number.toString(), 2, '0');
 }
+
+export function parseNumber(numStr: string): number {
+  const rs = Number(numStr);
+  return isNaN(rs) ? 0 : rs;
+}

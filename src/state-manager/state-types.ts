@@ -410,7 +410,32 @@ export type ShieldMakerPublicPoolShareRs = {
   network: Network;
   maker: string;
 };
-
+export type ShieldTradingFee = {
+  token: TokenErc20;
+  amount: SldDecimal;
+};
+export type ShieldTakerTradingFee = ShieldTradingFee & { taker: string };
+export type ShieldBrokerReferralInfo = {
+  takerAddress: string;
+  orderCount: number;
+  lastOpenTime: number;
+  tradingFee: ShieldTakerTradingFee[];
+};
+export type ShieldBrokerReferralRs = {
+  takers: ShieldBrokerReferralInfo[];
+  pageOffset: number;
+  broker: ShieldBrokerInfo;
+  network: Network;
+};
+export type ShieldBrokerInfo = {
+  brokerAddress: string;
+  referralCount: number;
+  firstReferralTime: number;
+  lastReferralTime: number;
+  referralOrderCount: number;
+  tradingFee: ShieldBrokerTradingFee[];
+};
+export type ShieldBrokerTradingFee = ShieldTradingFee & { broker: string };
 export type ShieldBrokerReward = {
   token: TokenErc20;
   amount: SldDecimal;

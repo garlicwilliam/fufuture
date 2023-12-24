@@ -195,5 +195,15 @@ export const PAGE_STATE = {
         _default: undefined as string | undefined,
       },
     },
+    Referral: {
+      Detail: {
+        PageSize: {
+          _default: 10,
+        },
+        PageIndex: {
+          _default: 0,
+        },
+      },
+    },
   },
 };

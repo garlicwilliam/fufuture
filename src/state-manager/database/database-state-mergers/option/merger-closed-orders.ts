@@ -66,6 +66,7 @@ export class MergerClosedOrders implements DatabaseStateMerger<ShieldClosedOrder
   ): Observable<ShieldClosedOrderInfoRs> {
     const url = SLD_ENV_CONF.Supports[network]?.SubGraphUrl;
     const empty = Object.assign({}, EMPTY_RS, { network: network, taker: taker });
+    const needFixPrice: boolean = SLD_ENV_CONF.Supports[network]?.ClosePriceNeedFix || false;
 
     if (!url) {
       return of(empty);
@@ -92,7 +93,7 @@ export class MergerClosedOrders implements DatabaseStateMerger<ShieldClosedOrder
           mergeMap((orderRs: OrderRs) => {
             return this.getOrderToken(orderRs.token, network).pipe(
               map((token: TokenErc20 | null) => {
-                return token ? this.convertOrder(orderRs, taker, token) : null;
+                return token ? this.convertOrder(orderRs, taker, token, needFixPrice) : null;
               })
             );
           }),
@@ -152,7 +153,7 @@ export class MergerClosedOrders implements DatabaseStateMerger<ShieldClosedOrder
     );
   }
 
-  private convertOrder(order: OrderRs, taker: string, token: TokenErc20): ShieldClosedOrderInfo {
+  private convertOrder(order: OrderRs, taker: string, token: TokenErc20, needFixPrice: boolean): ShieldClosedOrderInfo {
     const orderObj: ShieldClosedOrderInfo = {
       id: BigNumber.from(order.id),
       taker,
@@ -170,7 +171,10 @@ export class MergerClosedOrders implements DatabaseStateMerger<ShieldClosedOrder
       pnl: SldDecimal.ZERO,
     };
 
-    orderObj.closePrice = this.genClosePrice(orderObj, BigNumber.from(order.positionProfit));
+    if (needFixPrice) {
+      orderObj.closePrice = this.genClosePrice(orderObj, BigNumber.from(order.positionProfit));
+    }
+
     orderObj.pnl = computeClosedOrderPnl(orderObj);
 
     return orderObj;

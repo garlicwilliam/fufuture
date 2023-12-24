@@ -14,6 +14,7 @@ import { MergerMakerLiquidity } from './database-state-mergers/option/merger-mak
 import { MergerMakerShare } from './database-state-mergers/option/merger-maker-share';
 import { MergerPoolAddress } from './database-state-mergers/option/merger-pool-address';
 import { MergerClosedOrders } from './database-state-mergers/option/merger-closed-orders';
+import { MergerReferralItems } from './database-state-mergers/option/merger-referral-items';
 
 class DBStateReference implements DatabaseStateRef {
   private root: DatabaseStateTree<any> | null = null;
@@ -85,6 +86,17 @@ export const DATABASE_STATE = {
     MyReferrals: {
       _depend: [walletState.USER_ADDR, walletState.NETWORK],
       _merger: new MergerMyReferrals(),
+    },
+    Referrals: {
+      Details: {
+        _depend: [
+          walletState.USER_ADDR,
+          P.Option.Referral.Detail.PageSize,
+          P.Option.Referral.Detail.PageIndex,
+          walletState.NETWORK,
+        ],
+        _merger: new MergerReferralItems(),
+      },
     },
     Maker: {
       YourShareInPools: {

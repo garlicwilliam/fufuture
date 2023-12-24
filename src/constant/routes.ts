@@ -15,10 +15,10 @@ export enum RouteKey {
   vault = 'vault',
   vaultStDetail = 'vault/detail',
   sld = 'sld',
-  swapBurn = 'swap-burn',
   mining = 'mining',
   vote = 'vote',
   referral = 'referral',
+  sub_ReferralDetail = 'detail',
   poster = 'poster',
 
   claim = 'claim',

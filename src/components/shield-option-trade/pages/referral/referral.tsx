@@ -7,6 +7,7 @@ import { I18n } from '../../../i18n/i18n';
 import { CopyLink } from './copy-link';
 import { TradeReferralTabs } from './tabs';
 import { FixPadding } from '../../../common/content/fix-padding';
+import { Outlet } from 'react-router-dom';
 
 type IState = {
   isMobile: boolean;
@@ -37,8 +38,10 @@ export class TradeReferral extends BaseStateComponent<IProps, IState> {
         <CopyLink />
 
         <FixPadding top={60} bottom={0} mobTop={40} mobBottom={0}>
-          <TradeReferralTabs />
+          <Outlet />
         </FixPadding>
+
+        {/*<TradeReferralTabs />*/}
       </div>
     );
   }

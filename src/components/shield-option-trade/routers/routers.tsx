@@ -12,6 +12,8 @@ import { TradeReferral } from '../pages/referral/referral';
 import { TradeNotFound } from '../pages/not-found';
 import { RefRedirect } from '../pages/redirect';
 import { ShareOrderMobile } from '../pages/share/share-order-mobile';
+import { TradeReferralTabs } from '../pages/referral/tabs';
+import { MyRefDetail } from '../pages/referral/referral-detail/my-ref-detail';
 
 const router: Router = createBrowserRouter([
   {
@@ -52,6 +54,16 @@ const router: Router = createBrowserRouter([
       {
         path: RouteKey.referral,
         element: <TradeReferral />,
+        children: [
+          {
+            index: true,
+            element: <TradeReferralTabs />,
+          },
+          {
+            path: RouteKey.sub_ReferralDetail,
+            element: <MyRefDetail />,
+          },
+        ],
       },
       {
         path: RouteKey.r,

@@ -12,6 +12,7 @@ import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/e
 import { ShieldTokenTradingVolume, ShieldTradingVolume, ShieldUnderlyingType } from '../../../state-types';
 import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
 import { NET_BNB, Network } from '../../../../constant/network';
+import { genDCacheKey } from '../../datebase-cache-key';
 
 function emptyRs(name: ShieldUnderlyingType, network: Network): ShieldTradingVolume {
   return {
@@ -112,7 +113,7 @@ export class Merger24volume implements DatabaseStateMerger<ShieldTradingVolume, 
       })
     );
 
-    const cacheKey: string = '24hour-volume-history-' + name;
+    const cacheKey: string = genDCacheKey('shield-24h-volume', `${network}-${name}`);
 
     return cacheService.tryUseCache(volume$, cacheKey, CACHE_1_MIN);
   }
