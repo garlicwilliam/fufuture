@@ -27,6 +27,7 @@ type Arg = [string, PageSize, PageIndex, Network];
 type ItemRs = {
   id: string;
   orderCount: string;
+  inviteTimestamp: string;
   lastOrderTimestamp: string;
 };
 type FeeRs = {
@@ -157,8 +158,9 @@ export class MergerReferralItems implements DatabaseStateMerger<ShieldBrokerRefe
                     where: {inviter:"${broker}"},
                     skip: ${skip},
                     first: ${first},
-                    orderBy: id ) {
+                    orderBy: inviteTimestamp, orderDirection: desc ) {
                     id,
+                    inviteTimestamp,
                     orderCount,
                     lastOrderTimestamp,
                  },
@@ -170,6 +172,7 @@ export class MergerReferralItems implements DatabaseStateMerger<ShieldBrokerRefe
   private convertItem(item: ItemRs): ShieldBrokerReferralInfo {
     return {
       takerAddress: item.id,
+      invitationTime: parseNumber(item.inviteTimestamp),
       orderCount: parseNumber(item.orderCount),
       lastOpenTime: parseNumber(item.lastOrderTimestamp),
       tradingFee: [],

@@ -4,6 +4,7 @@ import { bindStyleMerger } from '../../../../../util/string';
 import styles from './my-ref-detail.module.less';
 import { ReferralsTable } from './referrals-table';
 import { BlockTitle } from '../../common/block-title';
+import { I18n } from '../../../../i18n/i18n';
 
 type IState = {
   isMobile: boolean;
@@ -29,8 +30,8 @@ export class MyRefDetail extends BaseStateComponent<IProps, IState> {
 
     return (
       <div className={styleMr(styles.detailWrapper)}>
-        <BlockTitle title={'Referral Details'} />
-        <div></div>
+        <BlockTitle title={<I18n id={'trade-referral-details'} />} />
+
         <ReferralsTable />
       </div>
     );

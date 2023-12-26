@@ -14,6 +14,7 @@ import { FixPadding } from '../../../../common/content/fix-padding';
 import { shieldOptionTradeService } from '../../../services/shield-option-trade.service';
 import { D } from '../../../../../state-manager/database/database-state-parser';
 import { SldEmpty } from '../../../../common/content/empty';
+import { RouteKey } from '../../../../../constant/routes';
 
 type IState = {
   isMobile: boolean;
@@ -55,6 +56,10 @@ export class TradeMyReferral extends BaseStateComponent<IProps, IState> {
     });
   }
 
+  onViewDetail() {
+    this.navigateTo(`${RouteKey.referral}/${RouteKey.sub_ReferralDetail}`);
+  }
+
   render() {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
@@ -67,28 +72,38 @@ export class TradeMyReferral extends BaseStateComponent<IProps, IState> {
           </div>
           <div className={styleMr(styles.content)}>
             <VerticalItem
-              label={this.state.rewards.length}
-              labelClassName={styleMr(styles.numLabel, fontCss.bold)}
-              valueClassName={styleMr(styles.label)}
+              label={<I18n id={'trade-total-tokens'} />}
+              labelClassName={styleMr(styles.label)}
+              valueClassName={styleMr(styles.numLabel, fontCss.bold)}
               gap={'8px'}
+              labelPos={'bottom'}
             >
-              <div>
-                <I18n id={'trade-total-tokens'} />
-              </div>
+              <div>{this.state.rewards.length}</div>
             </VerticalItem>
 
             <div className={styleMr(styles.divider)} />
 
             <VerticalItem
-              label={this.state.referrals}
-              labelClassName={styleMr(styles.numLabel, fontCss.bold)}
-              valueClassName={styleMr(styles.label)}
+              label={<I18n id={'trade-my-referral-count'} />}
+              labelClassName={styleMr(styles.label)}
+              valueClassName={styleMr(styles.numLabel, fontCss.bold)}
               gap={'8px'}
+              labelPos={'bottom'}
             >
-              <div>
-                <I18n id={'trade-my-referral-count'} />
-              </div>
+              <>{this.state.referrals}</>
             </VerticalItem>
+          </div>
+
+          <div className={styleMr(styles.moreBtn)}>
+            <SldButton
+              size={'large'}
+              type={'primary'}
+              className={styleMr(styles.btn)}
+              onClick={this.onViewDetail.bind(this)}
+              disabled={!this.state.referrals}
+            >
+              <I18n id={'trade-referral-view-details'} textUpper={'uppercase'} />
+            </SldButton>
           </div>
         </div>
 

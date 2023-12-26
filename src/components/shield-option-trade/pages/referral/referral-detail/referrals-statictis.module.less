@@ -3,11 +3,11 @@
 .statistic {
   display: grid;
   grid-template-columns: 1fr;
-  grid-row-gap: 8px;
-  margin-bottom: 16px;
+  grid-row-gap: 16px;
+  margin-bottom: 32px;
 
   .title {
-    .font(16, @color-normal-font);
+    .font(18, @color-normal-font);
   }
 
   .content {
@@ -20,11 +20,21 @@
       grid-template-columns: auto auto;
       justify-content: space-between;
       padding-bottom: 20px;
+
+      &.mobile {
+        grid-template-columns: 1fr;
+        grid-row-gap: 16px;
+      }
     }
 
     .subTitle {
-      .font(14, @color-normal-font);
+      .font(14, @color-desc);
       padding: 0 0 12px 0;
+    }
+
+    .noData {
+      .font(14, @color-desc);
+      text-align: center;
     }
 
     .fees {
@@ -32,6 +42,7 @@
       grid-template-columns: repeat(auto-fit, minmax(100px, 110px));
       grid-row-gap: 8px;
       grid-column-gap: 8px;
+      padding: 0 16px;
     }
   }
 }

@@ -13,3 +13,39 @@
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+
+.detailBlock {
+  display: grid;
+  grid-row-gap: 8px;
+
+  .detailTitle {
+    .font(18, @color-normal-font);
+  }
+}
+
+.smallGroup {
+  display: grid;
+  grid-row-gap: 6px;
+}
+
+.smallDesc {
+  .font(12, @color-desc);
+}
+
+.smallVal {
+  .font(12, @color-normal-font);
+}
+
+.expandRow {
+  padding: 16px 16px 16px 28px;
+  display: grid;
+  grid-row-gap: 8px;
+
+  .feeRow {
+    display: flex;
+    column-gap: 8px;
+    row-gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}

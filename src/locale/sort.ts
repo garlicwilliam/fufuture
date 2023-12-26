@@ -43,5 +43,5 @@ sortKeys(vi, 'vi');
 sortKeys(ru, 'ru');
 sortKeys(ko, 'ko');
 sortKeys(ja, 'ja');
-sortKeys(zh, 'zh');
-sortKeys(zhHK, 'zhHK');
+sortKeys(zh, 'zh', true);
+sortKeys(zhHK, 'zhHK', true);

@@ -8,12 +8,14 @@ import { TokenAmountInline } from '../../../../common/content/token-amount-inlin
 import { PendingHolder } from '../../../../common/progress/pending-holder';
 import { HorizonItem } from '../../../../common/content/horizon-item';
 import { I18n } from '../../../../i18n/i18n';
+import { Visible } from '../../../../builtin/hidden';
+import { SldEmpty } from '../../../../common/content/empty';
 
 type IState = {
   isMobile: boolean;
 };
 type IProps = {
-  broker?: ShieldBrokerInfo;
+  broker?: ShieldBrokerInfo | null;
 };
 
 export class ReferralsStatistic extends BaseStateComponent<IProps, IState> {
@@ -33,9 +35,14 @@ export class ReferralsStatistic extends BaseStateComponent<IProps, IState> {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 
-    if (!this.props.broker) {
+    if (this.props.broker === undefined) {
       return (
         <div className={styleMr(styles.statistic)}>
+          <div className={styleMr(styles.title, fontCss.bold)}>
+            <I18n id={'trade-referral-statistic'} />
+          </div>
+
+          <PendingHolder loading={true} height={20}></PendingHolder>
           <PendingHolder loading={true} height={20}></PendingHolder>
         </div>
       );
@@ -43,46 +50,59 @@ export class ReferralsStatistic extends BaseStateComponent<IProps, IState> {
 
     return (
       <div className={styleMr(styles.statistic)}>
-        <div className={styleMr(styles.title, fontCss.bold)}>Statistic</div>
+        <div className={styleMr(styles.title, fontCss.bold)}>
+          <I18n id={'trade-referral-statistic'} />
+        </div>
         <div className={styleMr(styles.content)}>
           <div className={styleMr(styles.items)}>
             <HorizonItem
-              label={<I18n id={'trade-referral-count'} />}
-              align={'left'}
-              separator={':'}
+              label={<I18n id={'trade-referral-sta-total-referred-count'} />}
+              align={this.state.isMobile ? 'justify' : 'left'}
+              separator={this.state.isMobile ? undefined : ':'}
               labelClass={styles.label}
               valueClass={styles.value}
             >
-              {this.props.broker.referralCount}
+              {this.props.broker?.referralCount || 0}
             </HorizonItem>
 
             <HorizonItem
-              label={<I18n id={'trade-referral-total-order-count'} />}
-              align={'left'}
-              separator={':'}
+              label={<I18n id={'trade-referral-sta-total-order-count'} />}
+              align={this.state.isMobile ? 'justify' : 'left'}
+              separator={this.state.isMobile ? undefined : ':'}
               labelClass={styles.label}
               valueClass={styles.value}
             >
-              {this.props.broker.referralOrderCount}
+              {this.props.broker?.referralOrderCount || 0}
             </HorizonItem>
           </div>
 
-          <div className={styleMr(styles.subTitle, fontCss.bold)}>Total Fees Takers Paid</div>
-          <div className={styleMr(styles.fees)}>
-            {this.props.broker.tradingFee.map(fee => {
-              return (
-                <>
+          <div className={styleMr(styles.subTitle)}>
+            <I18n id={'trade-referral-sta-trading-fee-paid'} />
+            {this.state.isMobile ? '' : ':'}
+          </div>
+
+          <Visible when={this.props.broker === null}>
+            <div className={styleMr(styles.noData)}>
+              <I18n id={'com-no-data'} />
+            </div>
+          </Visible>
+
+          <Visible when={this.props.broker !== null}>
+            <div className={styleMr(styles.fees)}>
+              {(this.props.broker?.tradingFee || []).map(fee => {
+                return (
                   <TokenAmountInline
+                    key={fee.token.address}
                     amount={fee.amount}
                     token={fee.token.symbol}
                     numClassName={styles.value}
                     symClassName={styles.label}
                     short={true}
                   />
-                </>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </Visible>
         </div>
       </div>
     );

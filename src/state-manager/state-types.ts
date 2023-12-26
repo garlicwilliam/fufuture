@@ -417,6 +417,7 @@ export type ShieldTradingFee = {
 export type ShieldTakerTradingFee = ShieldTradingFee & { taker: string };
 export type ShieldBrokerReferralInfo = {
   takerAddress: string;
+  invitationTime: number;
   orderCount: number;
   lastOpenTime: number;
   tradingFee: ShieldTakerTradingFee[];
