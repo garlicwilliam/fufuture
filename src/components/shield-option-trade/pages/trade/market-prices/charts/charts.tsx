@@ -7,6 +7,8 @@ import * as echarts from 'echarts';
 import { PriceDuration, TokenPriceHistory } from '../../../../../../state-manager/state-types';
 import { D } from '../../../../../../state-manager/database/database-state-parser';
 import { Resize } from '../../../../../common/utils/resize';
+import { numString } from '../../../../../../util/math';
+import { SldDecPrice } from '../../../../../../util/decimal';
 
 type IState = {
   isMobile: boolean;
@@ -123,8 +125,13 @@ export class PriceCharts extends BaseStateComponent<IProps, IState> {
           lineStyle: {
             color: '#003FE6',
           },
+          triggerTooltip: true,
         },
-        showContent: false,
+        showContent: true,
+        formatter: params => {
+          const price = (params[0].value[1] as number).toFixed(2);
+          return `$${price}`;
+        },
       },
       xAxis: {
         type: 'time',

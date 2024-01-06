@@ -9,9 +9,11 @@ export const StateNull = Symbol('null');
 export type StateNullType = typeof StateNull;
 
 export type TokenPriceHistory = {
+  underlying: ShieldUnderlyingType;
   curPrice: number;
   history: [number, number][];
   minPrice: number;
+  maxPrice: number;
 };
 
 export type PriceDuration = 'DAY' | 'MONTH' | 'WEEK';
@@ -229,6 +231,19 @@ export type ShieldTradingVolume = {
   total: SldDecimal;
   tokens: ShieldTokenTradingVolume[];
 };
+export type ShieldOpenInterest = {
+  network: Network;
+  underlying: ShieldUnderlyingType;
+  amount: SldDecimal;
+  tokens: ShieldTokenOpenInterest[];
+};
+export type ShieldTokenOpenInterest = {
+  network: Network;
+  underlying: ShieldUnderlyingType;
+  tokenAddr: string;
+  amount: SldDecimal;
+};
+
 export type ShieldOrderInfo = {
   id: BigNumber;
   takerAddress: string;

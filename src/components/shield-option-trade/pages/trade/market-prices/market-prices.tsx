@@ -40,6 +40,8 @@ export class MarketPrices extends BaseStateComponent<IProps, IState> {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 
+    const height = this.state.isMobile ? 300 : 540;
+
     return (
       <div className={styleMr(styles.wrapperPrices, this.props.className)}>
         <PriceParam />
@@ -47,9 +49,9 @@ export class MarketPrices extends BaseStateComponent<IProps, IState> {
         <div className={styleMr(styles.divider)} />
 
         {this.state.chartType === 'PRICE' ? (
-          <PriceCharts height={this.state.isMobile ? 300 : 500} />
+          <PriceCharts height={height} />
         ) : (
-          <KLineCharts height={this.state.isMobile ? 300 : 500} baseToken={this.state.indexUnderlying} />
+          <KLineCharts height={height} baseToken={this.state.indexUnderlying} />
         )}
       </div>
     );

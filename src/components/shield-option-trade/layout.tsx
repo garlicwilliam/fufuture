@@ -12,6 +12,7 @@ import { Visible } from '../builtin/hidden';
 import { MobileFoot } from './pages/head/mobile-foot';
 import { fontCss } from '../i18n/font-switch';
 import { RouteKey } from '../../constant/routes';
+import {ResultMask} from "../common/overlay/result-mask";
 
 type IState = {
   isMobile: boolean;
@@ -73,6 +74,7 @@ class ShieldOptionAppImp extends BaseStateComponent<IProps, IState> {
         </div>
 
         <AppendBodyContainer />
+        <ResultMask />
       </>
     );
   }

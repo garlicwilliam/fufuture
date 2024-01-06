@@ -2,12 +2,26 @@
 
 .wrapperDay {
   display: grid;
-  grid-template-columns: auto auto;
-  justify-content: space-around;
+  grid-template-columns: auto auto auto auto auto;
+  justify-content: space-between;
 
   &.narrow {
-    grid-template-columns: 1fr;
-    grid-row-gap: 8px;
+    grid-template-columns: auto auto auto;
+    grid-row-gap: 16px;
+  }
+
+  .itemLabel {
+    .font(12, @color-desc);
+    white-space: nowrap;
+  }
+
+  .itemValue {
+    .font(12);
+  }
+
+  .itemLine1 {
+    line-height: 1;
+    font-size: 12px;
   }
 
   &.mobile {

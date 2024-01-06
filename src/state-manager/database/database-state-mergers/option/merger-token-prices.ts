@@ -1,6 +1,6 @@
 import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
 import { DatabaseStateMerger } from '../../../interface';
-import {PriceDuration, ShieldUnderlyingType, TokenPriceHistory} from '../../../state-types';
+import { PriceDuration, ShieldUnderlyingType, TokenPriceHistory } from '../../../state-types';
 import _ from 'lodash';
 import { tokenIdMaps } from '../token-ids';
 import { finalize, map } from 'rxjs/operators';
@@ -8,7 +8,9 @@ import { tokenSymbolFromName } from '../../../../constant/tokens';
 import { httpGet } from '../../../../util/http';
 import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
 
-export class TokenPricesMerger implements DatabaseStateMerger<TokenPriceHistory, [PriceDuration, ShieldUnderlyingType]> {
+export class TokenPricesMerger
+  implements DatabaseStateMerger<TokenPriceHistory, [PriceDuration, ShieldUnderlyingType]>
+{
   //
   private isPending: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
@@ -25,6 +27,8 @@ export class TokenPricesMerger implements DatabaseStateMerger<TokenPriceHistory,
       curPrice: 0,
       history: [],
       minPrice: 0,
+      maxPrice: 0,
+      underlying: ShieldUnderlyingType.BTC,
     };
   }
 
@@ -39,11 +43,12 @@ export class TokenPricesMerger implements DatabaseStateMerger<TokenPriceHistory,
 
     const url: string = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=USD&days=${days}`;
 
-    const priceData$: Observable<TokenPriceHistory> = this.getFromUrl(url);
+    const priceData$: Observable<TokenPriceHistory> = this.getFromUrl(url, token);
+
     return cacheService.tryUseCache(priceData$, url, CACHE_1_MIN);
   }
 
-  private getFromUrl(url: string): Observable<TokenPriceHistory> {
+  private getFromUrl(url: string, underlying: ShieldUnderlyingType): Observable<TokenPriceHistory> {
     this.isPending.next(true);
     return httpGet(url).pipe(
       map(res => {
@@ -52,13 +57,25 @@ export class TokenPricesMerger implements DatabaseStateMerger<TokenPriceHistory,
 
         const data: [number, number][] = body.prices || [];
         const curPrice: number = data[data.length - 1][1];
-        const minPrice: [number, number] = _.minBy(data, one => one[1]) || [0, 0];
 
-        return { curPrice, history: data, minPrice: minPrice[1] };
+        const { min, max } = this.minMax(data);
+
+        return { curPrice, history: data, minPrice: min, maxPrice: max, underlying };
       }),
       finalize(() => {
         this.isPending.next(false);
       })
     );
+  }
+
+  private minMax(data: [number, number][]): { min: number; max: number } {
+    let min = -1;
+    let max = 0;
+    data.forEach(one => {
+      min = min >= 0 ? Math.min(min, one[1]) : one[1];
+      max = Math.max(max, one[1]);
+    });
+
+    return { min, max };
   }
 }

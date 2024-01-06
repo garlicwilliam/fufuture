@@ -14,7 +14,7 @@
   display: grid;
 
   grid-row-gap: 10px;
-  grid-column-gap: 14px;
+  grid-column-gap: 20px;
   justify-content: space-between;
   align-items: center;
   line-height: 1;
@@ -22,10 +22,8 @@
   color: @color-desc;
 
   &.price {
-    grid-template-columns: auto auto auto;
-    grid-template-areas:
-      '_ d e'
-      'a b c';
+    grid-template-columns: auto auto auto auto auto;
+    grid-template-areas: 'a b c d e';
     justify-items: end;
     justify-content: end;
 
@@ -37,10 +35,10 @@
   }
 
   &.kline {
-    grid-template-columns: auto auto auto auto auto auto;
-    grid-template-areas:
-      '_ _ _ _ d e'
-      'f g h a b c';
+    grid-template-columns: auto auto auto auto auto auto auto;
+    grid-template-areas: 'f g h a b c d e';
+    justify-items: end;
+    justify-content: end;
 
     &.mobile {
       grid-template-columns: auto auto auto auto auto auto auto;

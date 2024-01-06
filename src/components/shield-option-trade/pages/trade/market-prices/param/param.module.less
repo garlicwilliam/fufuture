@@ -2,18 +2,13 @@
 
 .wrapperParam {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-areas: 'i d s';
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    'i d'
+    's s';
   justify-content: space-between;
-
-  &.narrow {
-    grid-row-gap: 20px;
-    grid-template-columns: auto auto;
-    grid-template-areas:
-      'i d'
-      's s';
-    justify-content: space-between;
-  }
+  grid-row-gap: 24px;
+  grid-column-gap: 32px;
 
   &.mobile {
     grid-template-columns: 1fr;
@@ -39,4 +34,5 @@
 
 .resize {
   overflow: hidden;
+  line-height: 0 !important;
 }
