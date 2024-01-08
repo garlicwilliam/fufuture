@@ -29,6 +29,7 @@ export class TokenPricesMerger
       minPrice: 0,
       maxPrice: 0,
       underlying: ShieldUnderlyingType.BTC,
+      priceChange: 0,
     };
   }
 
@@ -60,7 +61,7 @@ export class TokenPricesMerger
 
         const { min, max } = this.minMax(data);
 
-        return { curPrice, history: data, minPrice: min, maxPrice: max, underlying };
+        return { curPrice, history: data, minPrice: min, maxPrice: max, underlying, priceChange: 0 };
       }),
       finalize(() => {
         this.isPending.next(false);

@@ -137,6 +137,7 @@ export default {
   'trade-order-action': 'Action',
   'trade-order-close': 'Close',
   'trade-order-close-time': 'Close Time',
+  'trade-order-open-close-time': 'Open/Close Time',
   'trade-order-id': 'ID',
   'trade-order-status': 'Order Status',
   'trade-order-status-active': 'Active',

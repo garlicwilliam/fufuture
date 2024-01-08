@@ -21,7 +21,6 @@ import { walletState } from '../../../../../../../state-manager/wallet/wallet-st
 
 type IState = {
   isMobile: boolean;
-  dayPriceChange: SldDecPercent;
   dayPriceRange: TokenPriceHistory | undefined;
   dayVolume: SldDecimal;
   openInterest: ShieldOpenInterest | undefined;
@@ -36,7 +35,6 @@ type IProps = {
 export class DayInfo extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
-    dayPriceChange: SldDecPercent.ZERO,
     dayPriceRange: undefined,
     dayVolume: SldDecimal.ZERO,
     openInterest: undefined,
@@ -47,11 +45,12 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
   componentDidMount() {
     this.registerIsMobile('isMobile');
     this.registerObservable('network', walletState.NETWORK);
-    this.registerState('dayPriceChange', D.Option.Price24hChange);
     this.registerState('dayPriceRange', D.Option.Price24hRange);
     this.registerState('indexUnderlying', P.Option.Trade.Pair.Base);
     this.registerObservable('dayVolume', D.Option.Volume24h.watch().pipe(map(v => v.total)));
     this.registerState('openInterest', D.Option.OpenInterest);
+
+    // this.tickInterval(60000, D.Option.Price24hRange);
   }
 
   componentWillUnmount() {
@@ -59,21 +58,27 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
   }
 
   gen24ChangeVertical(styleMr: StyleMerger): ReactNode {
-    const isIncrease: boolean = this.state.dayPriceChange.gtZero();
-    const isDecrease: boolean = this.state.dayPriceChange.lt(SldDecPercent.ZERO);
+    const percentage: number = this.state.dayPriceRange?.priceChange || 0;
+    const isIncrease: boolean = percentage > 0;
+    const isDecrease: boolean = percentage < 0;
 
     return (
       <VerticalItem label={<I18n id={'trade-24h-change'} />} gap={'6px'} labelClassName={styleMr(styles.itemLabel)}>
         <span
           className={styleMr(styles.itemLine1, cssPick(isIncrease, 'longStyle'), cssPick(isDecrease, 'shortStyle'))}
         >
-          {this.state.dayPriceChange.percentFormat({ sign: true })}%
+          {percentage < 0 ? '-' : '+'}
+          {percentage.toFixed(2)}%
         </span>
       </VerticalItem>
     );
   }
 
   gen24ChangeHorizon(styleMr: StyleMerger): ReactNode {
+    const percentage = this.state.dayPriceRange?.priceChange || 0;
+    const isIncrease: boolean = percentage > 0;
+    const isDecrease: boolean = percentage < 0;
+
     return (
       <HorizonItem
         className={styleMr(styles.change)}
@@ -83,14 +88,9 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
         labelClass={styleMr(styles.label)}
         valueClass={styleMr(styles.value)}
       >
-        <span
-          className={styleMr(
-            styles.line1,
-            cssPick(this.state.dayPriceChange.gtZero(), 'longStyle'),
-            cssPick(this.state.dayPriceChange.lt(SldDecPercent.ZERO), 'shortStyle')
-          )}
-        >
-          {this.state.dayPriceChange.percentFormat({ sign: true })}%
+        <span className={styleMr(styles.line1, cssPick(isIncrease, 'longStyle'), cssPick(isDecrease, 'shortStyle'))}>
+          {percentage < 0 ? '-' : '+'}
+          {percentage.toFixed(2)}%
         </span>
       </HorizonItem>
     );

@@ -74,14 +74,6 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       },
     },
     {
-      title: <I18n id={'trade-order-close-time'} />,
-      dataIndex: 'closeTime',
-      key: 'closeTime',
-      render: (timestamp: number, row: ShieldClosedOrderInfo) => {
-        return <>{formatMinute(timestamp)}</>;
-      },
-    },
-    {
       title: <I18n id={'trade-option-type'} />,
       dataIndex: 'optionType',
       key: 'optionType',
@@ -95,6 +87,14 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
             <I18n id={'trade-option-type-put'} textUpper={'uppercase'} />
           </div>
         );
+      },
+    },
+    {
+      title: <I18n id={'trade-order-open-close-time'} />,
+      dataIndex: 'closeTime',
+      key: 'closeTime',
+      render: (timestamp: number, row: ShieldClosedOrderInfo) => {
+        return <>{formatMinute(row.openTime) + ' / ' + formatMinute(row.closeTime)}</>;
       },
     },
     {
@@ -272,6 +272,24 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
 
     return (
       <div className={styleMerge(styles.extRow)}>
+        <VerticalItem
+          label={<I18n id={'trade-open-time'} />}
+          align={'left'}
+          labelClassName={styleMerge(styles.label)}
+          gap={gap}
+        >
+          <span className={styleMerge(styles.value)}>{formatMinute(row.openTime)}</span>
+        </VerticalItem>
+
+        <VerticalItem
+          label={<I18n id={'trade-order-close-time'} />}
+          align={'right'}
+          labelClassName={styleMerge(styles.label)}
+          gap={gap}
+        >
+          <span className={styleMerge(styles.value)}> {formatMinute(row.closeTime)}</span>
+        </VerticalItem>
+
         <VerticalItem
           label={<I18n id={'trade-index-open-price'} />}
           align={'left'}

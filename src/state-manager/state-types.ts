@@ -14,6 +14,7 @@ export type TokenPriceHistory = {
   history: [number, number][];
   minPrice: number;
   maxPrice: number;
+  priceChange: number;
 };
 
 export type PriceDuration = 'DAY' | 'MONTH' | 'WEEK';

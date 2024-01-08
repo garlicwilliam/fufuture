@@ -33,7 +33,7 @@ export class PriceCharts extends BaseStateComponent<IProps, IState> {
 
   componentDidMount() {
     this.registerIsMobile('isMobile');
-    this.registerState('historyData', D.Option.PriceChartData);
+    this.registerState('historyData', D.Option.PriceUnderlying);
     this.registerState('duration', P.Option.Trade.Market.ChartDuration.Price);
 
     this.draw();
@@ -83,11 +83,12 @@ export class PriceCharts extends BaseStateComponent<IProps, IState> {
       return;
     }
 
+    this.chartInstance.clear();
+
     const data: [number, number][] = this.state.historyData?.history || [];
     const mini: number = this.state.historyData?.minPrice || 0;
 
     const option = this.genOption(data, mini, this.state.duration);
-
     this.chartInstance.setOption(option, true);
   }
 

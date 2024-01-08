@@ -24,6 +24,7 @@ type EnvNetConfig = {
   CurNetwork: Network;
   DefaultToken: TokenErc20;
   SubGraphUrl: string;
+  SubGraphOracleUrl: string;
   Addresses: {
     trade: ShieldOptionTradeContracts;
     underlying: ShieldUnderlyingContracts;
@@ -61,6 +62,7 @@ const env2: { [k in Env]: EnvConfig } = {
           network: NET_BNB,
         },
         SubGraphUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/fufutrue-history-bsc',
+        SubGraphOracleUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/chainlink-price-bsc',
         Addresses: {
           trade: {
             optionTrade: '0x1e933E0957e6236E519e64CD13f967146Fcb4755',
@@ -94,6 +96,7 @@ const env2: { [k in Env]: EnvConfig } = {
           network: NET_ARBITRUM,
         },
         SubGraphUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/fufuture-history-arbitrum',
+        SubGraphOracleUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/chainlink-price-arb',
         Addresses: {
           trade: {
             optionTrade: '0x1e933E0957e6236E519e64CD13f967146Fcb4755',

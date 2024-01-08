@@ -16,6 +16,7 @@ import { MergerPoolAddress } from './database-state-mergers/option/merger-pool-a
 import { MergerClosedOrders } from './database-state-mergers/option/merger-closed-orders';
 import { MergerReferralItems } from './database-state-mergers/option/merger-referral-items';
 import { MergerOpenInterest } from './database-state-mergers/option/merger-open-interest';
+import { MergerUnderlyingPrice } from './database-state-mergers/option/merger-underlying-price';
 
 class DBStateReference implements DatabaseStateRef {
   private root: DatabaseStateTree<any> | null = null;
@@ -59,8 +60,12 @@ export const DATABASE_STATE = {
       _merger: new MergerTokenPricesChange(),
     },
     Price24hRange: {
-      _depend: [of('DAY'), P.Option.Trade.Pair.Base],
-      _merger: new TokenPricesMerger(),
+      _depend: [of('DAY'), P.Option.Trade.Pair.Base, walletState.NETWORK],
+      _merger: new MergerUnderlyingPrice(),
+    },
+    PriceUnderlying: {
+      _depend: [P.Option.Trade.Market.ChartDuration.Price, P.Option.Trade.Pair.Base, walletState.NETWORK],
+      _merger: new MergerUnderlyingPrice(),
     },
     OpenInterest: {
       _depend: [P.Option.Trade.Pair.Base, walletState.NETWORK],
