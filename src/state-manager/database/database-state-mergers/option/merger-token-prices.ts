@@ -30,6 +30,7 @@ export class TokenPricesMerger
       maxPrice: 0,
       underlying: ShieldUnderlyingType.BTC,
       priceChange: 0,
+      duration: 'DAY',
     };
   }
 
@@ -44,12 +45,16 @@ export class TokenPricesMerger
 
     const url: string = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=USD&days=${days}`;
 
-    const priceData$: Observable<TokenPriceHistory> = this.getFromUrl(url, token);
+    const priceData$: Observable<TokenPriceHistory> = this.getFromUrl(url, token, duration);
 
     return cacheService.tryUseCache(priceData$, url, CACHE_1_MIN);
   }
 
-  private getFromUrl(url: string, underlying: ShieldUnderlyingType): Observable<TokenPriceHistory> {
+  private getFromUrl(
+    url: string,
+    underlying: ShieldUnderlyingType,
+    duration: PriceDuration
+  ): Observable<TokenPriceHistory> {
     this.isPending.next(true);
     return httpGet(url).pipe(
       map(res => {
@@ -61,7 +66,7 @@ export class TokenPricesMerger
 
         const { min, max } = this.minMax(data);
 
-        return { curPrice, history: data, minPrice: min, maxPrice: max, underlying, priceChange: 0 };
+        return { curPrice, history: data, minPrice: min, maxPrice: max, underlying, priceChange: 0, duration };
       }),
       finalize(() => {
         this.isPending.next(false);

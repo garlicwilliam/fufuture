@@ -38,6 +38,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
       maxPrice: 0,
       minPrice: 0,
       priceChange: 0,
+      duration: 'DAY',
     };
   }
 
@@ -53,6 +54,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
       minPrice: 0,
       maxPrice: 0,
       priceChange: 0,
+      duration: 'DAY',
     };
 
     const url: string | undefined = SLD_ENV_CONF.Supports[network]?.SubGraphOracleUrl;
@@ -92,6 +94,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
           minPrice: rs.min,
           maxPrice: rs.max,
           priceChange: rs.percent,
+          duration,
         };
       }),
       finalize(() => {

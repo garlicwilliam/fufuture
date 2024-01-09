@@ -9,6 +9,7 @@ export const StateNull = Symbol('null');
 export type StateNullType = typeof StateNull;
 
 export type TokenPriceHistory = {
+  duration: PriceDuration;
   underlying: ShieldUnderlyingType;
   curPrice: number;
   history: [number, number][];

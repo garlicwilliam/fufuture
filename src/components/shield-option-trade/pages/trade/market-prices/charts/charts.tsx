@@ -36,7 +36,7 @@ export class PriceCharts extends BaseStateComponent<IProps, IState> {
     this.registerState('historyData', D.Option.PriceUnderlying);
     this.registerState('duration', P.Option.Trade.Market.ChartDuration.Price);
 
-    this.draw();
+    this.draw(false);
   }
 
   componentWillUnmount() {
@@ -46,7 +46,11 @@ export class PriceCharts extends BaseStateComponent<IProps, IState> {
 
   componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>, snapshot?: any) {
     if (this.state.historyData !== prevState.historyData) {
-      this.draw();
+      const needClear: boolean =
+        this.state.historyData?.underlying !== prevState.historyData?.underlying ||
+        this.state.historyData?.duration !== prevState.historyData?.duration;
+
+      this.draw(needClear);
     }
   }
 
@@ -78,12 +82,14 @@ export class PriceCharts extends BaseStateComponent<IProps, IState> {
     }
   }
 
-  private draw() {
+  private draw(clear: boolean) {
     if (!this.chartInstance) {
       return;
     }
 
-    this.chartInstance.clear();
+    if (clear) {
+      this.chartInstance.clear();
+    }
 
     const data: [number, number][] = this.state.historyData?.history || [];
     const mini: number = this.state.historyData?.minPrice || 0;
