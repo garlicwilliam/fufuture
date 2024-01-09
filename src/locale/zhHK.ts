@@ -136,6 +136,7 @@ export default {
   'trade-order-action': '操作',
   'trade-order-close': '平倉',
   'trade-order-close-time': '平倉時間',
+  'trade-order-open-close-time': '開/平倉時間',
   'trade-open-interest': '持倉量',
   'trade-order-id': 'ID',
   'trade-order-status': '倉位狀態',

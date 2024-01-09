@@ -137,6 +137,7 @@ export default {
   'trade-order-action': '操作',
   'trade-order-close': '平仓',
   'trade-order-close-time': '平仓时间',
+  'trade-order-open-close-time': '开/平仓时间',
   'trade-order-id': 'ID',
   'trade-order-status': '仓位状态',
   'trade-order-status-active': '正常',
