@@ -21,6 +21,7 @@ import {
   makerPriPoolInfoByPairGetter,
   makerPubPoolMaxRemoveLpGetter,
   makerPubPoolWithdrawReceiveGetter,
+  oraclePriceGetter,
   orderFundingFeeGetter,
   orderTradingFeeGetter,
   paramBrokerPortionGetter,
@@ -98,15 +99,15 @@ export const CONTRACT_STATE = {
     Oracle: {
       ETH: {
         _depend: [shieldOracleContracts.CONTRACTS.ETH],
-        _getter: linkAnswerGetter,
+        _getter: oraclePriceGetter,
       },
       BTC: {
         _depend: [shieldOracleContracts.CONTRACTS.BTC],
-        _getter: linkAnswerGetter,
+        _getter: oraclePriceGetter,
       },
       CurBaseToken: {
         _depend: [Ref(P.Option.Trade.Pair.Base.watch().pipe(map(name => `Option.Oracle.${name}`)))],
-        _getter: linkAnswerGetter,
+        _getter: oraclePriceGetter,
         _isRef: true,
       },
     },

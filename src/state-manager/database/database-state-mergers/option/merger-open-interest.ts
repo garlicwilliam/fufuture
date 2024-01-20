@@ -1,14 +1,15 @@
 import { DatabaseStateMerger } from '../../../interface';
-import { BehaviorSubject, from, mergeMap, Observable, of } from 'rxjs';
-import { ShieldOpenInterest, ShieldTokenOpenInterest, ShieldUnderlyingType, TokenErc20 } from '../../../state-types';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { ShieldOpenInterest, ShieldTokenOpenInterest, ShieldUnderlyingType } from '../../../state-types';
 import { SldDecimal } from '../../../../util/decimal';
 import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
 import { NET_BNB, Network } from '../../../../constant/network';
 import { httpPost } from '../../../../util/http';
 import { map } from 'rxjs/operators';
 import * as _ from 'lodash';
-import { erc20InfoByAddressGetter } from '../../../contract/contract-getter-sim-erc20';
 import { BigNumber } from 'ethers';
+import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
+import { genDCacheKey } from '../../datebase-cache-key';
 
 type Arg = [ShieldUnderlyingType, Network];
 type Res = ShieldOpenInterest;
@@ -48,7 +49,7 @@ export class MergerOpenInterest implements DatabaseStateMerger<Res, Arg> {
     }
 
     const param = this.genParam(underlying);
-    return httpPost(url, param).pipe(
+    const open$ = httpPost(url, param).pipe(
       map(res => {
         const isOK: boolean = _.get(res, 'status', 400) === 200;
         if (!isOK) {
@@ -60,6 +61,10 @@ export class MergerOpenInterest implements DatabaseStateMerger<Res, Arg> {
         return this.convertRes(items, network, underlying);
       })
     );
+
+    const cacheKey: string = genDCacheKey('open-interest', underlying + '/' + network);
+
+    return cacheService.tryUseCache(open$, cacheKey, CACHE_1_MIN);
   }
 
   private genParam(underlying: ShieldUnderlyingType): any {

@@ -7,6 +7,7 @@ import {
   ShieldOptionType,
   ShieldOrderOpenResult,
   ShieldTradePair,
+  ShieldUnderlyingPrice,
   TokenErc20,
 } from '../../../../../../state-manager/state-types';
 import { SldButton } from '../../../../../common/buttons/sld-button';
@@ -34,7 +35,7 @@ type IState = {
   optionType: ShieldOptionType;
   curPair: ShieldTradePair | null;
   openAmount: SldDecimal | null;
-  openPrice: SldDecPrice;
+  openPrice: ShieldUnderlyingPrice | null;
   firstFundingFee: ShieldOrderOpenResult | null;
   tradingFee: SldDecimal;
 };
@@ -50,7 +51,7 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
     optionType: P.Option.Trade.Open.OptionType.get(),
     curPair: null,
     openAmount: P.Option.Trade.Open.Amount.get(),
-    openPrice: SldDecPrice.ZERO,
+    openPrice: null,
     firstFundingFee: null,
     tradingFee: SldDecimal.ZERO,
   };
@@ -121,8 +122,8 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
           return EMPTY;
         }
 
-        const up = this.state.openPrice.increase(useSlippage);
-        const down = this.state.openPrice.decrease(useSlippage);
+        const up = this.state.openPrice.price.increase(useSlippage);
+        const down = this.state.openPrice.price.decrease(useSlippage);
         const deadTime = curTimestamp() + useDeadline.toOrigin().toNumber() * 60;
 
         return shieldOptionTradeService.openOrder(
@@ -221,7 +222,7 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
                 align={'justify'}
                 labelClass={styleMr(styles.paramLabel, fontCss.bold)}
               >
-                <TokenAmountInline amount={this.state.openPrice} token={''} />
+                <TokenAmountInline amount={this.state.openPrice?.price} token={''} />
               </HorizonItem>
 
               <HorizonItem

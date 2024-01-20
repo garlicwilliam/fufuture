@@ -1,34 +1,8 @@
-import Mask from '../components/mask/index';
 import { EMPTY, Observable } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { maskService } from './mask/mask.service';
 import { I18n } from '../components/i18n/i18n';
-
-// export const loadingObs = <T extends boolean | string>(
-//   obs: Observable<T>,
-//   failText: string | null = null,
-//   pendingText: string | null = null,
-//   sucHide: boolean = false
-// ): Observable<T> => {
-//   Mask.showLoading(pendingText);
-//   return obs.pipe(
-//     tap((done: T) => {
-//       if (done) {
-//         if (sucHide) {
-//           Mask.hide();
-//         } else {
-//           Mask.showSuccess();
-//         }
-//       } else {
-//         Mask.showFail(failText);
-//       }
-//     }),
-//     catchError(err => {
-//       Mask.showFail(failText);
-//       return EMPTY;
-//     })
-//   );
-// };
+import { i18n } from '../components/i18n/i18n-fn';
 
 export const loadingObs = <T extends boolean | string>(
   obs: Observable<T>,
@@ -36,7 +10,7 @@ export const loadingObs = <T extends boolean | string>(
   pendingText: string | null = null,
   sucHide: boolean = false
 ): Observable<T> => {
-  maskService.pending(pendingText);
+  maskService.pending(pendingText || i18n('com-pending'));
 
   return obs.pipe(
     tap((done: T) => {

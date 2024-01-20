@@ -4,7 +4,7 @@ import { bindStyleMerger, cssPick } from '../../../../../../util/string';
 import styles from './close-confirm.module.less';
 import ModalRender from '../../../../../modal-render';
 import { I18n } from '../../../../../i18n/i18n';
-import { ShieldOrderInfo, ShieldTradePair } from '../../../../../../state-manager/state-types';
+import { ShieldOrderInfo, ShieldTradePair, ShieldUnderlyingPrice } from '../../../../../../state-manager/state-types';
 import { FixPadding } from '../../../../../common/content/fix-padding';
 import { PairLabel } from '../../../common/pair-label';
 import { ItemsBox } from '../../../../../common/content/items-box';
@@ -29,7 +29,7 @@ type IState = {
   isMobile: boolean;
   isVisible: boolean;
   order: ShieldOrderInfo | null;
-  curPrice: SldDecPrice;
+  curPrice: ShieldUnderlyingPrice | null;
 };
 type IProps = {};
 
@@ -38,7 +38,7 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
     isMobile: P.Layout.IsMobile.get(),
     isVisible: P.Option.Trade.OrderList.Close.Visible.get(),
     order: P.Option.Trade.OrderList.Close.Order.get(),
-    curPrice: SldDecPrice.ZERO,
+    curPrice: null,
   };
 
   componentDidMount() {
@@ -52,7 +52,7 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
     this.destroyState();
   }
 
-  mergeCurPrice(): Observable<ContractState<SldDecPrice>> {
+  mergeCurPrice(): Observable<ContractState<ShieldUnderlyingPrice>> {
     return this.watchStateChange('order').pipe(
       filter(Boolean),
       map((order: ShieldOrderInfo) => {
@@ -77,8 +77,12 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
         }
 
         slippage = slippage === null ? DEFAULT_SLIPPAGE : slippage;
-        const downPrice: SldDecPrice = this.state.curPrice.decrease(slippage);
-        const upPrice: SldDecPrice = this.state.curPrice.increase(slippage);
+        const downPrice: SldDecPrice = this.state.curPrice
+          ? this.state.curPrice.price.decrease(slippage)
+          : SldDecPrice.ZERO;
+        const upPrice: SldDecPrice = this.state.curPrice
+          ? this.state.curPrice.price.increase(slippage)
+          : SldDecPrice.ZERO;
 
         return shieldOptionTradeService.closeOrder(this.state.order.id, downPrice, upPrice);
       })
@@ -101,7 +105,7 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 
-    if (!this.state.order) {
+    if (!this.state.order || !this.state.curPrice) {
       return <></>;
     }
 
@@ -111,16 +115,16 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
     };
 
     const { pnl } = computeOrderPnl(this.state.order);
-    const isIncrease = this.state.curPrice.gt(this.state.order.openPrice);
-    const isDecrease = this.state.curPrice.lt(this.state.order.openPrice);
+    const isIncrease = this.state.curPrice.price.gt(this.state.order.openPrice);
+    const isDecrease = this.state.curPrice.price.lt(this.state.order.openPrice);
     const percent = isIncrease
       ? SldDecPercent.fromArgs(
           this.state.order.openPrice.toDecimal(),
-          this.state.curPrice.sub(this.state.order.openPrice).toDecimal()
+          this.state.curPrice.price.sub(this.state.order.openPrice).toDecimal()
         )
       : SldDecPercent.fromArgs(
           this.state.order.openPrice.toDecimal(),
-          this.state.order.openPrice.sub(this.state.curPrice).toDecimal()
+          this.state.order.openPrice.sub(this.state.curPrice.price).toDecimal()
         );
 
     return (
@@ -199,7 +203,7 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
                 </div>
 
                 <TokenAmountInline
-                  amount={this.state.curPrice}
+                  amount={this.state.curPrice.price}
                   token={''}
                   numClassName={styleMr(cssPick(isIncrease, styles.long), cssPick(isDecrease, styles.short))}
                 />

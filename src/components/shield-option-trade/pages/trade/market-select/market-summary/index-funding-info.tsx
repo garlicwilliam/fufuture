@@ -2,7 +2,7 @@ import { BaseStateComponent } from '../../../../../../state-manager/base-state-c
 import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger, cssPick } from '../../../../../../util/string';
 import styles from './index-funding-info.module.less';
-import {ShieldUnderlyingType, TokenErc20} from '../../../../../../state-manager/state-types';
+import { ShieldUnderlyingPrice, ShieldUnderlyingType, TokenErc20 } from '../../../../../../state-manager/state-types';
 import { SldDecPrice } from '../../../../../../util/decimal';
 import { S } from '../../../../../../state-manager/contract/contract-state-parser';
 import { I18n } from '../../../../../i18n/i18n';
@@ -11,7 +11,7 @@ type IState = {
   isMobile: boolean;
   base: ShieldUnderlyingType;
   token: TokenErc20 | null;
-  price: SldDecPrice;
+  price: ShieldUnderlyingPrice | null;
 };
 type IProps = {
   className?: string;
@@ -23,7 +23,7 @@ export class IndexFundingInfo extends BaseStateComponent<IProps, IState> {
     isMobile: P.Layout.IsMobile.get(),
     base: P.Option.Trade.Pair.Base.get(),
     token: P.Option.Trade.Pair.Quote.get(),
-    price: SldDecPrice.ZERO,
+    price: null,
   };
 
   componentDidMount() {
@@ -51,7 +51,7 @@ export class IndexFundingInfo extends BaseStateComponent<IProps, IState> {
         </span>
         <span className={styleMr(styles.separator)}>&nbsp;=&nbsp;</span>
         <span className={styleMr(styles.point)}>
-          {this.state.price.format()} <span className={styleMr(styles.unit)}>{this.state.token?.symbol}</span>
+          {this.state.price?.price.format()} <span className={styleMr(styles.unit)}>{this.state.token?.symbol}</span>
         </span>
       </div>
     );

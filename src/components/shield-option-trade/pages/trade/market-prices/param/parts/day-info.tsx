@@ -5,13 +5,12 @@ import styles from './day-info.module.less';
 import { VerticalItem } from '../../../../../../common/content/vertical-item';
 import { I18n } from '../../../../../../i18n/i18n';
 import { TokenAmountInline } from '../../../../../../common/content/token-amount-inline';
-import { SldDecimal, SldDecPercent } from '../../../../../../../util/decimal';
 import { ReactNode } from 'react';
 import { HorizonItem } from '../../../../../../common/content/horizon-item';
 import { D } from '../../../../../../../state-manager/database/database-state-parser';
-import { map } from 'rxjs/operators';
 import {
   ShieldOpenInterest,
+  ShieldTradingVolume,
   ShieldUnderlyingType,
   TokenPriceHistory,
 } from '../../../../../../../state-manager/state-types';
@@ -22,7 +21,7 @@ import { walletState } from '../../../../../../../state-manager/wallet/wallet-st
 type IState = {
   isMobile: boolean;
   dayPriceRange: TokenPriceHistory | undefined;
-  dayVolume: SldDecimal;
+  dayVolume: ShieldTradingVolume | undefined;
   openInterest: ShieldOpenInterest | undefined;
   indexUnderlying: ShieldUnderlyingType;
   network: Network | null;
@@ -36,7 +35,7 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
     dayPriceRange: undefined,
-    dayVolume: SldDecimal.ZERO,
+    dayVolume: undefined,
     openInterest: undefined,
     indexUnderlying: P.Option.Trade.Pair.Base.get(),
     network: null,
@@ -47,7 +46,7 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
     this.registerObservable('network', walletState.NETWORK);
     this.registerState('dayPriceRange', D.Option.Price24hRange);
     this.registerState('indexUnderlying', P.Option.Trade.Pair.Base);
-    this.registerObservable('dayVolume', D.Option.Volume24h.watch().pipe(map(v => v.total)));
+    this.registerState('dayVolume', D.Option.Volume24h);
     this.registerState('openInterest', D.Option.OpenInterest);
 
     // this.tickInterval(60000, D.Option.Price24hRange);
@@ -62,14 +61,26 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
     const isIncrease: boolean = percentage > 0;
     const isDecrease: boolean = percentage < 0;
 
+    const isLoading: boolean =
+      !this.state.dayPriceRange ||
+      this.state.dayPriceRange.underlying !== this.state.indexUnderlying ||
+      this.state.dayPriceRange.network !== this.state.network;
+
     return (
-      <VerticalItem label={<I18n id={'trade-24h-change'} />} gap={'6px'} labelClassName={styleMr(styles.itemLabel)}>
-        <span
-          className={styleMr(styles.itemLine1, cssPick(isIncrease, 'longStyle'), cssPick(isDecrease, 'shortStyle'))}
-        >
-          {percentage < 0 ? '-' : '+'}
-          {percentage.toFixed(2)}%
-        </span>
+      <VerticalItem
+        label={<I18n id={'trade-24h-change'} />}
+        gap={'6px'}
+        labelClassName={styleMr(styles.itemLabel)}
+        valueClassName={styleMr(styles.itemLine1)}
+      >
+        <PendingHolder loading={isLoading} width={50}>
+          <span
+            className={styleMr(styles.itemLine1, cssPick(isIncrease, 'longStyle'), cssPick(isDecrease, 'shortStyle'))}
+          >
+            {percentage < 0 ? '' : '+'}
+            {percentage.toFixed(2)}%
+          </span>
+        </PendingHolder>
       </VerticalItem>
     );
   }
@@ -78,6 +89,11 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
     const percentage = this.state.dayPriceRange?.priceChange || 0;
     const isIncrease: boolean = percentage > 0;
     const isDecrease: boolean = percentage < 0;
+
+    const isLoading: boolean =
+      !this.state.dayPriceRange ||
+      this.state.dayPriceRange.underlying !== this.state.indexUnderlying ||
+      this.state.dayPriceRange.network !== this.state.network;
 
     return (
       <HorizonItem
@@ -88,23 +104,39 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
         labelClass={styleMr(styles.label)}
         valueClass={styleMr(styles.value)}
       >
-        <span className={styleMr(styles.line1, cssPick(isIncrease, 'longStyle'), cssPick(isDecrease, 'shortStyle'))}>
-          {percentage < 0 ? '-' : '+'}
-          {percentage.toFixed(2)}%
-        </span>
+        <PendingHolder loading={isLoading} width={50} useIcon={true}>
+          <span className={styleMr(styles.line1, cssPick(isIncrease, 'longStyle'), cssPick(isDecrease, 'shortStyle'))}>
+            {percentage < 0 ? '' : '+'}
+            {percentage.toFixed(2)}%
+          </span>
+        </PendingHolder>
       </HorizonItem>
     );
   }
 
   gen24VolumeVertical(styleMr: StyleMerger): ReactNode {
     return (
-      <VerticalItem label={<I18n id={'trade-24h-volume'} />} gap={'6px'} labelClassName={styleMr(styles.itemLabel)}>
-        <TokenAmountInline
-          amount={this.state.dayVolume}
-          token={this.state.indexUnderlying}
-          numClassName={styleMr(styles.itemValue)}
-          symClassName={styleMr(styles.itemLabel)}
-        />
+      <VerticalItem
+        label={<I18n id={'trade-24h-volume'} />}
+        gap={'6px'}
+        labelClassName={styleMr(styles.itemLabel)}
+        valueClassName={styleMr(styles.itemLine1)}
+      >
+        <PendingHolder
+          loading={
+            !this.state.dayVolume ||
+            this.state.dayVolume.indexUnderlying !== this.state.indexUnderlying ||
+            this.state.dayVolume.network !== this.state.network
+          }
+          width={50}
+        >
+          <TokenAmountInline
+            amount={this.state.dayVolume?.total}
+            token={this.state.indexUnderlying}
+            numClassName={styleMr(styles.itemValue)}
+            symClassName={styleMr(styles.itemLabel)}
+          />
+        </PendingHolder>
       </VerticalItem>
     );
   }
@@ -119,17 +151,29 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
         labelClass={styleMr(styles.label)}
         valueClass={styleMr(styles.value)}
       >
-        <TokenAmountInline
-          amount={this.state.dayVolume}
-          token={this.state.indexUnderlying}
-          symClassName={styleMr(styles.label)}
-        />
+        <PendingHolder
+          loading={
+            !this.state.dayVolume ||
+            this.state.dayVolume.indexUnderlying !== this.state.indexUnderlying ||
+            this.state.dayVolume.network !== this.state.network
+          }
+          width={50}
+          useIcon={this.props.layout === 'mobile'}
+        >
+          <TokenAmountInline
+            amount={this.state.dayVolume?.total}
+            token={this.state.indexUnderlying}
+            symClassName={styleMr(styles.label)}
+          />
+        </PendingHolder>
       </HorizonItem>
     );
   }
 
   genMinPriceVertical(styleMr: StyleMerger): ReactNode {
-    const isCorrect = this.state.indexUnderlying === this.state.dayPriceRange?.underlying;
+    const isCorrect =
+      this.state.indexUnderlying === this.state.dayPriceRange?.underlying &&
+      this.state.network === this.state.dayPriceRange.network;
 
     return (
       <VerticalItem
@@ -138,7 +182,7 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
         labelClassName={styleMr(styles.itemLabel)}
         valueClassName={styleMr(styles.itemValue)}
       >
-        <PendingHolder loading={!isCorrect} useIcon={true}>
+        <PendingHolder loading={!isCorrect} width={50} useIcon={false}>
           <TokenAmountInline
             amount={this.state.dayPriceRange?.minPrice}
             token={'USD'}
@@ -151,7 +195,9 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
   }
 
   genMinPriceHorizon(styleMr: StyleMerger): ReactNode {
-    const isCorrect = this.state.indexUnderlying === this.state.dayPriceRange?.underlying;
+    const isCorrect =
+      this.state.indexUnderlying === this.state.dayPriceRange?.underlying &&
+      this.state.network === this.state.dayPriceRange.network;
 
     return (
       <HorizonItem
@@ -174,7 +220,9 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
   }
 
   genMaxPriceVertical(styleMr: StyleMerger): ReactNode {
-    const isCorrect = this.state.indexUnderlying === this.state.dayPriceRange?.underlying;
+    const isCorrect =
+      this.state.indexUnderlying === this.state.dayPriceRange?.underlying &&
+      this.state.network === this.state.dayPriceRange.network;
 
     return (
       <VerticalItem
@@ -183,7 +231,7 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
         labelClassName={styleMr(styles.itemLabel)}
         valueClassName={styleMr(styles.itemValue)}
       >
-        <PendingHolder loading={!isCorrect} useIcon={true}>
+        <PendingHolder loading={!isCorrect} width={50} useIcon={false}>
           <TokenAmountInline
             amount={this.state.dayPriceRange?.maxPrice}
             token={'USD'}
@@ -196,7 +244,9 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
   }
 
   genMaxPriceHorizon(styleMr: StyleMerger): ReactNode {
-    const isCorrect = this.state.indexUnderlying === this.state.dayPriceRange?.underlying;
+    const isCorrect =
+      this.state.indexUnderlying === this.state.dayPriceRange?.underlying &&
+      this.state.network === this.state.dayPriceRange.network;
 
     return (
       <HorizonItem
@@ -230,7 +280,7 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
         labelClassName={styleMr(styles.itemLabel)}
         valueClassName={styleMr(styles.itemValue)}
       >
-        <PendingHolder loading={!isCorrect} width={80} useIcon={true}>
+        <PendingHolder loading={!isCorrect} width={50}>
           <TokenAmountInline
             amount={this.state.openInterest?.amount}
             token={this.state.indexUnderlying}
@@ -268,9 +318,9 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
-    const isNarrow: boolean = this.props.layout === 'narrow';
+    // const isNarrow: boolean = this.props.layout === 'narrow';
+    // const isNormal: boolean = this.props.layout === 'normal';
     const isMobile: boolean = this.props.layout === 'mobile';
-    const isNormal: boolean = this.props.layout === 'normal';
 
     const mobileCss =
       this.props.layout === 'narrow' ? styles.narrow : this.props.layout === 'mobile' ? styles.mobile : '';

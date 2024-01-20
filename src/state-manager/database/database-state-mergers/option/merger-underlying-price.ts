@@ -1,6 +1,6 @@
 import { DatabaseStateMerger } from '../../../interface';
 import { PriceDuration, ShieldUnderlyingType, TokenPriceHistory } from '../../../state-types';
-import { Network } from '../../../../constant/network';
+import {NET_BNB, Network} from '../../../../constant/network';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
 import { curTimestamp } from '../../../../util/time';
@@ -33,6 +33,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
   mock(args?: Arg): Observable<Res> | Res {
     return {
       underlying: ShieldUnderlyingType.BTC,
+      network: NET_BNB,
       history: [],
       curPrice: 0,
       maxPrice: 0,
@@ -49,6 +50,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
   private doGet(duration: PriceDuration, underlying: ShieldUnderlyingType, network: Network): Observable<Res> {
     const empty: Res = {
       underlying,
+      network,
       curPrice: 0,
       history: [],
       minPrice: 0,
@@ -89,6 +91,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
         const cur = len > 0 ? rs.data[len - 1] : 0;
         return {
           underlying,
+          network,
           curPrice: cur[1],
           history: rs.data,
           minPrice: rs.min,

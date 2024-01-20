@@ -18,6 +18,7 @@ import {
   ShieldTokenPoolLiquidityList,
   ShieldTokenSearchList,
   ShieldTradePair,
+  ShieldUnderlyingPrice,
   ShieldUnderlyingType,
   ShieldUserAccountInfo,
   StateNull,
@@ -63,6 +64,7 @@ import {
   UnderlyingContract,
   UnderlyingContractAddress,
 } from '../../components/shield-option-trade/contract/shield-contract-types';
+import { linkAnswerGetter, linkDescGetter } from './contract-getter-sim-link';
 
 type Caller<T> = (promise: Promise<T>, method: string) => Observable<T>;
 const optionCall: Caller<any> = genContractCallPartial('ShieldOption');
@@ -551,7 +553,7 @@ function publicPoolInfo(poolAddr: string, token: TokenErc20, rs?: PubPoolInfoRs)
 
 export function publicPoolInfoGetter0(publicPoolContract: Contract, token?: TokenErc20): Observable<ShieldPoolInfo> {
   const token$ = token ? of(token) : publicPoolTokenGetter(publicPoolContract);
-  const rs$ = publicPoolPrimaryInfoGetter(publicPoolContract);
+  const rs$: Observable<PubPoolInfoRs> = publicPoolPrimaryInfoGetter(publicPoolContract);
 
   return zip(rs$, token$).pipe(
     map(([rs, token]): ShieldPoolInfo => {
@@ -1177,7 +1179,7 @@ export function makerPriPoolOrderGetter(
   );
 }
 
-// ------------------------------------------------------
+// ------------------------------------------------------------------
 
 export function makerPubPoolMaxRemoveLpGetter(
   poolShare: ShieldMakerPublicPoolShare | null,
@@ -1451,8 +1453,6 @@ export function paramBrokerPortionGetter(optionContract: Contract): Observable<S
   return cacheService.tryUseCache(percent$, cacheKey, CACHE_FOREVER);
 }
 
-//
-
 export function riskFundBalanceGetter(optionContract: Contract, token: TokenErc20 | null): Observable<SldDecimal> {
   if (!token) {
     return of(SldDecimal.ZERO);
@@ -1461,6 +1461,26 @@ export function riskFundBalanceGetter(optionContract: Contract, token: TokenErc2
   return paramRiskFundAddrGetter(optionContract).pipe(
     switchMap((riskFundAddress: string) => {
       return erc20UserBalanceGetter(token, riskFundAddress, token.decimal);
+    })
+  );
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+export function oraclePriceGetter(contract: Contract): Observable<ShieldUnderlyingPrice> {
+  const desc$: Observable<string> = linkDescGetter(contract);
+  const price$: Observable<SldDecPrice> = linkAnswerGetter(contract);
+
+  return zip(price$, desc$).pipe(
+    map(([price, desc]): ShieldUnderlyingPrice => {
+      const underlying = _.trim(desc.split('/')[0]) as ShieldUnderlyingType;
+      const network = contractNetwork(contract) as Network;
+
+      return {
+        price,
+        network,
+        underlying,
+      };
     })
   );
 }

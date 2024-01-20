@@ -13,8 +13,9 @@ import { TokenAmountInline } from '../../../../common/content/token-amount-inlin
 import {
   ShieldOptionType,
   ShieldOrderOpenResult,
+  ShieldUnderlyingPrice,
   ShieldUnderlyingType,
-  TokenErc20
+  TokenErc20,
 } from '../../../../../state-manager/state-types';
 import { Calc } from './popup/calc';
 import { OpenSetting } from './popup/setting';
@@ -25,7 +26,7 @@ import { OpenConfirm } from './popup/open-confirm';
 type IState = {
   isMobile: boolean;
   baseToken: ShieldUnderlyingType;
-  curPrice: SldDecPrice | undefined;
+  curPrice: ShieldUnderlyingPrice | undefined;
   curOptionType: ShieldOptionType;
   quoteToken: TokenErc20 | null;
 
@@ -86,7 +87,7 @@ export class OpenLabel extends BaseStateComponent<IProps, IState> {
             <TokenIndex token={this.state.baseToken} />
             :&nbsp;
             <PendingHolder loading={!this.state.curPrice} width={80}>
-              <span className={styleMr(styles.highlight)}>{this.state.curPrice?.format({ fix: 2 })}</span>
+              <span className={styleMr(styles.highlight)}>{this.state.curPrice?.price.format({ fix: 2 })}</span>
             </PendingHolder>
           </div>
           <div className={styleMr(styles.setting)}>

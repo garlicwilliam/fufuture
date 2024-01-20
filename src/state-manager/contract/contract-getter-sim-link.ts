@@ -3,9 +3,16 @@ import { from, Observable, zip } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { keepE18Number } from '../../util/ethers';
 import { SldDecPrice } from '../../util/decimal';
-import { CACHE_1_MIN, CACHE_3_SEC, cacheService } from '../mem-cache/cache-contract';
+import { CACHE_1_MIN, CACHE_3_SEC, CACHE_FOREVER, cacheService } from '../mem-cache/cache-contract';
 import { contractNetwork } from '../const/contract-creator';
 import { Network } from '../../constant/network';
+
+function genCacheKey(contract: Contract, key: string): string {
+  const network: Network | null = contractNetwork(contract);
+  const address: string = contract.address;
+
+  return `_chain_link-net:${network}-addr:${address}-key:${key}`;
+}
 
 export function linkAnswerGetter(proxyContract: Contract): Observable<SldDecPrice> {
   type Rs = {
@@ -33,8 +40,14 @@ export function linkAnswerGetter(proxyContract: Contract): Observable<SldDecPric
     })
   );
 
-  const network: Network | null = contractNetwork(proxyContract);
-  const cacheKey: string = '_chain_link_linkAnswerGetter_' + network?.toString() + proxyContract.address;
+  const cacheKey: string = genCacheKey(proxyContract, 'linkAnswerGetter');
 
   return cacheService.tryUseCache(tokenPrice$, cacheKey, CACHE_3_SEC);
+}
+
+export function linkDescGetter(proxyContract: Contract): Observable<string> {
+  const cacheKey: string = genCacheKey(proxyContract, 'linkDescGetter');
+  const desc$ = from(proxyContract.description() as Promise<string>);
+
+  return cacheService.tryUseCache(desc$, cacheKey, CACHE_FOREVER);
 }

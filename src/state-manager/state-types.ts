@@ -7,17 +7,16 @@ export const ArgIllegal = Symbol('illegal');
 export const StateNull = Symbol('null');
 
 export type StateNullType = typeof StateNull;
-
 export type TokenPriceHistory = {
   duration: PriceDuration;
   underlying: ShieldUnderlyingType;
+  network: Network;
   curPrice: number;
   history: [number, number][];
   minPrice: number;
   maxPrice: number;
   priceChange: number;
 };
-
 export type PriceDuration = 'DAY' | 'MONTH' | 'WEEK';
 export type TradeChartType = 'PRICE' | 'KLINE';
 
@@ -48,7 +47,6 @@ export type UniSwapSlot0 = {
   sqrtPriceX96: BigNumber;
   tick: number;
 };
-
 export type UniSwapV3PosNftPrice = SldDecPrice | 'MIN' | 'MAX';
 export type UniSwapV3PosNft = {
   id: BigNumber;
@@ -94,12 +92,10 @@ export type StoneStrategyInfo = {
   amount: SldDecimal;
   targetAllocation: SldDecPercent;
 };
-
 export enum StoneProposalType {
   AddStrategy,
   UpdatePortfolio,
 }
-
 export type StoneProposalAddStrategy = {
   type: StoneProposalType;
   address: string;
@@ -157,7 +153,6 @@ export type StonePoolUserStartTime = {
   user: string;
   start: number;
 };
-
 export type StoneBridgeType = 'layerZero' | 'standard';
 export type StoneBridgeCrossCache = {
   bridgeType: StoneBridgeType;
@@ -174,7 +169,6 @@ export enum StoneColorType {
   Color1,
   Color2,
 }
-
 export enum StoneBgImgType {
   Stake,
   Short,
@@ -457,4 +451,9 @@ export type ShieldBrokerTradingFee = ShieldTradingFee & { broker: string };
 export type ShieldBrokerReward = {
   token: TokenErc20;
   amount: SldDecimal;
+};
+export type ShieldUnderlyingPrice = {
+  underlying: ShieldUnderlyingType;
+  network: Network;
+  price: SldDecPrice;
 };

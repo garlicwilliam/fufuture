@@ -311,8 +311,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
     const prices$ = combineLatest([S.Option.Oracle.BTC.watch(), S.Option.Oracle.ETH.watch()]).pipe(
       map(([btc, eth]) => {
         return {
-          [ShieldUnderlyingType.ETH]: eth,
-          [ShieldUnderlyingType.BTC]: btc,
+          [ShieldUnderlyingType.ETH]: eth.price,
+          [ShieldUnderlyingType.BTC]: btc.price,
         };
       })
     );

@@ -7,6 +7,7 @@ import { finalize, map } from 'rxjs/operators';
 import { tokenSymbolFromName } from '../../../../constant/tokens';
 import { httpGet } from '../../../../util/http';
 import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
+import { NET_BNB } from '../../../../constant/network';
 
 export class TokenPricesMerger
   implements DatabaseStateMerger<TokenPriceHistory, [PriceDuration, ShieldUnderlyingType]>
@@ -31,6 +32,7 @@ export class TokenPricesMerger
       underlying: ShieldUnderlyingType.BTC,
       priceChange: 0,
       duration: 'DAY',
+      network: NET_BNB,
     };
   }
 
@@ -66,7 +68,16 @@ export class TokenPricesMerger
 
         const { min, max } = this.minMax(data);
 
-        return { curPrice, history: data, minPrice: min, maxPrice: max, underlying, priceChange: 0, duration };
+        return {
+          curPrice,
+          history: data,
+          minPrice: min,
+          maxPrice: max,
+          underlying,
+          priceChange: 0,
+          duration,
+          network: NET_BNB,
+        };
       }),
       finalize(() => {
         this.isPending.next(false);

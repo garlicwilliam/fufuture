@@ -7,8 +7,6 @@ import * as echarts from 'echarts';
 import { PriceDuration, TokenPriceHistory } from '../../../../../../state-manager/state-types';
 import { D } from '../../../../../../state-manager/database/database-state-parser';
 import { Resize } from '../../../../../common/utils/resize';
-import { numString } from '../../../../../../util/math';
-import { SldDecPrice } from '../../../../../../util/decimal';
 
 type IState = {
   isMobile: boolean;
@@ -48,6 +46,7 @@ export class PriceCharts extends BaseStateComponent<IProps, IState> {
     if (this.state.historyData !== prevState.historyData) {
       const needClear: boolean =
         this.state.historyData?.underlying !== prevState.historyData?.underlying ||
+        this.state.historyData?.network !== prevState.historyData?.network ||
         this.state.historyData?.duration !== prevState.historyData?.duration;
 
       this.draw(needClear);
@@ -110,11 +109,11 @@ export class PriceCharts extends BaseStateComponent<IProps, IState> {
       WEEK: '{MM}-{dd}',
       MONTH: '{MM}/{dd}',
     };
-    const Intervals = {
-      DAY: 1 * 3600 * 1000,
-      WEEK: 2 * 24 * 3600 * 1000,
-      MONTH: 7 * 24 * 3600 * 1000,
-    };
+    // const Intervals = {
+    //   DAY: 1 * 3600 * 1000,
+    //   WEEK: 2 * 24 * 3600 * 1000,
+    //   MONTH: 7 * 24 * 3600 * 1000,
+    // };
     const timeFormat = Rule[duration];
 
     return {

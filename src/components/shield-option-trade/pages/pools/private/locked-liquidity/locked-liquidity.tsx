@@ -10,6 +10,7 @@ import {
   ShieldMakerOrderInfoRs,
   ShieldMakerPrivatePoolInfo,
   ShieldOptionType,
+  ShieldUnderlyingPrice,
   ShieldUnderlyingType,
 } from '../../../../../../state-manager/state-types';
 import { PairLabel } from '../../../common/pair-label';
@@ -554,7 +555,9 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
     orders: ShieldMakerOrderInfo[],
     indexUnderlying: ShieldUnderlyingType
   ): Observable<ShieldMakerOrderInfo[]> {
-    const price$: Observable<SldDecPrice> = S.Option.Oracle[indexUnderlying].watch();
+    const price$: Observable<SldDecPrice> = S.Option.Oracle[indexUnderlying]
+      .watch()
+      .pipe(map(underlyingPrice => underlyingPrice.price));
 
     return price$.pipe(
       map((price: SldDecPrice) => {

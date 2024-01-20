@@ -47,11 +47,11 @@ export function parseReferralCode(code: string): string {
   try {
     const bytes = toUint8Array(code);
     let address = new BN(bytes).toString('hex');
+    address = _.padStart(address, 40, '0');
     address = '0x' + address;
 
     return isValidAddress(address) ? address : '';
   } catch (err) {
-    console.warn('error', err);
     return '';
   }
 }
@@ -60,7 +60,6 @@ export function parseQueryString(queryString: string): { [k: string]: string } {
   type Pair = { [k: string]: string };
 
   const qStr = _.trimStart(queryString, '?');
-  console.log('qstr', qStr);
   const qItems = qStr.split('&');
   const qPairs: string[][] = qItems.map(item => item.split('='));
   const pairs = qPairs.filter(pair => pair.length === 2) as [string, string][];
