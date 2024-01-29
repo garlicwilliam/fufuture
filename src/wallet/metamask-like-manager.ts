@@ -3,6 +3,8 @@ import {
   AsyncSubject,
   BehaviorSubject,
   from,
+  isObservable,
+  merge,
   mergeMap,
   Observable,
   of,
@@ -12,12 +14,11 @@ import {
   zip,
 } from 'rxjs';
 import { EthereumProviderName } from '../constant';
-import { catchError, delay, filter, finalize, map, tap, toArray } from 'rxjs/operators';
+import { catchError, delay, filter, finalize, map, take, tap, toArray } from 'rxjs/operators';
 import { EthereumProviderInterface, EthereumProviderState, EthereumSpecifyMethod } from './metamask-like-types';
 import { ProviderExistDetectors, ProviderGetters } from './metamask-like-constant';
 import * as _ from 'lodash';
 import { NetworkParamConfig } from '../constant/network-type';
-import { eth } from '../components/shield-option-trade/const/imgs';
 
 export function ethAccounts(ethereum: EthereumProviderInterface): Observable<string[]> {
   return from(ethereum.request({ method: 'eth_accounts' }) as Promise<string[]>).pipe(
@@ -122,7 +123,7 @@ export class EthereumProviderStateManager {
 
   public setUserSelected(selected: EthereumProviderName | null): boolean {
     const injected: Set<EthereumProviderName> | undefined = this.injectedProviders.getValue();
-    if (!injected || injected.size == 0) {
+    if (!injected || injected.size === 0) {
       return false;
     }
 
@@ -203,7 +204,7 @@ export class EthereumProviderStateManager {
           return of([null, null]);
         }
 
-        return zip(ProviderGetters[providerName](), of(providerName));
+        return zip(ProviderGetters[providerName](), of(providerName)).pipe(take(1));
       }),
       map(([provider, providerName]) => {
         const state: EthereumProviderState | null =
@@ -244,22 +245,27 @@ export class EthereumProviderStateManager {
   }
 
   private detectInjectedProviders(): Observable<Set<EthereumProviderName>> {
-    const exists = new Set<EthereumProviderName>();
+    const existObs: Observable<string | null>[] = Object.keys(ProviderExistDetectors).map(key => {
+      const detector: () => boolean | Observable<boolean> = ProviderExistDetectors[key];
+      const isExist$: boolean | Observable<boolean> = detector();
+      const exist$ = isObservable(isExist$) ? isExist$ : of(isExist$);
 
-    Object.keys(ProviderExistDetectors).forEach((key: string) => {
-      const detector: () => boolean = ProviderExistDetectors[key];
-      const isExist: boolean = detector();
-
-      if (isExist) {
-        exists.add(key as EthereumProviderName);
-      }
+      return exist$.pipe(map(is => (is ? key : null)));
     });
 
-    if (exists.has(EthereumProviderName.MetaMaskLike) && exists.size > 1) {
-      exists.delete(EthereumProviderName.MetaMaskLike);
-    }
+    const existNames$: Observable<Set<EthereumProviderName>> = merge(...existObs).pipe(
+      toArray(),
+      map((keys: (string | null)[]) => {
+        return keys.filter(Boolean) as EthereumProviderName[];
+      }),
+      map((keys: EthereumProviderName[]) => {
+        const names = new Set<EthereumProviderName>();
+        keys.forEach(key => names.add(key));
+        return names;
+      })
+    );
 
-    return of(exists);
+    return existNames$;
   }
 
   private detectConnectedProvider(providers: Set<EthereumProviderName>): Observable<Set<EthereumProviderName>> {

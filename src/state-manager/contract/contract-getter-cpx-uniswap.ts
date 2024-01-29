@@ -27,7 +27,7 @@ import {
   uniSwapV3PoolGetter,
   uniSwapV3Slot0Getter,
 } from './contract-getter-sim-uniswap';
-import { catchError, map, take, tap } from 'rxjs/operators';
+import { catchError, map, take } from 'rxjs/operators';
 import {
   computeIzumiPairBasePrice,
   computeV2PairBasePrice,

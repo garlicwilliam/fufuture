@@ -19,6 +19,7 @@ export enum EthereumProviderName {
   SafePal = 'SafePal',
   TrustWallet = 'TrustWallet',
   Coin98 = 'Coin98',
+  GateWallet = 'Gate Wallet',
   MetaMaskLike = 'MetaMaskLike', // Not Include bitKeep,
 }
 

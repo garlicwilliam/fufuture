@@ -1,8 +1,47 @@
 import { EthereumProviderName } from '../constant';
-import { Observable, of } from 'rxjs';
+import { EMPTY, interval, NEVER, Observable, of } from 'rxjs';
 import { EthereumProviderInterface } from './metamask-like-types';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
+import * as _ from 'lodash';
+import { fn } from 'numeral';
+
 declare const window: Window & { ethereum: any } & any;
+
+const nonMetaMaskFields = [
+  'isImToken',
+  'isBitKeep',
+  'isCoinbaseWallet',
+  'isTokenPocket',
+  'isMathWallet',
+  'isOKExWallet',
+  'isSafePal',
+  'isTrust',
+  'isONTO',
+  'isCoin98',
+];
+
+function isGateWalletProvider(provider: any): boolean {
+  return _.get(provider, 'providerInfo.injectedNamespace') === 'gatewallet';
+}
+
+function metamaskDetect(): boolean {
+  const hasWeb3: boolean = !!window.web3 && !!window.web3.currentProvider && !!window.web3.currentProvider.isMetaMask;
+  const hasEthereum: boolean =
+    checkWalletInjection('isMetaMask', nonMetaMaskFields) && !isGateWalletProvider(window.ethereum);
+
+  return hasWeb3 || hasEthereum;
+}
+
+function metamaskGetter(): Observable<EthereumProviderInterface> {
+  const hasWeb3: boolean = !!window.web3 && !!window.web3.currentProvider && !!window.web3.currentProvider.isMetaMask;
+  if (hasWeb3) {
+    return of(window.web3.currentProvider);
+  } else {
+    const provider: EthereumProviderInterface | null = findWalletInjection('isMetaMask', nonMetaMaskFields);
+
+    return !!provider && isGateWalletProvider(provider) ? NEVER : of(provider as EthereumProviderInterface);
+  }
+}
 
 function checkEthereum(checkField: string, not?: string[]): boolean {
   return !!window.ethereum && window.ethereum[checkField] && !(not || []).some(one => !!window.ethereum[one]);
@@ -51,7 +90,7 @@ function checkWalletInjection(checkField: string, not?: string[]): boolean {
 }
 
 function findWalletInjection(checkField: string, not?: string[]): EthereumProviderInterface | null {
-  let provider = getEthereum(checkField, not);
+  let provider: EthereumProviderInterface | null = getEthereum(checkField, not);
   if (!provider) {
     provider = getEthereumProviders(checkField, not);
   }
@@ -59,23 +98,8 @@ function findWalletInjection(checkField: string, not?: string[]): EthereumProvid
   return provider;
 }
 
-const nonMetaMaskFields = [
-  'isImToken',
-  'isBitKeep',
-  'isCoinbaseWallet',
-  'isTokenPocket',
-  'isMathWallet',
-  'isOKExWallet',
-  'isSafePal',
-  'isTrust',
-  'isONTO',
-  'isCoin98',
-];
-
 export const ProviderExistDetectors: { [key in EthereumProviderName]: () => boolean } = {
-  [EthereumProviderName.MetaMask]: () => {
-    return checkWalletInjection('isMetaMask', nonMetaMaskFields);
-  },
+  [EthereumProviderName.MetaMask]: () => metamaskDetect(),
   [EthereumProviderName.BitKeep]: () => !!window?.bitkeep && !!window.bitkeep.ethereum?.isBitKeep,
   [EthereumProviderName.MetaMaskLike]: () => !!window.ethereum,
   [EthereumProviderName.Coinbase]: () => {
@@ -113,12 +137,13 @@ export const ProviderExistDetectors: { [key in EthereumProviderName]: () => bool
   [EthereumProviderName.Coin98]: () => {
     return !!window.coin98;
   },
+  [EthereumProviderName.GateWallet]: () => {
+    return !!window.gatewallet;
+  },
 };
 
 export const ProviderGetters: { [key in EthereumProviderName]: () => Observable<EthereumProviderInterface> } = {
-  [EthereumProviderName.MetaMask]: () => {
-    return of(findWalletInjection('isMetaMask', nonMetaMaskFields)).pipe(filter(Boolean));
-  },
+  [EthereumProviderName.MetaMask]: () => metamaskGetter(),
   [EthereumProviderName.BitKeep]: () => of(window?.bitkeep?.ethereum),
   [EthereumProviderName.MetaMaskLike]: () => of(window?.ethereum),
   [EthereumProviderName.Coinbase]: () => {
@@ -159,5 +184,8 @@ export const ProviderGetters: { [key in EthereumProviderName]: () => Observable<
   },
   [EthereumProviderName.Coin98]: () => {
     return of(window.coin98.provider);
+  },
+  [EthereumProviderName.GateWallet]: () => {
+    return of(window.gatewallet);
   },
 };

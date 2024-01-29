@@ -20,7 +20,6 @@ import { SLD_ENV_CONF } from '../const/env';
 import * as _ from 'lodash';
 import { SldDecimal } from '../../../util/decimal';
 import { shieldOptionTradeContracts } from '../contract/shield-option-trade-contract';
-import { isSameAddress } from '../../../util/address';
 import { Network } from '../../../constant/network';
 
 type PrivatePool = {

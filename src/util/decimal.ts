@@ -529,7 +529,7 @@ export class SldDecPrice {
 
   public decrease(percent: SldDecPercent): SldDecPrice {
     if (percent.gt(SldDecPercent.genPercent('100'))) {
-      throw 'Decrease price can not over 100%.';
+      throw Error('Decrease price can not over 100%.');
     }
 
     const final = this.toE18().sub(this.toE18().mul(percent.toE18()).div(E18));

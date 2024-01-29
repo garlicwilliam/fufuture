@@ -6,7 +6,6 @@ import {
   UniSwapPairInfo,
   UniSwapReserve,
   UniSwapSlot0,
-  UniSwapV3PosNft,
   UniSwapV3PosNftAmount,
 } from '../state-manager/state-types';
 import { BigNumber } from 'ethers';

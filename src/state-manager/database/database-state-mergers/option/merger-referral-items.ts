@@ -21,7 +21,6 @@ import { erc20InfoByAddressGetter } from '../../../contract/contract-getter-sim-
 import { BigNumber } from 'ethers';
 import { SldDecimal } from '../../../../util/decimal';
 import { isSameAddress } from '../../../../util/address';
-import * as net from 'net';
 
 type Arg = [string, PageSize, PageIndex, Network];
 type ItemRs = {
@@ -83,7 +82,7 @@ export class MergerReferralItems implements DatabaseStateMerger<ShieldBrokerRefe
       }),
       switchMap((brokerInfo: ShieldBrokerInfo | null) => {
         if (brokerInfo === null) {
-          throw null;
+          throw new Error();
         }
 
         const offset: number = pageSize * pageIndex;
@@ -95,7 +94,7 @@ export class MergerReferralItems implements DatabaseStateMerger<ShieldBrokerRefe
       }),
       map(([takers, broker, offset]): ShieldBrokerReferralRs => {
         if (takers === null) {
-          throw null;
+          throw new Error();
         }
 
         return {
@@ -261,13 +260,13 @@ export class MergerReferralItems implements DatabaseStateMerger<ShieldBrokerRefe
       map(res => {
         const isOK: boolean = _.get(res, 'status', 400) === 200;
         if (!isOK) {
-          throw null;
+          throw new Error();
         }
 
         const brokerRs: BrokerRs | null = _.get(res, 'body.data.broker', null);
 
         if (!brokerRs) {
-          throw null;
+          throw new Error();
         }
 
         const fees: BrokerFeeRs[] = _.get(res, 'body.data.brokerTradingFees', []);

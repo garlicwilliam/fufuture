@@ -1,9 +1,9 @@
 import { BigNumber, Contract } from 'ethers';
 import { from, Observable, zip } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { keepE18Number } from '../../util/ethers';
 import { SldDecPrice } from '../../util/decimal';
-import { CACHE_1_MIN, CACHE_3_SEC, CACHE_FOREVER, cacheService } from '../mem-cache/cache-contract';
+import { CACHE_3_SEC, CACHE_FOREVER, cacheService } from '../mem-cache/cache-contract';
 import { contractNetwork } from '../const/contract-creator';
 import { Network } from '../../constant/network';
 

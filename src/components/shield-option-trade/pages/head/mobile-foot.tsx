@@ -39,8 +39,6 @@ export class MobileFoot extends BaseStateComponent<IProps, IState> {
 
         <div className={styleMr(styles.right)}>
           <ShieldNetworkSwitch />
-
-          <LangSwitch />
         </div>
       </div>
     );

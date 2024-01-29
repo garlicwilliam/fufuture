@@ -13,6 +13,7 @@ import okex from '../../assets/imgs/wallet/okex.svg';
 import walletconnect from '../../assets/imgs/wallet/wallet-connect.svg';
 import bitizen from '../../assets/imgs/wallet/bitizen.svg';
 import safepal from '../../assets/imgs/wallet/safepal.svg';
+import gate from '../../assets/imgs/wallet/gatewallet.svg';
 
 import { EthereumProviderName } from '../../constant';
 export {
@@ -31,6 +32,7 @@ export {
   bitizen,
   safepal,
   bitget,
+  gate,
 };
 
 export const WALLET_ICONS_MAP: { [w in EthereumProviderName]: string } = {
@@ -48,4 +50,5 @@ export const WALLET_ICONS_MAP: { [w in EthereumProviderName]: string } = {
   [EthereumProviderName.SafePal]: safepal,
   [EthereumProviderName.TrustWallet]: trust,
   [EthereumProviderName.Coin98]: coin98,
+  [EthereumProviderName.GateWallet]: gate,
 };

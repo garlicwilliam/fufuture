@@ -1,5 +1,3 @@
-import { Decimal } from 'decimal.js';
-import numeral from 'numeral';
 import { BigNumber } from 'ethers';
 import _ from 'lodash';
 

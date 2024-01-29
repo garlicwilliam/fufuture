@@ -43,9 +43,9 @@ export class AppHead extends BaseStateComponent<IProps, IState> {
       <div className={styleMr(styles.wrapperHead)}>
         <ShieldLogo logoUrl={logoUrl} />
 
-        <OptionMenuList />
-
         <Visible when={!this.state.isMobile}>
+          <OptionMenuList />
+
           <div className={styleMr(styles.walletInfo, cssPick(this.state.isConnected, styles.connected))}>
             <TokenBalance />
 
@@ -54,6 +54,13 @@ export class AppHead extends BaseStateComponent<IProps, IState> {
             <ShieldNetworkSwitch />
 
             <LangSwitch />
+          </div>
+        </Visible>
+
+        <Visible when={this.state.isMobile}>
+          <div className={styleMr(styles.dropdownInfo)}>
+            <LangSwitch useIcon={true} />
+            <OptionMenuList />
           </div>
         </Visible>
       </div>

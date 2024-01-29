@@ -26,15 +26,8 @@ import {
   TokenErc20,
 } from '../state-types';
 import { genContractCallPartial } from './contract-utils';
-import {
-  CACHE_10_MIN,
-  CACHE_10_SEC,
-  CACHE_1_MIN,
-  CACHE_3_SEC,
-  CACHE_FOREVER,
-  cacheService,
-} from '../mem-cache/cache-contract';
-import { catchError, map, tap, toArray } from 'rxjs/operators';
+import { CACHE_10_MIN, CACHE_10_SEC, CACHE_3_SEC, CACHE_FOREVER, cacheService } from '../mem-cache/cache-contract';
+import { catchError, map, toArray } from 'rxjs/operators';
 import { SldDecimal, SldDecPercent, SldDecPrice, SldUsdValue } from '../../util/decimal';
 import { E18, EMPTY_ADDRESS, MAX_UINT_256, ZERO } from '../../constant';
 import {

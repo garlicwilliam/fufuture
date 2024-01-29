@@ -240,10 +240,11 @@ export class MenuListImp extends BaseStateComponent<IProps, IState> {
         placement={'bottom-end'}
         overlay={this.genOverlay(styleMr, routeKey)}
         useArrow={false}
-        offset={4}
+        offset={2}
         overlayClassName={styleMerge('sld-menu-list-mobile-overlay', this.props.overlayClassName)}
         contentClassName={styleMerge('sld-menu-list-mobile-overlay-content', this.props.overlayContentClassName)}
         visibleChange={this.onVisibleChange.bind(this)}
+        zIndex={1100}
       >
         <div
           className={styleMr(

@@ -20,6 +20,7 @@ import { ETH_WEI } from '../util/ethers';
 import { isEthNetworkGroup } from '../constant/network-util';
 import { NetworkParams } from '../constant/network-conf';
 import { NetworkParamConfig } from '../constant/network-type';
+import * as net from 'net';
 
 type AccountRetrievedType = string | null;
 type AccountValType = AccountRetrievedType | undefined;
@@ -27,6 +28,17 @@ type NetworkRetrievedType = Network | null;
 type NetworkValType = NetworkRetrievedType | undefined;
 
 type ProviderStateType = EthereumProviderState | null;
+
+function networkParse(chainId: string | number): Network {
+  const network: Network =
+    typeof chainId === 'number'
+      ? (chainId.toString() as Network)
+      : chainId.startsWith('0x')
+      ? (parseInt(chainId, 16).toString() as Network)
+      : (parseInt(chainId, 10).toString() as Network);
+
+  return network;
+}
 
 export class MetamaskLike implements WalletInterface {
   public readonly walletType: Wallet = Wallet.Metamask;
@@ -36,13 +48,7 @@ export class MetamaskLike implements WalletInterface {
 
   private accountHandler = (accounts: string[]) => this.updateAccount(accounts);
   private networkHandler = (chainId: string | number) => {
-    const network: Network =
-      typeof chainId === 'number'
-        ? (chainId.toString() as Network)
-        : chainId.startsWith('0x')
-        ? (parseInt(chainId, 16).toString() as Network)
-        : (parseInt(chainId, 10).toString() as Network);
-
+    const network: Network = networkParse(chainId);
     this.updateNetwork(network);
   };
 
@@ -68,7 +74,7 @@ export class MetamaskLike implements WalletInterface {
         this.updateAccount(accounts);
 
         const network$: Observable<NetworkValType> = state
-          ? netVersion(state.instance).pipe(map((id: string) => id.toString() as Network))
+          ? netVersion(state.instance).pipe(map((id: string) => networkParse(id)))
           : of(null);
 
         return zip(network$, of(state));
@@ -216,8 +222,8 @@ export class MetamaskLike implements WalletInterface {
       switchMap(() => {
         return netVersion(provider.instance);
       }),
-      map((network: string) => {
-        this.updateNetwork(network as Network);
+      map((networkStr: string) => {
+        this.updateNetwork(networkParse(networkStr));
 
         return true;
       }),

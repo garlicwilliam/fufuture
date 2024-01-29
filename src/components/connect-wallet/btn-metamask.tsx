@@ -9,6 +9,7 @@ import {
   bitizen,
   coin98,
   coinbase,
+  gate,
   hyperpay,
   imtoken,
   math,
@@ -192,6 +193,13 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
       const url = browser === 'CHROME' ? chromeUrl : otherUrl;
 
       window.open(url, '_blank');
+    } else if (this.props.targetProvider === EthereumProviderName.GateWallet) {
+      const chromeUrl = 'https://chromewebstore.google.com/detail/gate-wallet/cpmkedoipcpimgecpmgpldfpohjplkpp';
+      const otherUrl = 'https://www.gate.io/zh/web3';
+      const browser = this.detectBrowser();
+      const url = browser === 'CHROME' ? chromeUrl : otherUrl;
+
+      window.open(url, '_blank');
     }
   }
 
@@ -233,6 +241,8 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
         return { icon: trust, name: 'Trust Wallet' };
       } else if (this.props.targetProvider === EthereumProviderName.Coin98) {
         return { icon: coin98, name: 'Coin98' };
+      } else if (this.props.targetProvider === EthereumProviderName.GateWallet) {
+        return { icon: gate, name: 'Gate Wallet' };
       }
     }
 
@@ -263,6 +273,8 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
       return { icon: trust, name: 'Trust Wallet' };
     } else if (this.props.targetProvider === EthereumProviderName.Coin98) {
       return { icon: coin98, name: 'Coin98' };
+    } else if (this.props.targetProvider === EthereumProviderName.GateWallet) {
+      return { icon: gate, name: 'Gate Wallet' };
     } else if (this.props.targetProvider === EthereumProviderName.MetaMaskLike) {
       if (isBitizen) {
         return { icon: bitizen, name: 'Bitizen' };

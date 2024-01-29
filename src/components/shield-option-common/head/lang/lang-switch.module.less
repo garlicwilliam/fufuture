@@ -7,6 +7,19 @@
     }
   }
 
+  &.mobile {
+    line-height: 0;
+    color: @color-desc;
+    display: flex;
+    align-items: center;
+
+    .lang {
+      height: 60px;
+      display: flex;
+      align-items: center;
+    }
+  }
+
   .sizeSmall {
     height: 40px;
     grid-template-columns: 1fr 30px;
@@ -30,6 +43,22 @@
       .sld-selected-option {
         color: @white;
       }
+    }
+  }
+}
+
+.overlay {
+  .langItem {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    width: 70px;
+    padding: 0 8px;
+    border-radius: @border-radius-btn2;
+    cursor: pointer;
+
+    &.active {
+      background-color: @color-bg-f7;
     }
   }
 }

@@ -2,7 +2,7 @@ import * as ethers from 'ethers';
 import { BigNumber, Contract } from 'ethers';
 import { from, Observable, of, zip } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { EMPTY_ADDRESS, ETH_DECIMAL, MAX_UINT_256, ZERO } from '../constant';
+import { EMPTY_ADDRESS, ETH_DECIMAL, ZERO } from '../constant';
 import { SldDecimal } from '../util/decimal';
 import { contractNetwork } from '../state-manager/const/contract-creator';
 import { AbiCoder } from 'ethers/lib/utils';
