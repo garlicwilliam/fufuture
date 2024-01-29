@@ -222,7 +222,9 @@ export class SldOverlay extends BaseStateComponent<IProps, IState> {
 
   private resizeCallback = () => {
     if (this.isCurrentVisible()) {
-      this.updatePosEvent.next(true);
+      asyncScheduler.schedule(() => {
+        this.updatePosEvent.next(true);
+      });
     }
   };
 

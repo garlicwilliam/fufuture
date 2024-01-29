@@ -1,5 +1,5 @@
 import { BaseStateComponent } from '../../../state-manager/base-state-component';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { asyncScheduler, BehaviorSubject, Observable, Subject } from 'rxjs';
 import { distinctUntilChanged, filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { CSSProperties } from 'react';
 import { styleMerge } from '../../../util/string';
@@ -16,7 +16,9 @@ export class Resize extends BaseStateComponent<IProps, IState> {
   private resizeEvent: Subject<any> = new Subject<any>();
   private containerDom = new BehaviorSubject<HTMLDivElement | HTMLSpanElement | null>(null);
   private sizeObserver: ResizeObserver | null = new ResizeObserver(entry => {
-    this.resizeEvent.next(true);
+    asyncScheduler.schedule(() => {
+      this.resizeEvent.next(true);
+    });
   });
 
   private sizeSubject: Subject<[number, number]> = new Subject<[number, number]>();
