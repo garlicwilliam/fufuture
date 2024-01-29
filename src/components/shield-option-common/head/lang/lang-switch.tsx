@@ -69,6 +69,7 @@ export class LangSwitch extends BaseStateComponent<IProps, IState> {
         {lang.map(key => {
           return (
             <div
+              key={key}
               className={styleMr(styles.langItem, cssPick(this.state.curLang === key, styles.active))}
               onClick={() => this.onSwitch(key)}
             >
