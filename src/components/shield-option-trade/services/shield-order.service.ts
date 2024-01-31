@@ -1,6 +1,6 @@
 import { from, mergeMap, Observable, of, switchMap, zip } from 'rxjs';
 import {
-  ShieldActiveOrderRs,
+  ShieldOrderInfoRs,
   ShieldMakerOrderInfo,
   ShieldMakerPrivatePoolInfo,
   ShieldOrderFundPhaseInfo,
@@ -35,7 +35,7 @@ import { Network } from '../../../constant/network';
 import * as net from 'net';
 
 export class ShieldOrderService {
-  public fillOrdersFundPhaseInfo(ordersRs: ShieldActiveOrderRs): Observable<ShieldActiveOrderRs> {
+  public fillOrdersFundPhaseInfo(ordersRs: ShieldOrderInfoRs): Observable<ShieldOrderInfoRs> {
     const orders = ordersRs.orders;
 
     return this.getOrderListFundPhaseInfo(ordersRs.network, orders).pipe(

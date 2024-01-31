@@ -66,6 +66,7 @@ export default {
   'trade-funding-fee-premium': '權利金收益',
   'trade-funding-fee-settlement': '結算權利金收益',
   'trade-funding-fee-settlement-last': '上次結算時間',
+  'trade-funding-fee-need-settlement': '需要結算',
   'trade-funding-schedule': '權利金結算週期表',
   'trade-hours': '${num}小時',
   'trade-hours-ago': '${num}小時前',
@@ -116,6 +117,7 @@ export default {
   'trade-menu-swap-burn': '兌換 & 銷毀',
   'trade-menu-trade': '交易',
   'trade-minute': '分鐘',
+  'trade-minutes': '${num}分鐘',
   'trade-my-referral': '我的推薦',
   'trade-my-referral-count': '推薦數',
   'trade-no-position': '無倉位',
@@ -204,6 +206,7 @@ export default {
   'trade-taker-trading-fee-paid': '已付手續費',
   'trade-taking-orders': '接單',
   'trade-time': '時間',
+  'trade-time-after': '${time}之後',
   'trade-total-tokens': '代幣種類',
   'trade-type': '類型',
   'trade-unrealized-pnl': '未實現盈虧',
@@ -213,4 +216,9 @@ export default {
   'trade-user-maintenance-margin-desc': '當可用餘額小於下一次展期需要付出的權利金時，才會被扣除。',
   'trade-withdraw': '取回',
   'trade-you-will-receive': '您將會接收到',
+
+  'trade-migrate-selector-need': '只顯示未結算',
+  'trade-migrate-selector-underlying': '選擇指數',
+  'trade-migrate-exclude-token': '排除的代幣',
+  'trade-migrate-batch-action': '批量操作',
 };

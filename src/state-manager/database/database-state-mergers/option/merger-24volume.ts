@@ -123,12 +123,12 @@ export class Merger24volume implements DatabaseStateMerger<ShieldTradingVolume, 
 
     return {
       query: `{
-        trades( where: {name: "${name}", blockTimestamp_gt: ${beginTime} })  {
+        trades(first: 1000, where: {name: "${name}", blockTimestamp_gt: ${beginTime} })  {
             name,
             token,
             number
          },
-         closeOrders( where: {name: "${name}", state_not: 0, blockTimestamp_gt: ${beginTime} })  {
+         closeOrders(first: 1000, where: {name: "${name}", state_not: 0, blockTimestamp_gt: ${beginTime} })  {
             name,
             token,
             number

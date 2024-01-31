@@ -15,14 +15,13 @@ type IState = {};
 export class Resize extends BaseStateComponent<IProps, IState> {
   private resizeEvent: Subject<any> = new Subject<any>();
   private containerDom = new BehaviorSubject<HTMLDivElement | HTMLSpanElement | null>(null);
-  private sizeObserver: ResizeObserver = new ResizeObserver(entry => {
+  private sizeObserver: ResizeObserver | null = new ResizeObserver(entry => {
     asyncScheduler.schedule(() => {
       this.resizeEvent.next(true);
     });
   });
 
   private sizeSubject: Subject<[number, number]> = new Subject<[number, number]>();
-  private targetDom: HTMLDivElement | HTMLSpanElement | null = null;
 
   componentDidMount() {
     this.sub(this.dealWithResize());
@@ -49,6 +48,7 @@ export class Resize extends BaseStateComponent<IProps, IState> {
 
     if (this.sizeObserver) {
       this.sizeObserver.disconnect();
+      this.sizeObserver = null;
     }
     this.containerDom.complete();
     this.resizeEvent.complete();
@@ -60,10 +60,7 @@ export class Resize extends BaseStateComponent<IProps, IState> {
       filter(dom => dom !== null),
       map(dom => dom as HTMLDivElement | HTMLSpanElement),
       tap((container: HTMLDivElement | HTMLSpanElement) => {
-        if (this.targetDom !== container) {
-          this.targetDom = container;
-          this.sizeObserver?.observe(container);
-        }
+        this.sizeObserver?.observe(container);
       })
     );
   }

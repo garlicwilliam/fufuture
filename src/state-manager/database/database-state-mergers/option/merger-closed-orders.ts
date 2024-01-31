@@ -156,7 +156,7 @@ export class MergerClosedOrders implements DatabaseStateMerger<ShieldClosedOrder
   private convertOrder(order: OrderRs, taker: string, token: TokenErc20, needFixPrice: boolean): ShieldClosedOrderInfo {
     const orderObj: ShieldClosedOrderInfo = {
       id: BigNumber.from(order.id),
-      taker,
+      takerAddress: taker,
       underlying: order.name,
       token,
       optionType: order.isBuy ? ShieldOptionType.Call : ShieldOptionType.Put,

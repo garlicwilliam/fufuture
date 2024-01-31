@@ -1,7 +1,7 @@
 import { Contract, ethers, BigNumber } from 'ethers';
-import { concatMap, from, mergeMap, NEVER, Observable, of, switchMap, zip } from 'rxjs';
+import { concatMap, expand, from, interval, mergeMap, NEVER, Observable, of, switchMap, zip } from 'rxjs';
 import {
-  ShieldActiveOrderRs,
+  ShieldOrderInfoRs,
   ShieldBrokerReward,
   ShieldMakerOrderInfo,
   ShieldMakerPrivatePoolInfo,
@@ -27,7 +27,7 @@ import {
 } from '../state-types';
 import { genContractCallPartial } from './contract-utils';
 import { CACHE_10_MIN, CACHE_10_SEC, CACHE_3_SEC, CACHE_FOREVER, cacheService } from '../mem-cache/cache-contract';
-import { catchError, map, toArray } from 'rxjs/operators';
+import { catchError, delay, map, take, tap, toArray } from 'rxjs/operators';
 import { SldDecimal, SldDecPercent, SldDecPrice, SldUsdValue } from '../../util/decimal';
 import { E18, EMPTY_ADDRESS, MAX_UINT_256, ZERO } from '../../constant';
 import {
@@ -94,6 +94,7 @@ export function userAccountInfoGetter(
     orderAmount: BigNumber;
     orderIDs: BigNumber[];
   };
+
   const promise$ = contract.getAccountInfo(takerAddress, quoteToken.address) as Promise<Rs>;
   const info$: Observable<ShieldUserAccountInfo> = optionCall(
     promise$,
@@ -147,16 +148,16 @@ export function userActiveOrderListGetter(
   contract: Contract,
   takerAddress: string,
   quoteToken: TokenErc20
-): Observable<ShieldActiveOrderRs> {
+): Observable<ShieldOrderInfoRs> {
   if (contractNetwork(contract) !== quoteToken.network) {
     return NEVER;
   }
 
-  const orderList$: Observable<ShieldActiveOrderRs> = userAccountInfoGetter(contract, takerAddress, quoteToken).pipe(
+  const orderList$: Observable<ShieldOrderInfoRs> = userAccountInfoGetter(contract, takerAddress, quoteToken).pipe(
     switchMap((accountInfo: ShieldUserAccountInfo) => {
       return orderListInfoGetter(contract, accountInfo.activeOrderIDArr);
     }),
-    map((orders): ShieldActiveOrderRs => {
+    map((orders): ShieldOrderInfoRs => {
       orders.reverse();
 
       return {
@@ -169,7 +170,7 @@ export function userActiveOrderListGetter(
 
   const cacheKey: string = genCacheKey(contract, 'active_order_list', takerAddress);
 
-  return cacheService.tryUseCache<ShieldActiveOrderRs>(orderList$, cacheKey, CACHE_10_SEC);
+  return cacheService.tryUseCache<ShieldOrderInfoRs>(orderList$, cacheKey, CACHE_10_SEC);
 }
 
 type OrderRs = {
@@ -269,6 +270,33 @@ export function orderListMigrationInfoGetter(
       });
     })
   );
+}
+
+export function orderMigrationInfoListGetter(
+  contract: Contract,
+  orderIds: BigNumber[]
+): Observable<ShieldOrderMigration[]> {
+  type Rs = {
+    migrationTime: BigNumber;
+    regulatedTime: BigNumber;
+    inPeriodHours: BigNumber;
+  };
+
+  const infoArr$ = contract.getMigrationInfo(orderIds) as Promise<Rs[]>;
+  const infoList$ = optionCall(infoArr$, `getMigrationInfo(ids)`).pipe(
+    map((rsArr: Rs[]) => {
+      return rsArr.map((rs: Rs, index: number): ShieldOrderMigration => {
+        return {
+          id: orderIds[index],
+          lastSettlementTime: rs.migrationTime.toNumber(),
+          scheduleSettleTime: rs.regulatedTime.toNumber(),
+          inPeriodHours: rs.inPeriodHours.toNumber(),
+        };
+      });
+    })
+  );
+
+  return infoList$;
 }
 
 export function orderMigrationInfoGetter(contract: Contract, orderId: BigNumber): Observable<ShieldOrderMigration> {
@@ -1060,15 +1088,17 @@ export function makerPriPoolDetailsGetter(
           return {
             indexInPool: BigNumber.from(one.orderIndex),
             id: one.orderID,
-            taker: order.takerAddress,
+            takerAddress: order.takerAddress,
             maker: one.makerAddr,
             orderStatus: order.orderState,
-            indexUnderlying: order.indexUnderlying,
+            underlying: order.indexUnderlying,
             token: order.token,
+            tradingFee: order.tradingFee,
             optionType: order.optionType,
             openPrice: order.openPrice,
             orderAmount: order.orderAmount,
             openTime: order.openTime,
+            fundingFeePaid: order.fundingFee.paid,
             fundingInfo: {
               init: order.fundingFee.initial,
               paid: order.fundingFee.paid,
@@ -1116,15 +1146,17 @@ export function makerPriPoolOrdersGetter(
     return {
       indexInPool: BigNumber.from(rs.orderIndex),
       id: rs.orderID,
-      taker: order.takerAddress,
+      takerAddress: order.takerAddress,
       maker: rs.makerAddr,
       orderStatus: order.orderState,
-      indexUnderlying: order.indexUnderlying,
+      underlying: order.indexUnderlying,
       token: order.token,
       optionType: order.optionType,
       openPrice: order.openPrice,
       orderAmount: order.orderAmount,
       openTime: order.openTime,
+      tradingFee: order.tradingFee,
+      fundingFeePaid: order.fundingFee.paid,
       fundingInfo: {
         init: order.fundingFee.initial,
         paid: order.fundingFee.paid,

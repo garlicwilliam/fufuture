@@ -66,6 +66,7 @@ export default {
   'trade-funding-fee-premium': '权利金收益',
   'trade-funding-fee-settlement': '结算权利金收益',
   'trade-funding-fee-settlement-last': '上次结算时间',
+  'trade-funding-fee-need-settlement': '需要结算',
   'trade-funding-schedule': '权利金结算周期表',
   'trade-hours': '${num}小时',
   'trade-hours-ago': '${num}小时前',
@@ -116,6 +117,7 @@ export default {
   'trade-menu-swap-burn': '兑换 & 销毁',
   'trade-menu-trade': '交易',
   'trade-minute': '分钟',
+  'trade-minutes': '${num}分钟',
   'trade-my-referral': '我的推荐',
   'trade-my-referral-count': '推荐数',
   'trade-no-position': '无仓位',
@@ -204,6 +206,7 @@ export default {
   'trade-taker-trading-fee-paid': '已付手续费',
   'trade-taking-orders': '接单',
   'trade-time': '时间',
+  'trade-time-after': '${time}之后',
   'trade-total-tokens': '代币种类',
   'trade-type': '类型',
   'trade-unrealized-pnl': '未实现盈亏',
@@ -213,4 +216,9 @@ export default {
   'trade-user-maintenance-margin-desc': '当可用余额小于下一次展期需要付出的权利金时，才会被扣除。',
   'trade-withdraw': '取回',
   'trade-you-will-receive': '你将接收到',
+
+  'trade-migrate-selector-need': '只显示未结算',
+  'trade-migrate-selector-underlying': '选择指数',
+  'trade-migrate-exclude-token': '排除的代币',
+  'trade-migrate-batch-action': '批量操作',
 };

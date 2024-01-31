@@ -240,6 +240,39 @@ export type ShieldTokenOpenInterest = {
   amount: SldDecimal;
 };
 
+export type ShieldOrderFundingInfo = {
+  init: SldDecimal;
+  paid: SldDecimal;
+  scheduleMigration: number;
+  lastMigration: number;
+};
+export type ShieldOrderMigration = {
+  id: BigNumber;
+  lastSettlementTime: number;
+  scheduleSettleTime: number;
+  inPeriodHours: number;
+};
+export type ShieldOrderFundPhaseInfo = {
+  id: BigNumber;
+  nextPhase: number;
+  laterPhases: {
+    phaseIndex: number;
+    fundingFee: SldDecimal;
+  }[];
+};
+
+export type ShieldOrderBase = {
+  id: BigNumber;
+  underlying: ShieldUnderlyingType;
+  token: TokenErc20;
+  optionType: ShieldOptionType;
+  takerAddress: string;
+  orderAmount: SldDecimal;
+  openPrice: SldDecPrice;
+  openTime: number;
+  tradingFee: SldDecimal;
+  fundingFeePaid: SldDecimal;
+};
 export type ShieldOrderInfo = {
   id: BigNumber;
   takerAddress: string;
@@ -266,17 +299,27 @@ export type ShieldOrderInfo = {
     pnl: SldDecimal;
   };
 };
-export type ShieldClosedOrderInfo = {
-  id: BigNumber;
+export type ShieldOrderInfoRs = {
+  network: Network;
   taker: string;
-  underlying: ShieldUnderlyingType;
-  token: TokenErc20;
-  optionType: ShieldOptionType;
+  orders: ShieldOrderInfo[];
+};
+export type ShieldHistoryOrderRs = {
+  orders: ShieldOrderInfo[];
+  taker: string;
+  network: Network;
+};
+
+export type ShieldActiveOrderInfo = ShieldOrderBase & {
+  migrationInfo: ShieldOrderMigration;
+};
+export type ShieldActiveOrderInfoRs = {
+  network: Network;
+  orders: ShieldActiveOrderInfo[];
+};
+
+export type ShieldClosedOrderInfo = ShieldOrderBase & {
   orderState: ShieldOrderState;
-  orderAmount: SldDecimal;
-  openPrice: SldDecPrice;
-  openTime: number;
-  fundingFeePaid: SldDecimal;
   tradingFee: SldDecimal;
   closePrice: SldDecPrice;
   closeTime: number;
@@ -287,46 +330,14 @@ export type ShieldClosedOrderInfoRs = {
   taker: string;
   network: Network;
 };
-export type ShieldActiveOrderRs = {
-  network: Network;
-  taker: string;
-  orders: ShieldOrderInfo[];
-};
-export type ShieldHistoryOrderRs = {
-  orders: ShieldOrderInfo[];
-  taker: string;
-  network: Network;
-};
-export type ShieldMakerOrderInfoRs = {
-  network: Network;
-  maker: string;
-  pool: string;
-  orders: ShieldMakerOrderInfo[];
-};
-export type ShieldMakerOrderInfo = {
-  id: BigNumber;
+
+export type ShieldMakerOrderInfo = ShieldOrderBase & {
   indexInPool: BigNumber;
-  taker: string;
   maker: string;
   orderStatus: ShieldOrderState;
-
-  indexUnderlying: ShieldUnderlyingType;
-  token: TokenErc20;
-  optionType: ShieldOptionType;
-  openPrice: SldDecPrice;
-  orderAmount: SldDecimal;
-  openTime: number;
-
-  fundingInfo: {
-    init: SldDecimal;
-    paid: SldDecimal;
-    scheduleMigration: number;
-    lastMigration: number;
-  };
-
+  fundingInfo: ShieldOrderFundingInfo;
   makerMarginAmount: SldDecimal;
   makerMaintenanceLocked: SldDecimal;
-
   markPrice?: SldDecPrice;
   pnl?: {
     positionLoss: SldDecimal;
@@ -336,20 +347,13 @@ export type ShieldMakerOrderInfo = {
   liquidationPrice?: SldDecPrice;
   couldLiquidation?: boolean;
 };
-export type ShieldOrderMigration = {
-  id: BigNumber;
-  lastSettlementTime: number;
-  scheduleSettleTime: number;
-  inPeriodHours: number;
+export type ShieldMakerOrderInfoRs = {
+  network: Network;
+  maker: string;
+  pool: string;
+  orders: ShieldMakerOrderInfo[];
 };
-export type ShieldOrderFundPhaseInfo = {
-  id: BigNumber;
-  nextPhase: number;
-  laterPhases: {
-    phaseIndex: number;
-    fundingFee: SldDecimal;
-  }[];
-};
+
 export type ShieldTokenSearchList = {
   tokens: TokenErc20[];
   network: Network;

@@ -66,6 +66,7 @@ export default {
   'trade-funding-fee-premium': 'Premium',
   'trade-funding-fee-settlement': 'Settle Funding Fee',
   'trade-funding-fee-settlement-last': 'Last Settlement',
+  'trade-funding-fee-need-settlement': 'Need Settlement',
   'trade-funding-schedule': 'Funding Schedule',
   'trade-hours': '${num} Hours',
   'trade-hours-ago': '${num} Hours Ago',
@@ -116,6 +117,7 @@ export default {
   'trade-menu-swap-burn': 'Swap & Burn',
   'trade-menu-trade': 'Trade',
   'trade-minute': 'Minute',
+  'trade-minutes': '${num} Minutes',
   'trade-my-referral': 'My Referral',
   'trade-my-referral-count': 'Referrals',
   'trade-no-position': 'No Position',
@@ -206,6 +208,7 @@ export default {
   'trade-taker-trading-fee-paid': 'Trading Fee Paid',
   'trade-taking-orders': 'Taking Orders',
   'trade-time': 'Time',
+  'trade-time-after': 'After ${time}',
   'trade-total-tokens': 'Total Tokens',
   'trade-type': 'Type',
   'trade-unrealized-pnl': 'Unrealized PnL',
@@ -215,4 +218,9 @@ export default {
   'trade-user-maintenance-margin-desc': 'Only charged if Available Balance is less than Funding Fee of next phase.',
   'trade-withdraw': 'Withdraw',
   'trade-you-will-receive': 'You Will Receive',
+
+  'trade-migrate-selector-need': 'Need Settlement',
+  'trade-migrate-selector-underlying': 'Select Index',
+  'trade-migrate-exclude-token': 'Exclude Tokens',
+  'trade-migrate-batch-action': 'Batch Action',
 };

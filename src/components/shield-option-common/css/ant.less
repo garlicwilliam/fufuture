@@ -82,3 +82,41 @@
     }
   }
 }
+
+.ant-checkbox-wrapper {
+  line-height: 0;
+  border-radius: @border-radius-btn2;
+
+  .ant-checkbox {
+    top: 0;
+
+    &:after {
+      border-radius: @border-radius-btn2;
+      border-color: @color-highlight;
+    }
+
+    &.ant-checkbox-checked .ant-checkbox-inner {
+      background-color: @color-highlight;
+      border-color: @color-highlight;
+    }
+
+    &:hover .ant-checkbox-inner,
+    .ant-checkbox-input:focus + .ant-checkbox-inner {
+      border: 1px solid @color-highlight !important;
+    }
+
+    .ant-checkbox-inner {
+      position: relative;
+      border-radius: @border-radius-btn2;
+      width: 24px;
+      height: 24px;
+
+      // the check sign
+      &::after {
+        width: 8px;
+        height: 12px;
+        left: 5.5px;
+      }
+    }
+  }
+}

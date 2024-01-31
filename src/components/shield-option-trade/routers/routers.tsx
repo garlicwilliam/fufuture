@@ -14,6 +14,7 @@ import { RefRedirect } from '../pages/redirect';
 import { ShareOrderMobile } from '../pages/share/share-order-mobile';
 import { TradeReferralTabs } from '../pages/referral/tabs';
 import { MyRefDetail } from '../pages/referral/referral-detail/my-ref-detail';
+import { MigrateOrders } from '../pages/migrate/migrate-orders';
 
 const router: Router = createBrowserRouter([
   {
@@ -72,6 +73,10 @@ const router: Router = createBrowserRouter([
       {
         path: RouteKey.poster + '/:oid/:nid?',
         element: <ShareOrderMobile />,
+      },
+      {
+        path: 'migrate',
+        element: <MigrateOrders />,
       },
     ],
   },

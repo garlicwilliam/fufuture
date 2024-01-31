@@ -13,6 +13,7 @@ import {
 } from '../const/contract-creator';
 import { shortAddress } from '../../util';
 import { Network } from '../../constant/network';
+import { ZERO } from '../../constant';
 
 const erc20Call = genContractCallPartial<any>('ERC20');
 
@@ -97,8 +98,8 @@ export function erc20UserBalanceGetter(
       const balancePromise$ = erc20Contract.balanceOf(userAddress) as Promise<BigNumber>;
       const balanceNum$: Observable<BigNumber> = erc20Call(balancePromise$, `balanceOf(${userAddress})`).pipe(
         catchError(err => {
-          console.warn(err, erc20Contract);
-          throw err;
+          console.warn('Read Token Balance Error:', err);
+          return of(ZERO);
         })
       );
       const balance$ = zip(decimal$, balanceNum$).pipe(

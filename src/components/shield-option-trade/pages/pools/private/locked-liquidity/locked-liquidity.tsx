@@ -141,7 +141,7 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
       align: 'right',
       render: (amount: SldDecimal, row: ShieldMakerOrderInfo) => {
         return (
-          <TokenAmountInline amount={amount} token={row.indexUnderlying} symClassName={styles.label} short={true} />
+          <TokenAmountInline amount={amount} token={row.underlying} symClassName={styles.label} short={true} />
         );
       },
     },
@@ -342,7 +342,7 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
             <div className={styleMerge(styles.cellDesc)}>
               <TokenAmountInline
                 amount={amount}
-                token={row.indexUnderlying}
+                token={row.underlying}
                 numClassName={styles.cellMain}
                 symClassName={styles.cellDesc}
               />
@@ -508,7 +508,7 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
 
     const refresh$ = shieldOrderService.getMakerPriPoolOrder(this.state.curPool, order.indexInPool).pipe(
       switchMap((order: ShieldMakerOrderInfo) => {
-        return this.fillPnl([order], order.indexUnderlying);
+        return this.fillPnl([order], order.underlying);
       }),
       tap((orders: ShieldMakerOrderInfo[]) => {
         if (!this.state.lockedDetailRs) {
@@ -540,7 +540,7 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
           return of(detailRs);
         }
 
-        const assets: ShieldUnderlyingType = orders[0].indexUnderlying;
+        const assets: ShieldUnderlyingType = orders[0].underlying;
 
         return this.fillPnl(orders, assets).pipe(
           map((orders: ShieldMakerOrderInfo[]) => {

@@ -16,6 +16,7 @@ import { BigNumber } from 'ethers';
 import { SldTips } from '../../../../common/tips/tips';
 import { fontCss } from '../../../../i18n/font-switch';
 import * as _ from 'lodash';
+import { isSameToken } from '../../../../../util/token';
 
 type IState = {
   isMobile: boolean;
@@ -79,7 +80,7 @@ export class FundingData extends BaseStateComponent<IProps, IState> {
         }
 
         const nextFund: SldDecimal = orders
-          .filter((order: ShieldOrderInfo) => _.isEqual(order.token, token))
+          .filter((order: ShieldOrderInfo) => isSameToken(order.token, token))
           .map(order => order.phaseInfo!.laterPhases[0].fundingFee || SldDecimal.ZERO)
           .reduce((acc, cur) => {
             return acc.add(cur);

@@ -155,7 +155,7 @@ export class MakerAddMargin extends BaseStateComponent<IProps, IState> {
             >
               <TokenAmountInline
                 amount={this.state.curOrder.orderAmount}
-                token={this.state.curOrder.indexUnderlying}
+                token={this.state.curOrder.underlying}
                 symClassName={styleMr(styles.label)}
               />
             </HorizonItem>

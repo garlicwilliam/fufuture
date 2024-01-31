@@ -17,6 +17,7 @@ import { MergerClosedOrders } from './database-state-mergers/option/merger-close
 import { MergerReferralItems } from './database-state-mergers/option/merger-referral-items';
 import { MergerOpenInterest } from './database-state-mergers/option/merger-open-interest';
 import { MergerUnderlyingPrice } from './database-state-mergers/option/merger-underlying-price';
+import { MergerActiveOrders } from './database-state-mergers/option/merger-active-orders';
 
 class DBStateReference implements DatabaseStateRef {
   private root: DatabaseStateTree<any> | null = null;
@@ -88,6 +89,10 @@ export const DATABASE_STATE = {
         walletState.NETWORK,
       ],
       _merger: new MergerClosedOrders(),
+    },
+    MigrationOrders: {
+      _depend: [walletState.NETWORK, P.Option.Migrate.Underlying],
+      _merger: new MergerActiveOrders(),
     },
     Volume24h: {
       _depend: [P.Option.Trade.Pair.Base, walletState.NETWORK],

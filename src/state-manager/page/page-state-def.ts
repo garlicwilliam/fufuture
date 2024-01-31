@@ -205,5 +205,13 @@ export const PAGE_STATE = {
         },
       },
     },
+    Migrate: {
+      Underlying: {
+        _default: ShieldUnderlyingType.BTC,
+      },
+      SettleOnly: {
+        _default: false as boolean,
+      },
+    },
   },
 };

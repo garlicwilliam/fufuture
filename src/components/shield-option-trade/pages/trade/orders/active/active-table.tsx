@@ -3,7 +3,7 @@ import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { TableForDesktop } from '../../../../../table/table-desktop';
 import { ColumnType } from 'antd/lib/table/interface';
 import {
-  ShieldActiveOrderRs,
+  ShieldOrderInfoRs,
   ShieldOptionType,
   ShieldOrderInfo,
   ShieldUnderlyingType,
@@ -38,7 +38,7 @@ import { isSameAddress } from '../../../../../../util/address';
 
 type IState = {
   isMobile: boolean;
-  ordersRs: ShieldActiveOrderRs | undefined;
+  ordersRs: ShieldOrderInfoRs | undefined;
   network: Network | null;
   userAddr: string | null;
 };
@@ -307,7 +307,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
     this.destroyState();
   }
 
-  private mergeOrders(): Observable<ShieldActiveOrderRs> {
+  private mergeOrders(): Observable<ShieldOrderInfoRs> {
     const prices$ = combineLatest([S.Option.Oracle.BTC.watch(), S.Option.Oracle.ETH.watch()]).pipe(
       map(([btc, eth]) => {
         return {
@@ -317,8 +317,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
       })
     );
 
-    const ordersRs$: Observable<ShieldActiveOrderRs> = S.Option.Order.ActiveList.watch().pipe(
-      switchMap((ordersRs: ShieldActiveOrderRs) => {
+    const ordersRs$: Observable<ShieldOrderInfoRs> = S.Option.Order.ActiveList.watch().pipe(
+      switchMap((ordersRs: ShieldOrderInfoRs) => {
         return shieldOrderService.fillOrdersFundPhaseInfo(ordersRs);
       })
     );
@@ -333,7 +333,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
 
         return ordersRs;
       }),
-      tap((ordersRs: ShieldActiveOrderRs) => {
+      tap((ordersRs: ShieldOrderInfoRs) => {
         P.Option.Trade.OrderList.ActiveList.set(ordersRs.orders);
       })
     );
