@@ -20,7 +20,6 @@ import { ETH_WEI } from '../util/ethers';
 import { isEthNetworkGroup } from '../constant/network-util';
 import { NetworkParams } from '../constant/network-conf';
 import { NetworkParamConfig } from '../constant/network-type';
-import * as net from 'net';
 
 type AccountRetrievedType = string | null;
 type AccountValType = AccountRetrievedType | undefined;

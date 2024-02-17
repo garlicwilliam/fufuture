@@ -140,9 +140,7 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
       key: 'orderAmount',
       align: 'right',
       render: (amount: SldDecimal, row: ShieldMakerOrderInfo) => {
-        return (
-          <TokenAmountInline amount={amount} token={row.underlying} symClassName={styles.label} short={true} />
-        );
+        return <TokenAmountInline amount={amount} token={row.underlying} symClassName={styles.label} short={true} />;
       },
     },
     {
@@ -1032,7 +1030,7 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
     return !isNetworkMatch || !isMakerMatch || !isPoolMatch;
   }
 
-  render() {
+  render(): JSX.Element {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 

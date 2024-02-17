@@ -44,6 +44,9 @@ type EnvConfig = {
     Domain: string;
     Project: string;
   };
+  FixDigits: {
+    Open: { [u in ShieldUnderlyingType]: number };
+  };
 };
 
 enum Env {
@@ -131,6 +134,12 @@ const env2: { [k in Env]: EnvConfig } = {
     Brand: {
       Domain: 'fufuture.io',
       Project: 'Fufuture',
+    },
+    FixDigits: {
+      Open: {
+        BTC: 3,
+        ETH: 3,
+      },
     },
   },
 };

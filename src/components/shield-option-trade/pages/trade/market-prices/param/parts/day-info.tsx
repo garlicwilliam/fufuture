@@ -49,6 +49,8 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
     this.registerState('dayVolume', D.Option.Volume24h);
     this.registerState('openInterest', D.Option.OpenInterest);
 
+    this.tickInterval(120000, D.Option.Volume24h, D.Option.OpenInterest, D.Option.Price24hRange);
+
     // this.tickInterval(60000, D.Option.Price24hRange);
   }
 
@@ -329,17 +331,17 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
     return isMobile ? (
       <div className={styleMr(styles.wrapperDay, this.props.className)}>
         {this.gen24ChangeHorizon(styleMr)}
-        {this.gen24VolumeHorizon(styleMr)}
         {this.genMinPriceHorizon(styleMr)}
         {this.genMaxPriceHorizon(styleMr)}
+        {this.gen24VolumeHorizon(styleMr)}
         {this.genOpenInterestHorizon(styleMr)}
       </div>
     ) : (
       <div className={styleMr(styles.wrapperDay, this.props.className)}>
         {this.gen24ChangeVertical(styleMr)}
-        {this.gen24VolumeVertical(styleMr)}
         {this.genMinPriceVertical(styleMr)}
         {this.genMaxPriceVertical(styleMr)}
+        {this.gen24VolumeVertical(styleMr)}
         {this.genOpenInterestVertical(styleMr)}
       </div>
     );

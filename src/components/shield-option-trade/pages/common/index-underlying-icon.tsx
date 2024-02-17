@@ -3,7 +3,7 @@ import { P } from '../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../../util/string';
 import styles from './index-underlying-icon.module.less';
 import { IndexUnderlyingAssetsIcon } from '../../const/imgs';
-import {ShieldUnderlyingType} from "../../../../state-manager/state-types";
+import { ShieldUnderlyingType } from '../../../../state-manager/state-types';
 
 type IState = {
   isMobile: boolean;

@@ -98,7 +98,7 @@ export function erc20UserBalanceGetter(
       const balancePromise$ = erc20Contract.balanceOf(userAddress) as Promise<BigNumber>;
       const balanceNum$: Observable<BigNumber> = erc20Call(balancePromise$, `balanceOf(${userAddress})`).pipe(
         catchError(err => {
-          console.warn('Read Token Balance Error:', err);
+          console.warn('Read Token Balance Error:', 'Account:', userAddress, 'Token:', erc20Contract.address);
           return of(ZERO);
         })
       );

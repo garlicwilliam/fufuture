@@ -88,7 +88,7 @@ export class YourLiquidity extends BaseStateComponent<IProps, IState> {
             if (offset >= 0) {
               const pools = this.state.liquidityRs.pools;
               pools.splice(offset, 1, newPool);
-              console.log('update');
+
               this.updateState({ liquidityRs: Object.assign({}, this.state.liquidityRs, { pools: [...pools] }) });
             }
           }

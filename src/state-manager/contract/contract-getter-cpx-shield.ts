@@ -58,6 +58,7 @@ import {
   UnderlyingContractAddress,
 } from '../../components/shield-option-trade/contract/shield-contract-types';
 import { linkAnswerGetter, linkDescGetter } from './contract-getter-sim-link';
+import { SLD_ENV_CONF } from '../../components/shield-option-trade/const/env';
 
 type Caller<T> = (promise: Promise<T>, method: string) => Observable<T>;
 const optionCall: Caller<any> = genContractCallPartial('ShieldOption');
@@ -134,7 +135,10 @@ export function userOpenMaxAmount(
       return SldDecimal.fromOrigin(amount, IndexUnderlyingDecimal);
     }),
     map((amount: SldDecimal) => {
-      return SldDecimal.fromNumeric(amount.format({ fix: 1, floor: true, split: false }), IndexUnderlyingDecimal);
+      return SldDecimal.fromNumeric(
+        amount.format({ fix: SLD_ENV_CONF.FixDigits.Open[indexUnderlying], floor: true, split: false }),
+        IndexUnderlyingDecimal
+      );
     }),
     catchError(err => {
       return of(SldDecimal.ZERO);
@@ -641,6 +645,7 @@ export function privatePoolInfoGetter(
       const locked$: Observable<SldDecimal> = priPoolCall(promise$, 'totalLockedLiquidity()').pipe(
         map((liquidity: BigNumber) => SldDecimal.fromOrigin(liquidity, token.decimal))
       );
+
       const balance$ = erc20UserBalanceGetter(erc20Contract, poolContract.address, token.decimal);
 
       return zip(locked$, balance$);

@@ -11,6 +11,9 @@ import { ShieldUnderlyingType, TokenErc20 } from '../../../../../state-manager/s
 import { IndexUnderlyingDecimal } from '../../../const/assets';
 import { S } from '../../../../../state-manager/contract/contract-state-parser';
 import { SldPercentSlider } from '../../common/percent-slider';
+import { SLD_ENV_CONF } from '../../../const/env';
+import { BigNumber } from 'ethers';
+import { baseBigNumber } from '../../../../../util/ethers';
 
 type IState = {
   isMobile: boolean;
@@ -63,11 +66,19 @@ export class OpenAmount extends BaseStateComponent<IProps, IState> {
 
   onPercentChange(percent: SldDecPercent) {
     if (percent.gtZero()) {
-      const curInput = percent.applyTo(this.state.maxOpen).fix(1);
+      const curInput: SldDecimal = percent
+        .applyTo(this.state.maxOpen)
+        .fix(SLD_ENV_CONF.FixDigits.Open[this.state.baseToken]);
 
       this.onChange(curInput);
 
-      const isPercentValSmall = curInput.lt(SldDecimal.fromNumeric('0.1', 18));
+      const fixDigit: number = SLD_ENV_CONF.FixDigits.Open[this.state.baseToken];
+      const minVal: SldDecimal = SldDecimal.fromOrigin(
+        baseBigNumber(IndexUnderlyingDecimal - fixDigit),
+        IndexUnderlyingDecimal
+      );
+      const isPercentValSmall: boolean = curInput.lt(minVal);
+
       this.updateState({ percentError: isPercentValSmall });
     } else {
       this.updateState({ percentError: false });
@@ -92,19 +103,16 @@ export class OpenAmount extends BaseStateComponent<IProps, IState> {
   }
 
   genPercentSuffix(styleMr: StyleMerger): ReactNode {
-    return (
-      <div className={styleMr(styles.suffixPercent)}>
-        {this.state.percentVal.percentFormat({ fix: 0 })}%
-      </div>
-    );
+    return <div className={styleMr(styles.suffixPercent)}>{this.state.percentVal.percentFormat({ fix: 0 })}%</div>;
   }
 
   render() {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
-    const styleMr = bindStyleMerger(mobileCss);
+    const styleMr: StyleMerger = bindStyleMerger(mobileCss);
+
+    const fix: number = SLD_ENV_CONF.FixDigits.Open[this.state.baseToken];
 
     return (
-      // TODO ETH decimal is 18, what is about btc ?
       <div className={styleMr(styles.wrapperOpen)}>
         <div className={styleMr(styles.title)}>
           <I18n id={'trade-amount'} /> ( {this.state.baseToken} )
@@ -117,8 +125,8 @@ export class OpenAmount extends BaseStateComponent<IProps, IState> {
           inputClassName={styleMr(styles.input, cssPick(this.state.percentVal.gtZero(), styles.inPercent))}
           suffix={this.state.percentVal.isZero() ? this.genMaxSuffix(styleMr) : this.genPercentSuffix(styleMr)}
           max={this.state.maxOpen}
-          fix={1}
-          placeholder={i18n('trade-max') + ' ' + this.state.maxOpen.format({ fix: 1 })}
+          fix={fix}
+          placeholder={i18n('trade-max') + ' ' + this.state.maxOpen.format({ fix, floor: true })}
           value={this.state.inputAmount}
           onChange={this.onChange.bind(this)}
           onErrorChange={this.props.errorChange}
