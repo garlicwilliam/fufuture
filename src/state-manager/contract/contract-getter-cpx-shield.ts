@@ -445,14 +445,14 @@ export function calculatorFundingFeeGetter(
 export function orderTradingFeeGetter(
   underlyingContract: UnderlyingContract,
   openAmount: SldDecimal,
-  underlyingPrice: SldDecPrice
+  underlyingPrice: ShieldUnderlyingPrice
 ): Observable<SldDecimal> {
   if (!openAmount || openAmount.isZero() || !underlyingPrice || !underlyingContract) {
     return of(SldDecimal.ZERO);
   }
 
-  const tradingFeeRate$ = paramTradingFeeRateGetter(underlyingContract);
-  const totalValue: SldUsdValue = openAmount.toUsdValue(underlyingPrice);
+  const tradingFeeRate$: Observable<SldDecPercent> = paramTradingFeeRateGetter(underlyingContract);
+  const totalValue: SldUsdValue = openAmount.toUsdValue(underlyingPrice.price);
 
   return tradingFeeRate$.pipe(
     map((rate: SldDecPercent) => {
