@@ -1,5 +1,5 @@
 import { Contract, ethers, BigNumber } from 'ethers';
-import { concatMap, expand, from, interval, mergeMap, NEVER, Observable, of, switchMap, zip } from 'rxjs';
+import { concatMap, from, mergeMap, NEVER, Observable, of, switchMap, zip } from 'rxjs';
 import {
   ShieldOrderInfoRs,
   ShieldBrokerReward,
@@ -27,7 +27,7 @@ import {
 } from '../state-types';
 import { genContractCallPartial } from './contract-utils';
 import { CACHE_10_MIN, CACHE_10_SEC, CACHE_3_SEC, CACHE_FOREVER, cacheService } from '../mem-cache/cache-contract';
-import { catchError, delay, map, take, tap, toArray } from 'rxjs/operators';
+import { catchError, map, toArray } from 'rxjs/operators';
 import { SldDecimal, SldDecPercent, SldDecPrice, SldUsdValue } from '../../util/decimal';
 import { E18, EMPTY_ADDRESS, MAX_UINT_256, ZERO } from '../../constant';
 import {
@@ -53,10 +53,7 @@ import { NET_BNB, Network } from '../../constant/network';
 import { isSN, snAssert, snRep } from '../interface-util';
 import { shortAddress } from '../../util';
 import { ERC20 } from '../../wallet/abi';
-import {
-  UnderlyingContract,
-  UnderlyingContractAddress,
-} from '../../components/shield-option-trade/contract/shield-contract-types';
+import { UnderlyingContract } from '../../components/shield-option-trade/contract/shield-contract-types';
 import { linkAnswerGetter, linkDescGetter } from './contract-getter-sim-link';
 import { SLD_ENV_CONF } from '../../components/shield-option-trade/const/env';
 

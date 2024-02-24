@@ -12,7 +12,7 @@ import {
 import { Network } from '../../../../constant/network';
 import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
 import { httpPost } from '../../../../util/http';
-import { finalize, map, take, tap, toArray } from 'rxjs/operators';
+import { finalize, last, map, take, tap, toArray } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { BigNumber, Contract } from 'ethers';
 import { erc20InfoByAddressGetter } from '../../../contract/contract-getter-sim-erc20';
@@ -132,7 +132,8 @@ export class MergerActiveOrders implements DatabaseStateMerger<ShieldActiveOrder
       }),
       map(value => {
         return value.orders;
-      })
+      }),
+      last()
     );
   }
 

@@ -24,6 +24,7 @@ import { OrderStatusNode } from '../../../../const/status';
 import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
 import { isSameAddress } from '../../../../../../util/address';
 import { Network } from '../../../../../../constant/network';
+import { SLD_ENV_CONF } from '../../../../const/env';
 
 type IState = {
   isMobile: boolean;
@@ -103,7 +104,15 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       key: 'orderAmount',
       align: 'right',
       render: (amount: SldDecimal, row: ShieldClosedOrderInfo) => {
-        return <TokenAmountInline amount={amount} token={row.underlying} symClassName={styleMerge(styles.label)} />;
+        return (
+          <TokenAmountInline
+            amount={amount}
+            token={row.underlying}
+            symClassName={styleMerge(styles.label)}
+            rmZero={true}
+            fix={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
+          />
+        );
       },
     },
     {
@@ -229,6 +238,8 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
                 token={row.underlying}
                 numClassName={styles.value}
                 symClassName={styles.cellDesc}
+                fix={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
+                rmZero={true}
               />
             </div>
 

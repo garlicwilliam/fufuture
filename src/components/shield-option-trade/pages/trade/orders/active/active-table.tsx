@@ -35,6 +35,7 @@ import { SldButton } from '../../../../../common/buttons/sld-button';
 import { Network } from '../../../../../../constant/network';
 import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
 import { isSameAddress } from '../../../../../../util/address';
+import { SLD_ENV_CONF } from '../../../../const/env';
 
 type IState = {
   isMobile: boolean;
@@ -112,7 +113,13 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
       key: 'orderAmount',
       align: 'right',
       render: (amount: SldDecimal, row: ShieldOrderInfo) => (
-        <TokenAmountInline token={row.indexUnderlying} amount={amount} symClassName={styles.label} short={true} />
+        <TokenAmountInline
+          token={row.indexUnderlying}
+          amount={amount}
+          symClassName={styles.label}
+          fix={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
+          rmZero={true}
+        />
       ),
     },
     {
@@ -272,7 +279,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
       key: 'pnl',
       align: 'right',
       render: (id: BigNumber, row: ShieldOrderInfo) => {
-        const upl = row.pnl?.unrealizedPnl || SldDecimal.ZERO;
+        const pnl: SldDecimal = row.pnl?.unrealizedPnl || SldDecimal.ZERO;
+
         return (
           <div className={styles.cellGroupRight}>
             <TokenAmountInline
@@ -280,12 +288,14 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               token={row.indexUnderlying}
               numClassName={styleMerge(styles.largeSize, styles.line1)}
               symClassName={styleMerge(styles.smallSize, styles.line1, styles.descColor)}
+              fix={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
+              rmZero={true}
             />
 
             <TokenAmountInline
-              amount={upl}
+              amount={pnl}
               token={row.token.symbol}
-              numClassName={styleMerge(upl.gtZero() ? 'longStyle' : upl.isZero() ? '' : 'shortStyle', styles.smallSize)}
+              numClassName={styleMerge(pnl.gtZero() ? 'longStyle' : pnl.isZero() ? '' : 'shortStyle', styles.smallSize)}
               symClassName={styleMerge(styles.smallSize, styles.line1, styles.descColor)}
               short={true}
               sign={true}
