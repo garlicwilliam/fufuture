@@ -214,4 +214,9 @@ export const PAGE_STATE = {
       },
     },
   },
+  Omni: {
+    loginAddress: {
+      _default: null as null | string,
+    },
+  },
 };

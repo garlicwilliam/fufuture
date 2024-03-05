@@ -1,4 +1,4 @@
-import { switchMap } from 'rxjs/operators';
+import { switchMap, take } from 'rxjs/operators';
 import { WalletInterface } from './wallet-interface';
 import { providers } from 'ethers';
 import { from, Observable, throwError } from 'rxjs';
@@ -15,13 +15,15 @@ export class WalletDataSigner {
         }
 
         return wallet.watchProvider().pipe(
+          take(1),
           switchMap((provider: providers.Web3Provider) => {
             const params = [fromAddress, msg];
 
-            return from(provider.send('eth_signTypedData_v4', params));
+            return from(provider.getSigner().signMessage(msg)); //from(provider.send('eth_signTypedData_v4', params));
           })
         );
-      })
+      }),
+      take(1)
     );
   }
 }

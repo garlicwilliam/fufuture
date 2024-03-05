@@ -60,13 +60,13 @@ export class WalletAddress extends BaseStateComponent<IProps, IState> {
       return <></>;
     }
 
-    const icon = WALLET_ICONS_MAP[this.state.metamaskWalletProvider];
+    const icon: string = WALLET_ICONS_MAP[this.state.metamaskWalletProvider];
     return <img src={icon} alt={''} className={className} />;
   }
 
-  render() {
-    const mobileCss = this.state.isMobile ? styles.mobile : '';
-    const styleMr = bindStyleMerger(mobileCss);
+  render(): JSX.Element {
+    const mobileCss: string = this.state.isMobile ? styles.mobile : '';
+    const styleMr: StyleMerger = bindStyleMerger(mobileCss);
 
     return this.state.walletConnected ? (
       <div

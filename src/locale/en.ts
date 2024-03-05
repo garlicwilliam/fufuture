@@ -14,6 +14,7 @@ export default {
   'com-pending': 'Pending...',
   'com-some-days': '${num} days',
   'com-succeed': 'Succeed',
+  'com-network-wrong': 'Wrong Network',
   'trade-24h-change': '24h Change',
   'trade-24h-volume': '24h Volume',
   'trade-24h-price-low': '24h Low',

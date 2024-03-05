@@ -1,8 +1,8 @@
 import { DatabaseStateMerger } from '../../../interface';
 import { ShieldMakerOrderInfo, ShieldMakerOrderInfoRs, ShieldMakerPrivatePoolInfo } from '../../../state-types';
-import { BehaviorSubject, Observable, of, switchMap, zip } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, of, switchMap, zip } from 'rxjs';
 import { httpPost } from '../../../../util/http';
-import { finalize, map, take, tap } from 'rxjs/operators';
+import { finalize, map, take, tap, expand } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { makerPriPoolOrdersGetter } from '../../../contract/contract-getter-cpx-shield';
 import { shieldOptionTradeContracts } from '../../../../components/shield-option-trade/contract/shield-option-trade-contract';
@@ -47,22 +47,7 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
       return of(undefined);
     }
 
-    const info$ = httpPost(url, this.genParam(pool.holder, pool.priPoolAddress)).pipe(
-      map(res => {
-        const isOK: boolean = _.get(res, 'status', 400) === 200;
-        const data = _.get(res, 'body.data');
-        const isData: boolean = data !== undefined;
-
-        if (!isOK || !isData) {
-          return [];
-        }
-
-        const opens = data['matchWithPrivatePools'];
-        const closes = data['closeInPrivatePools'];
-        const risks = data['riskInPrivatePools'];
-
-        return this.parseMakerOrderIndexes(opens, closes, risks);
-      }),
+    const info$ = this.getMakerIndexes(url, pool.priPoolAddress, pool.holder).pipe(
       switchMap((makerIndex: number[]) => {
         const optionContract$ = shieldOptionTradeContracts.CONTRACTS.optionTrade.pipe(take(1));
 
@@ -110,10 +95,80 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
     );
   }
 
+  private getMakerIndexes(url: string, pool: string, maker: string): Observable<number[]> {
+    return this.getMakerIDs(url, pool, maker, 0).pipe(
+      expand(({ ids, hasNext }) => {
+        if (!hasNext) {
+          return EMPTY;
+        }
+
+        return this.getMakerIDs(url, pool, maker, ids.length).pipe(
+          map(({ ids: newIds, hasNext: newNext }) => {
+            return {
+              ids: [...ids, ...newIds],
+              hasNext: newNext,
+            };
+          })
+        );
+      }),
+      map(({ ids, hasNext }) => {
+        console.log('ids', ids);
+        return ids;
+      })
+    );
+  }
+
+  private getMakerIDs(
+    url: string,
+    pool: string,
+    maker: string,
+    offset: number
+  ): Observable<{ ids: number[]; hasNext: boolean }> {
+    const param = this.genParams(maker, pool, offset);
+
+    return httpPost(url, param).pipe(
+      map(res => {
+        console.log(res);
+        const ids: { id: string; makerID: string }[] = res.body.data.privatePoolOrders;
+        const len: number = ids.length;
+
+        if (len === 0) {
+          return { ids: [], hasNext: false };
+        }
+
+        const makerIds: number[] = ids.map(one => Number(one.makerID));
+
+        return { ids: makerIds, hasNext: len === 1000 };
+      })
+    );
+  }
+
+  private genParams(maker: string, pool: string, offset: number): any {
+    return {
+      query: `{
+        privatePoolOrders(
+          where: {
+            maker: "${maker}",
+            pool: "${pool}",
+            isActive: true
+          },
+          skip: ${offset},
+          first: 1000,
+          orderBy: makerID,
+          orderDirection: desc
+        ) {
+          id,
+          makerID
+         }
+      }`,
+    };
+  }
+
   private genParam(maker: string, pool: string): any {
     return {
       query: `{
           matchWithPrivatePools(
+            first: 1000,
             where: {
                 fromContract: "${pool}",
                 maker: "${maker}"
@@ -122,6 +177,7 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
               makerID,
          },
          closeInPrivatePools(
+            first: 1000,
             where:{
                 fromContract: "${pool}",
                 maker: "${maker}"
@@ -130,6 +186,7 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
               makerID,
          },
          riskInPrivatePools(
+            first: 1000,
             where:{
                 fromContract: "${pool}",
                 maker: "${maker}"
@@ -154,10 +211,13 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
     const all: Set<string> = new Set<string>(opens.map(one => one.makerID));
     const del: Set<string> = new Set<string>(close.map(one => one.makerID));
 
+    console.log('del', del);
+
     del.forEach(mid => {
       all.delete(mid);
     });
 
+    console.log('all', all);
     return Array.from(all).map(one => Number(one));
   }
 }

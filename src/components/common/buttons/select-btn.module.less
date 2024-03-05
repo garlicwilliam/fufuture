@@ -205,3 +205,81 @@
     }
   }
 }
+
+:global(.stone-omni) {
+  .selectSquare {
+    display: grid !important;
+    grid-template-columns: 32px 1fr;
+    grid-column-gap: 12px;
+
+    justify-items: start;
+    justify-content: start;
+    padding: 12px 8px;
+    width: 100%;
+    border: 2px solid #f1f2f5;
+    border-radius: 16px;
+
+    transition-property: background-color;
+    transition-duration: 500ms;
+    transition-timing-function: ease-out;
+
+    &:hover:not(.disabled) {
+      background-color: #f7f8fa;
+
+      transition-property: background-color;
+      transition-duration: 500ms;
+      transition-timing-function: ease-out;
+    }
+
+    &.active:not(.disabled) {
+      border: 2px solid #000000;
+
+      span {
+        color: #000000;
+      }
+    }
+
+    &.disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    span {
+      display: block;
+      width: 100%;
+      line-height: 12px;
+      font-size: 12px;
+      color: #666666;
+      text-align: left;
+    }
+  }
+
+  .selectNormal {
+    width: 100%;
+    font-size: 14px;
+    border-radius: 30px;
+    height: 50px;
+
+    border: 1px solid #e2e2e2;
+    column-gap: 8px;
+
+    &:hover {
+      background-color: #f7f8fa;
+    }
+
+    &.active {
+      border: 2px solid #000000;
+      color: #000000;
+    }
+
+    &.selected:not(.active) {
+      border: 1px solid #000000;
+    }
+
+    &.disabled {
+      background-color: #f1f1f1;
+      opacity: 0.7;
+      cursor: default;
+    }
+  }
+}

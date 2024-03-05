@@ -39,7 +39,7 @@ export class WalletAgree {
 
   private isAgree(): boolean {
     const appName: AppName = getAppName();
-    return appName === AppName.Stone ? this.getAgreeState() : true;
+    return appName === AppName.Stone || appName === AppName.StoneOmni ? this.getAgreeState() : true;
   }
 
   private getAgreeState(): boolean {

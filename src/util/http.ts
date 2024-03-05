@@ -5,9 +5,15 @@ import { catchError, map } from 'rxjs/operators';
 
 export type HttpError = { err: any; ok: boolean };
 
-export function httpPost(url: string, param: any, isForm: boolean = false): Observable<any> {
+export function httpPost(
+  url: string,
+  param: any,
+  ops?: { isForm?: boolean; withCredentials?: boolean }
+): Observable<any> {
   try {
-    const postUrl = isForm ? request.post(url).type('form') : request.post(url);
+    const postUrl = ops?.isForm
+      ? request.post(url).type('form')
+      : request.post(url).withCredentials(ops?.withCredentials || false);
     return from(postUrl.send(param)).pipe(
       catchError(err => {
         console.warn('http post error is', err);
@@ -20,12 +26,21 @@ export function httpPost(url: string, param: any, isForm: boolean = false): Obse
   }
 }
 
-export function httpGet(url: string, param: any = {}, returnErr: boolean = false): Observable<any> {
+export function httpGet(
+  url: string,
+  param: any = {},
+  ops?: { returnError?: boolean; withCredentials?: boolean }
+): Observable<any> {
   try {
-    return from(request.get(url).send(param)).pipe(
+    return from(
+      request
+        .get(url)
+        .withCredentials(ops?.withCredentials || false)
+        .send(param)
+    ).pipe(
       catchError(err => {
         console.warn('http get error is', err);
-        if (returnErr) {
+        if (ops?.returnError) {
           throw err;
         } else {
           return EMPTY;
@@ -34,7 +49,7 @@ export function httpGet(url: string, param: any = {}, returnErr: boolean = false
     );
   } catch (err) {
     console.warn(err);
-    if (returnErr) {
+    if (ops?.returnError) {
       throw err;
     } else {
       return EMPTY;

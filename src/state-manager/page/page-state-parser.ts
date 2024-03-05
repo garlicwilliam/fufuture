@@ -3,6 +3,7 @@ import { PageStateImp } from './page-state';
 import { PAGE_STATE } from './page-state-def';
 import { confirmIsMini, confirmIsMobile, confirmIsNarrow, Size, windowHeight, windowWidth } from '../../util/layout';
 import _ from 'lodash';
+import { asyncScheduler } from 'rxjs';
 
 function isPageStateDefine(def: any): boolean {
   return _.has(def, '_default');
@@ -34,16 +35,18 @@ export function convertPageState<T>(pageDefine: PageStateDefine<T>, path: string
 export const P = parsePageStateTreeDefine(PAGE_STATE, 'P');
 
 export function updateMobileMode(): { isMobile: boolean; isNarrow: boolean; windowSize: Size } {
-  const isMobile = confirmIsMobile();
-  const isNarrow = confirmIsNarrow();
-  const isMini = confirmIsMini();
+  const isMobile: boolean = confirmIsMobile();
+  const isNarrow: boolean = confirmIsNarrow();
+  const isMini: boolean = confirmIsMini();
   const size: Size = { w: windowWidth(), h: windowHeight() };
 
   // update global page state
-  P.Layout.IsMobile.set(isMobile, true);
-  P.Layout.IsNarrow.set(isNarrow, true);
-  P.Layout.IsMini.set(isMini, true);
-  P.Layout.WindowSize.set(size, true);
+  asyncScheduler.schedule(() => {
+    P.Layout.IsMobile.set(isMobile, true);
+    P.Layout.IsNarrow.set(isNarrow, true);
+    P.Layout.IsMini.set(isMini, true);
+    P.Layout.WindowSize.set(size, true);
+  });
 
   return { isMobile, isNarrow, windowSize: size };
 }

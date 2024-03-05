@@ -99,7 +99,7 @@ export class MergerMakerLiquidity implements DatabaseStateMerger<ShieldMakerPriv
 
   private genParam(maker: string): any {
     return {
-      query: `{ addLiquidityPrivates( where:{ account: "${maker}"} ) { fromContract, }}`,
+      query: `{ addLiquidityPrivates(first: 1000, where:{ account: "${maker}"} ) { fromContract, }}`,
       variables: {},
     };
   }

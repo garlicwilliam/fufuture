@@ -14,6 +14,7 @@ export default {
   'com-pending': '正在執行...',
   'com-some-days': '${num}天',
   'com-succeed': '操作成功',
+  'com-network-wrong': '選擇網路',
   'trade-24h-change': '24小時漲跌',
   'trade-24h-volume': '24小時交易量',
   'trade-24h-price-low': '24小時最低價',
