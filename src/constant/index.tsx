@@ -1,4 +1,6 @@
 import { BigNumber } from 'ethers';
+import { WcWalletInfo } from '../services/wc-modal/wc-modal.service';
+import binance from '../assets/imgs/wallet/binance.svg';
 
 export enum Wallet {
   Metamask = 'Metamask',
@@ -20,8 +22,45 @@ export enum EthereumProviderName {
   TrustWallet = 'TrustWallet',
   Coin98 = 'Coin98',
   GateWallet = 'Gate Wallet',
+
   MetaMaskLike = 'MetaMaskLike', // Not Include bitKeep,
 }
+
+export enum WalletConnectWalletName {
+  WalletConnect = 'WalletConnect',
+  Binance = 'BinanceWeb3Wallet',
+}
+
+export type SldWalletId = {
+  wallet: Wallet;
+  id: EthereumProviderName | WalletConnectWalletName;
+};
+
+export const EthereumProviderUUIDtoName: { [k: string]: EthereumProviderName } = {
+  'coin98.com': EthereumProviderName.Coin98,
+  'io.metamask': EthereumProviderName.MetaMask,
+  'com.trustwallet.app': EthereumProviderName.TrustWallet,
+  'pro.tokenpocket': EthereumProviderName.TokenPocket,
+  'com.bitget.web3': EthereumProviderName.BitKeep,
+  'io.gate.wallet': EthereumProviderName.GateWallet,
+  'com.okex.wallet': EthereumProviderName.OKXWallet,
+  'https://www.safepal.com/download': EthereumProviderName.SafePal,
+  'com.coinbase.wallet': EthereumProviderName.Coinbase,
+};
+
+export const WalletConnectWalletInfo: { [w in WalletConnectWalletName]: WcWalletInfo | null } = {
+  [WalletConnectWalletName.WalletConnect]: null,
+  [WalletConnectWalletName.Binance]: {
+    name: 'Binance Web3 Wallet',
+    nameShort: 'Binance',
+    icon: binance,
+    download: {
+      ios: 'https://apps.apple.com/US/app/id1436799971',
+      android: 'https://play.google.com/store/apps/details?id=com.binance.dev',
+    },
+    uri: '',
+  },
+};
 
 export enum Language {
   En = 'en',

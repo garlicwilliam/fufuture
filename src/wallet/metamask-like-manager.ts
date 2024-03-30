@@ -13,12 +13,18 @@ import {
   switchMap,
   zip,
 } from 'rxjs';
-import { EthereumProviderName } from '../constant';
+import { EthereumProviderName, EthereumProviderUUIDtoName } from '../constant';
 import { catchError, delay, filter, finalize, map, take, tap, toArray } from 'rxjs/operators';
-import { EthereumProviderInterface, EthereumProviderState, EthereumSpecifyMethod } from './metamask-like-types';
+import {
+  EIP6963ProviderDetail,
+  EthereumProviderInterface,
+  EthereumProviderState,
+  EthereumSpecifyMethod,
+} from './metamask-like-types';
 import { ProviderExistDetectors, ProviderGetters } from './metamask-like-constant';
 import * as _ from 'lodash';
 import { NetworkParamConfig } from '../constant/network-type';
+import { EIP6963_PROVIDERS } from './metamask-like.eip6963';
 
 export function ethAccounts(ethereum: EthereumProviderInterface): Observable<string[]> {
   return from(ethereum.request({ method: 'eth_accounts' }) as Promise<string[]>).pipe(
@@ -61,7 +67,11 @@ export function walletSwitchChain(
 }
 
 function detectIsConnected(ethereum: EthereumProviderInterface): Observable<boolean> {
-  return of(ethereum.isConnected());
+  if (ethereum['isCoin98']) {
+    return of(ethereum.isConnected());
+  } else {
+    return ethAccounts(ethereum).pipe(map(acc => acc.length > 0));
+  }
 }
 
 export class EthereumProviderStateManager {
@@ -70,12 +80,30 @@ export class EthereumProviderStateManager {
   private curSelected = new BehaviorSubject<EthereumProviderState | null | undefined>(undefined);
 
   private initialized: AsyncSubject<boolean> = new AsyncSubject<boolean>();
+  private _cacheKey: string = '_user_select_provider';
 
-  private _cacheKey = '_user_select_provider';
+  private providerObjects: Map<EthereumProviderName, EthereumProviderInterface> = new Map<
+    EthereumProviderName,
+    EthereumProviderInterface
+  >();
 
   private subs: Subscription[] = [];
 
   constructor() {
+    const sub0: Subscription = EIP6963_PROVIDERS.subscribe((providers: EIP6963ProviderDetail[]) => {
+      providers.forEach((one: EIP6963ProviderDetail): void => {
+        const provider: EthereumProviderInterface = one.provider;
+        const name: EthereumProviderName = EthereumProviderUUIDtoName[one.info.rdns];
+
+        if (!name) {
+          return;
+        }
+
+        this.providerObjects.set(name, provider);
+        this.addInjectedProviderName(name);
+      });
+    });
+
     const init$ = this.doDetect().pipe(
       delay(1000),
       switchMap(() => {
@@ -89,7 +117,7 @@ export class EthereumProviderStateManager {
     const sub1 = init$.subscribe();
     const sub2 = this.watchInitEvent().subscribe();
 
-    this.subs.push(sub1, sub2);
+    this.subs.push(sub1, sub2, sub0);
   }
 
   public hasInit(): Observable<boolean> {
@@ -99,21 +127,21 @@ export class EthereumProviderStateManager {
   public watchInjectedProviders(): Observable<Set<EthereumProviderName>> {
     return this.injectedProviders.pipe(
       filter(Boolean),
-      map(injected => new Set<EthereumProviderName>(injected))
+      map((injected: Set<EthereumProviderName>) => new Set<EthereumProviderName>(injected))
     );
   }
 
   public watchConnectedProviders(): Observable<Set<EthereumProviderName>> {
     return this.connectedProviders.pipe(
       filter(Boolean),
-      map(connected => new Set(connected))
+      map((connected: Set<EthereumProviderName>) => new Set(connected))
     );
   }
 
   public watchCurrentSelected(): Observable<EthereumProviderState | null> {
     return this.curSelected.pipe(
-      filter(state => state !== undefined),
-      map(state => state as EthereumProviderState | null)
+      filter((state: EthereumProviderState | null | undefined): boolean => state !== undefined),
+      map((state: EthereumProviderState | null | undefined) => state as EthereumProviderState | null)
     );
   }
 
@@ -130,7 +158,8 @@ export class EthereumProviderStateManager {
     this.cacheProvider = selected;
 
     if (selected) {
-      const provider$: Observable<EthereumProviderInterface> = ProviderGetters[selected]();
+      const provider$: Observable<EthereumProviderInterface> = this.getProviderObject(selected);
+
       provider$
         .pipe(
           map((provider: EthereumProviderInterface) => {
@@ -165,6 +194,37 @@ export class EthereumProviderStateManager {
     });
   }
 
+  private addInjectedProviderName(name: EthereumProviderName | Set<EthereumProviderName>): void {
+    let injected: Set<EthereumProviderName> | undefined = this.injectedProviders.getValue();
+
+    const names = typeof name === 'string' ? new Set([name]) : name;
+
+    if (!injected) {
+      injected = new Set(names);
+    } else {
+      names.forEach((name: EthereumProviderName) => {
+        injected!.add(name);
+      });
+    }
+
+    this.injectedProviders.next(injected);
+  }
+
+  private getProviderObject(name: EthereumProviderName): Observable<EthereumProviderInterface> {
+    const provider: EthereumProviderInterface | undefined = this.providerObjects.get(name);
+
+    if (provider) {
+      return of(provider);
+    }
+
+    return ProviderGetters[name]().pipe(
+      map((provider: EthereumProviderInterface) => {
+        this.providerObjects.set(name, provider);
+        return provider;
+      })
+    );
+  }
+
   private set cacheProvider(provider: EthereumProviderName | null) {
     if (provider === null) {
       localStorage.removeItem(this._cacheKey);
@@ -188,7 +248,7 @@ export class EthereumProviderStateManager {
     });
   }
 
-  private updateCurSelect(state: EthereumProviderState | null) {
+  private updateCurSelect(state: EthereumProviderState | null): void {
     asyncScheduler.schedule(() => {
       this.curSelected.next(state);
     });
@@ -204,7 +264,7 @@ export class EthereumProviderStateManager {
           return of([null, null]);
         }
 
-        return zip(ProviderGetters[providerName](), of(providerName)).pipe(take(1));
+        return zip(this.getProviderObject(providerName), of(providerName)).pipe(take(1));
       }),
       map(([provider, providerName]) => {
         const state: EthereumProviderState | null =
@@ -231,7 +291,7 @@ export class EthereumProviderStateManager {
   private doDetect(): Observable<any> {
     return this.detectInjectedProviders().pipe(
       tap((injected: Set<EthereumProviderName>) => {
-        this.injectedProviders.next(injected);
+        this.addInjectedProviderName(injected);
       }),
       switchMap((injected: Set<EthereumProviderName>) => {
         return this.detectConnectedProvider(injected);
@@ -245,27 +305,26 @@ export class EthereumProviderStateManager {
   }
 
   private detectInjectedProviders(): Observable<Set<EthereumProviderName>> {
-    const existObs: Observable<string | null>[] = Object.keys(ProviderExistDetectors).map(key => {
+    const existObs: Observable<string | null>[] = Object.keys(ProviderExistDetectors).map((key: string) => {
       const detector: () => boolean | Observable<boolean> = ProviderExistDetectors[key];
       const isExist$: boolean | Observable<boolean> = detector();
-      const exist$ = isObservable(isExist$) ? isExist$ : of(isExist$);
+      const exist$: Observable<boolean> = isObservable(isExist$) ? isExist$ : of(isExist$);
 
-      return exist$.pipe(map(is => (is ? key : null)));
+      return exist$.pipe(map((is: boolean): string | null => (is ? key : null)));
     });
 
-    const existNames$: Observable<Set<EthereumProviderName>> = merge(...existObs).pipe(
+    return merge(...existObs).pipe(
       toArray(),
       map((keys: (string | null)[]) => {
         return keys.filter(Boolean) as EthereumProviderName[];
       }),
       map((keys: EthereumProviderName[]) => {
-        const names = new Set<EthereumProviderName>();
-        keys.forEach(key => names.add(key));
+        const names: Set<EthereumProviderName> = new Set<EthereumProviderName>();
+        keys.forEach((key: EthereumProviderName) => names.add(key));
+
         return names;
       })
     );
-
-    return existNames$;
   }
 
   private detectConnectedProvider(providers: Set<EthereumProviderName>): Observable<Set<EthereumProviderName>> {
@@ -274,8 +333,7 @@ export class EthereumProviderStateManager {
     }
 
     const detect = (providerName: EthereumProviderName): Observable<boolean> => {
-      const ethereumGetter = ProviderGetters[providerName];
-      const ethereum$: Observable<EthereumProviderInterface> = ethereumGetter();
+      const ethereum$: Observable<EthereumProviderInterface> = this.getProviderObject(providerName);
 
       return ethereum$.pipe(
         switchMap((ethereum: EthereumProviderInterface) => {
@@ -287,7 +345,7 @@ export class EthereumProviderStateManager {
     return from(Array.from(providers)).pipe(
       mergeMap((providerName: EthereumProviderName) => {
         return detect(providerName).pipe(
-          map(connected => [providerName, connected] as [EthereumProviderName, boolean])
+          map((connected: boolean) => [providerName, connected] as [EthereumProviderName, boolean])
         );
       }),
       toArray(),
@@ -314,4 +372,4 @@ export class EthereumProviderStateManager {
   }
 }
 
-export const metamaskProviderManager = new EthereumProviderStateManager();
+export const metamaskProviderManager: EthereumProviderStateManager = new EthereumProviderStateManager();

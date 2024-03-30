@@ -1,0 +1,44 @@
+.codeArea {
+  position: relative;
+  background-color: #ffffff;
+  display: flex;
+  width: 318px;
+  height: 318px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 32px;
+  margin: auto;
+  margin-top: 20px;
+
+  .icon {
+    position: absolute;
+  }
+}
+
+.downloadArea {
+  display: grid;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 80px;
+  padding: 2px 12px 32px 12px;
+
+  .downloads {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: center;
+    justify-items: center;
+
+    img {
+      cursor: pointer;
+    }
+  }
+}
+
+.tips {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 12px 20px 12px;
+  color: rgba(255, 255, 255, 0.8);
+}

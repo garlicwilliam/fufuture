@@ -28,6 +28,7 @@ import { curTimestamp } from '../../../../../../util/time';
 import { shieldOptionTradeService } from '../../../../services/shield-option-trade.service';
 import { EMPTY_ADDRESS } from '../../../../../../constant';
 import { fontCss } from '../../../../../i18n/font-switch';
+import { SLD_ENV_CONF } from '../../../../const/env';
 
 type IState = {
   isMobile: boolean;
@@ -214,6 +215,8 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
                   amount={this.state.openAmount}
                   token={this.state.curPair?.indexUnderlying || ''}
                   symClassName={styleMr(styles.label)}
+                  fix={this.state.curPair ? SLD_ENV_CONF.FixDigits.Open[this.state.curPair.indexUnderlying] : 2}
+                  rmZero={true}
                 />
               </HorizonItem>
 
@@ -235,6 +238,8 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
                   token={this.state.curPair?.quoteToken.symbol || ''}
                   short={true}
                   symClassName={styleMr(styles.label)}
+                  rmZero={true}
+                  precision={this.state.curPair ? SLD_ENV_CONF.FixDigits.Open[this.state.curPair?.indexUnderlying] : 6}
                 />
               </HorizonItem>
 
@@ -248,6 +253,8 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
                   token={this.state.curPair?.quoteToken.symbol || ''}
                   short={true}
                   symClassName={styleMr(styles.label)}
+                  rmZero={true}
+                  precision={this.state.curPair ? SLD_ENV_CONF.FixDigits.Open[this.state.curPair?.indexUnderlying] : 6}
                 />
               </HorizonItem>
             </ItemsBox>

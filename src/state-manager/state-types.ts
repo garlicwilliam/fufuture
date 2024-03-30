@@ -463,3 +463,17 @@ export type ShieldUnderlyingPrice = {
 };
 
 // --------------------------------------------------------------------------
+
+export type OmniTeamMemberMeta = {
+  address: string;
+  isBoost: boolean;
+};
+export type OmniStoneLocked = {
+  primary: SldDecimal;
+  boost: SldDecimal;
+};
+
+export type OmniTeamMember = OmniTeamMemberMeta & {
+  primaryLocked: SldDecimal;
+  boostLocked: SldDecimal;
+};

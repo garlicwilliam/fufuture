@@ -17,6 +17,8 @@ type IProps = {
   current?: Network;
   wrapperClassName?: string;
   dropdownClassName?: string;
+  onNetChange?: (net: Network) => void;
+  notSupport?: ReactNode;
 };
 
 export class NetworkSelection extends BaseStateComponent<IProps, IState> {
@@ -54,12 +56,18 @@ export class NetworkSelection extends BaseStateComponent<IProps, IState> {
     });
   }
 
-  genNotSupport(styleMr: StyleMerger): ReactNode {
+  private genNotSupport(styleMr: StyleMerger): ReactNode {
     return (
       <div className={styleMr(styles.notSupport, 'network_not_support')}>
         <I18n id={'com-network-wrong'} />
       </div>
     );
+  }
+
+  onChange(val: Network) {
+    if (this.props.onNetChange) {
+      this.props.onNetChange(val);
+    }
   }
 
   render(): JSX.Element {
@@ -75,11 +83,12 @@ export class NetworkSelection extends BaseStateComponent<IProps, IState> {
         placement={'bottom-end'}
         offset={4}
         emptyReplace={this.genNotSupport(styleMr)}
-        noMatchReplace={this.genNotSupport(styleMr)}
+        noMatchReplace={this.props.notSupport || this.genNotSupport(styleMr)}
         trigger={'hover'}
         zIndex={1100}
         parentClassName={this.props.wrapperClassName}
         dropdownClassName={this.props.dropdownClassName}
+        onChangeSelect={op => this.onChange(op.value as Network)}
       />
     );
   }

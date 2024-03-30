@@ -11,11 +11,11 @@ export const ops: WalletConnectOps = {
       icons: [],
     },
   },
-  defaultChain: WcChainId[NET_BNB],
+  defaultChain: WcChainId[NET_BNB] as string,
   connectOps: {
     namespaces: {
       eip155: {
-        chains: [WcChainId[NET_BNB]],
+        chains: [WcChainId[NET_BNB]] as string[],
         defaultChain: WcChainId[NET_BNB],
         methods: RpcMethod,
         events: RpcEvent,

@@ -17,9 +17,7 @@ export class WalletDataSigner {
         return wallet.watchProvider().pipe(
           take(1),
           switchMap((provider: providers.Web3Provider) => {
-            const params = [fromAddress, msg];
-
-            return from(provider.getSigner().signMessage(msg)); //from(provider.send('eth_signTypedData_v4', params));
+            return from(provider.getSigner().signMessage(msg));
           })
         );
       }),
@@ -28,4 +26,4 @@ export class WalletDataSigner {
   }
 }
 
-export const dataSigner = new WalletDataSigner();
+export const dataSigner: WalletDataSigner = new WalletDataSigner();

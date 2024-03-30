@@ -1,4 +1,5 @@
 export default {
+  'com-approving': 'Approving...',
   'com-cancel': 'Cancel',
   'com-connect-wallet': 'Connect Wallet',
   'com-connected': 'Connected',
@@ -15,6 +16,7 @@ export default {
   'com-some-days': '${num} days',
   'com-succeed': 'Succeed',
   'com-network-wrong': 'Wrong Network',
+  'com-insufficient-balance': 'Insufficient balance',
   'trade-24h-change': '24h Change',
   'trade-24h-volume': '24h Volume',
   'trade-24h-price-low': '24h Low',
@@ -219,7 +221,6 @@ export default {
   'trade-user-maintenance-margin-desc': 'Only charged if Available Balance is less than Funding Fee of next phase.',
   'trade-withdraw': 'Withdraw',
   'trade-you-will-receive': 'You Will Receive',
-
   'trade-migrate-selector-need': 'Need Settlement',
   'trade-migrate-selector-underlying': 'Select Index',
   'trade-migrate-exclude-token': 'Exclude Tokens',

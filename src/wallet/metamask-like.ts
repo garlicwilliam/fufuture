@@ -2,7 +2,7 @@ import { asyncScheduler, BehaviorSubject, combineLatest, Observable, of, switchM
 import { WalletInterface } from './wallet-interface';
 import { Network } from '../constant/network';
 import { SldDecimal } from '../util/decimal';
-import { EthereumProviderName, Wallet } from '../constant';
+import { ETH_DECIMAL, EthereumProviderName, Wallet } from '../constant';
 import * as ethers from 'ethers';
 import { BigNumber, providers, Signer } from 'ethers';
 import {
@@ -16,7 +16,6 @@ import {
 } from './metamask-like-manager';
 import { catchError, filter, map, startWith, take, tap } from 'rxjs/operators';
 import { EthereumProviderInterface, EthereumProviderState, EthereumSpecifyMethod } from './metamask-like-types';
-import { ETH_WEI } from '../util/ethers';
 import { isEthNetworkGroup } from '../constant/network-util';
 import { NetworkParams } from '../constant/network-conf';
 import { NetworkParamConfig } from '../constant/network-type';
@@ -46,7 +45,7 @@ export class MetamaskLike implements WalletInterface {
   private curNetwork: BehaviorSubject<NetworkValType> = new BehaviorSubject<NetworkValType>(undefined);
 
   private accountHandler = (accounts: string[]) => this.updateAccount(accounts);
-  private networkHandler = (chainId: string | number) => {
+  private networkHandler = (chainId: string | number): void => {
     const network: Network = networkParse(chainId);
     this.updateNetwork(network);
   };
@@ -78,7 +77,7 @@ export class MetamaskLike implements WalletInterface {
 
         return zip(network$, of(state));
       }),
-      tap(([network, state]: [NetworkValType, ProviderStateType]) => {
+      tap(([network, state]: [NetworkValType, ProviderStateType]): void => {
         this.updateNetwork(network);
 
         if (state) {
@@ -106,7 +105,7 @@ export class MetamaskLike implements WalletInterface {
       return;
     }
 
-    asyncScheduler.schedule(() => {
+    asyncScheduler.schedule((): void => {
       this.curNetwork.next(network);
     });
   }
@@ -139,7 +138,7 @@ export class MetamaskLike implements WalletInterface {
     );
   }
 
-  private clearProvider() {
+  private clearProvider(): void {
     if (this.provider) {
       this.provider.removeListener('accountsChanged', this.accountHandler);
       this.provider.removeListener('chainChanged', this.networkHandler);
@@ -148,7 +147,7 @@ export class MetamaskLike implements WalletInterface {
     this.provider = null;
   }
 
-  private listenProvider(provider: EthereumProviderInterface) {
+  private listenProvider(provider: EthereumProviderInterface): void {
     this.clearProvider();
 
     provider.on('accountsChanged', this.accountHandler);
@@ -188,7 +187,7 @@ export class MetamaskLike implements WalletInterface {
         return provider.getBalance(account);
       }),
       map((balance: BigNumber) => {
-        return SldDecimal.fromOrigin(balance, ETH_WEI);
+        return SldDecimal.fromOrigin(balance, ETH_DECIMAL);
       }),
       take(1)
     );
@@ -234,7 +233,7 @@ export class MetamaskLike implements WalletInterface {
   }
 
   public wasConnected(): Observable<boolean> {
-    return this.account().pipe(map((account: string | null) => account !== null));
+    return this.account().pipe(map((account: string | null): boolean => account !== null));
   }
 
   public watchAccount(): Observable<string> {
@@ -250,7 +249,7 @@ export class MetamaskLike implements WalletInterface {
         return provider.getBalance(address);
       }),
       map((balance: BigNumber) => {
-        return SldDecimal.fromOrigin(balance, ETH_WEI);
+        return SldDecimal.fromOrigin(balance, ETH_DECIMAL);
       })
     );
   }

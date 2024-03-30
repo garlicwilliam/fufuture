@@ -2,7 +2,13 @@ import { BaseStateComponent } from '../../state-manager/base-state-component';
 import { MetamaskButton } from './btn-metamask';
 import { WalletConnectButton } from './btn-wallet-select';
 import { AddressButton } from './btn-address';
-import { EthereumProviderName, Wallet } from '../../constant';
+import {
+  EthereumProviderName,
+  SldWalletId,
+  Wallet,
+  WalletConnectWalletInfo,
+  WalletConnectWalletName,
+} from '../../constant';
 import { walletState } from '../../state-manager/wallet/wallet-state';
 import styles from './connect-wallet-page.module.less';
 import { DisconnectButton } from './btn-disconnect';
@@ -13,6 +19,8 @@ import { metamaskProviderManager } from '../../wallet/metamask-like-manager';
 import { finalize, map } from 'rxjs/operators';
 import { Visible } from '../builtin/hidden';
 import { AppName, getAppName } from '../../util/app';
+import * as _ from 'lodash';
+import { DeeplinkButton } from './btn-deeplink';
 
 type IProps = {
   styleType?: WalletButtonStyleType;
@@ -77,27 +85,72 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
     );
   }
 
+  getWalletProviderList(): { wallets: EthereumProviderName[]; existsSize: number } {
+    const wallets: EthereumProviderName[] = [
+      EthereumProviderName.MetaMask,
+      EthereumProviderName.TrustWallet,
+      EthereumProviderName.Coinbase,
+      EthereumProviderName.BitKeep,
+      EthereumProviderName.OKXWallet,
+      EthereumProviderName.TokenPocket,
+      EthereumProviderName.Coin98,
+      EthereumProviderName.GateWallet,
+    ];
+
+    if (getAppName() === AppName.ShieldTrade) {
+      wallets.push(...[EthereumProviderName.Onto, EthereumProviderName.MathWallet, EthereumProviderName.SafePal]);
+    }
+
+    if (this.state.ethereumProviderExists.size > 0) {
+      wallets.sort((a, b) => {
+        const old: number = wallets.indexOf(a) - wallets.indexOf(b);
+        const hasA: boolean = this.state.ethereumProviderExists.has(a);
+        const hasB: boolean = this.state.ethereumProviderExists.has(b);
+
+        if (hasA && hasB) return old;
+        if (hasA) return -1;
+        if (hasB) return 1;
+
+        return old;
+      });
+    }
+
+    const existsSize: number = _.intersection(Array.from(this.state.ethereumProviderExists), wallets).length;
+
+    return { wallets, existsSize };
+  }
+
+  getWalletLists(): SldWalletId[] {
+    const { wallets, existsSize } = this.getWalletProviderList();
+
+    const walletIds: SldWalletId[] = wallets.map(provider => {
+      return { wallet: Wallet.Metamask, id: provider };
+    });
+
+    const wcIds: SldWalletId[] = [
+      { wallet: Wallet.WalletConnect, id: WalletConnectWalletName.WalletConnect },
+      { wallet: Wallet.WalletConnect, id: WalletConnectWalletName.Binance },
+    ];
+
+    walletIds.splice(existsSize, 0, ...wcIds);
+
+    return walletIds;
+  }
+
+  confirmMobileProvider(): EthereumProviderName | null {
+    let mobileDefaultProvider: EthereumProviderName | null = null;
+    if (this.state.ethereumProviderExists.size > 0) {
+      const exists = Array.from(this.state.ethereumProviderExists.values());
+      mobileDefaultProvider = exists.find(one => one !== EthereumProviderName.MetaMaskLike) || exists[0];
+    }
+
+    return mobileDefaultProvider;
+  }
+
   render() {
     const useDisconnect: boolean = this.useDisconnect();
     // mobile display
-    let mobileDefaultProvider: EthereumProviderName = EthereumProviderName.MetaMaskLike;
-
-    if (this.state.ethereumProviderCurrent) {
-      if (this.state.ethereumProviderExists.has(this.state.ethereumProviderCurrent)) {
-        mobileDefaultProvider = this.state.ethereumProviderCurrent;
-      }
-    } else {
-      if (this.state.ethereumProviderExists.size > 1) {
-        for (const one of this.state.ethereumProviderExists) {
-          if (one !== EthereumProviderName.MetaMaskLike) {
-            mobileDefaultProvider = one;
-            break;
-          }
-        }
-      } else if (this.state.ethereumProviderExists.size === 1) {
-        mobileDefaultProvider = this.state.ethereumProviderExists.values().next().value;
-      }
-    }
+    const mobileDefaultProvider: EthereumProviderName | null = this.confirmMobileProvider();
 
     const wrapperCss = this.props.styleType === 'popup' && !this.state.isMobile ? styles.wrapperPop : styles.wrapper;
     const gapCss = this.props.styleType === 'union' ? styles.moreGap : '';
@@ -108,18 +161,25 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
           : 'popup'
         : (this.props.styleType as WalletButtonStyleType);
 
-    const appName: AppName = getAppName();
+    const wallets: SldWalletId[] = this.getWalletLists();
 
     return (
       <div className={styleMerge(styles.wrapper, gapCss)}>
         <div className={styleMerge(wrapperCss, gapCss)}>
           {this.state.isMobile ? (
             <>
-              <MetamaskButton
-                targetProvider={mobileDefaultProvider}
-                styleType={buttonType}
-                disabled={this.props.disableConnection}
-              />
+              {mobileDefaultProvider ? (
+                <MetamaskButton
+                  targetProvider={mobileDefaultProvider}
+                  styleType={buttonType}
+                  disabled={this.props.disableConnection}
+                />
+              ) : (
+                <>
+                  <DeeplinkButton name={EthereumProviderName.MetaMask} />
+                </>
+              )}
+
               <WalletConnectButton styleType={buttonType} disabled={this.props.disableConnection} />
             </>
           ) : (
@@ -132,67 +192,22 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
                 />
               </Visible>
 
-              <MetamaskButton
-                targetProvider={EthereumProviderName.MetaMask}
-                styleType={buttonType}
-                disabled={this.props.disableConnection}
-              />
-              <WalletConnectButton styleType={buttonType} disabled={this.props.disableConnection} />
-              <MetamaskButton
-                targetProvider={EthereumProviderName.TrustWallet}
-                styleType={buttonType}
-                disabled={this.props.disableConnection}
-              />
-              <MetamaskButton
-                targetProvider={EthereumProviderName.Coinbase}
-                styleType={buttonType}
-                disabled={this.props.disableConnection}
-              />
-              <MetamaskButton
-                targetProvider={EthereumProviderName.BitKeep}
-                styleType={buttonType}
-                disabled={this.props.disableConnection}
-              />
-              <MetamaskButton
-                targetProvider={EthereumProviderName.OKXWallet}
-                styleType={buttonType}
-                disabled={this.props.disableConnection}
-              />
-              <MetamaskButton
-                targetProvider={EthereumProviderName.TokenPocket}
-                styleType={buttonType}
-                disabled={this.props.disableConnection}
-              />
-
-              <MetamaskButton
-                targetProvider={EthereumProviderName.Coin98}
-                styleType={buttonType}
-                disabled={this.props.disableConnection}
-              />
-
-              <MetamaskButton
-                targetProvider={EthereumProviderName.GateWallet}
-                styleType={buttonType}
-                disabled={this.props.disableConnection}
-              />
-
-              <Visible when={appName !== AppName.Stone}>
-                <MetamaskButton
-                  targetProvider={EthereumProviderName.Onto}
-                  styleType={buttonType}
-                  disabled={this.props.disableConnection}
-                />
-                <MetamaskButton
-                  targetProvider={EthereumProviderName.MathWallet}
-                  styleType={buttonType}
-                  disabled={this.props.disableConnection}
-                />
-                <MetamaskButton
-                  targetProvider={EthereumProviderName.SafePal}
-                  styleType={buttonType}
-                  disabled={this.props.disableConnection}
-                />
-              </Visible>
+              {wallets.map((walletId: SldWalletId) => {
+                return walletId.wallet === Wallet.Metamask ? (
+                  <MetamaskButton
+                    key={walletId.id}
+                    targetProvider={walletId.id as EthereumProviderName}
+                    styleType={buttonType}
+                    disabled={this.props.disableConnection}
+                  />
+                ) : (
+                  <WalletConnectButton
+                    walletInfo={WalletConnectWalletInfo[walletId.id]}
+                    styleType={buttonType}
+                    disabled={this.props.disableConnection}
+                  />
+                );
+              })}
             </>
           )}
         </div>

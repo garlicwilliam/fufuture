@@ -30,3 +30,29 @@ export const loadingObs = <T extends boolean | string>(
     })
   );
 };
+
+export const pendingMask = (
+  pending$: Observable<any>,
+  opt?: { tipFailed?: string; tipPending?: string; tipSuccess?: string; hide?: boolean; rsJudge?: (rs: any) => boolean }
+): Observable<any> => {
+  maskService.pending(opt?.tipPending || i18n('com-pending'));
+  return pending$.pipe(
+    tap(rs => {
+      const judge = opt?.rsJudge || ((rs: any) => !!rs);
+
+      if (judge(rs)) {
+        if (opt?.hide) {
+          maskService.hide();
+        } else {
+          maskService.success(opt?.tipSuccess || i18n('com-succeed'));
+        }
+      } else {
+        maskService.failed(opt?.tipFailed || i18n('com-failed'));
+      }
+    }),
+    catchError(err => {
+      maskService.failed(opt?.tipFailed || i18n('com-failed'));
+      return EMPTY;
+    })
+  );
+};

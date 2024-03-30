@@ -3,7 +3,6 @@ import { ShieldMakerOrderInfo, ShieldMakerOrderInfoRs, ShieldMakerPrivatePoolInf
 import { BehaviorSubject, EMPTY, Observable, of, switchMap, zip } from 'rxjs';
 import { httpPost } from '../../../../util/http';
 import { finalize, map, take, tap, expand } from 'rxjs/operators';
-import * as _ from 'lodash';
 import { makerPriPoolOrdersGetter } from '../../../contract/contract-getter-cpx-shield';
 import { shieldOptionTradeContracts } from '../../../../components/shield-option-trade/contract/shield-option-trade-contract';
 import { BigNumber } from 'ethers';
@@ -112,7 +111,6 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
         );
       }),
       map(({ ids, hasNext }) => {
-        console.log('ids', ids);
         return ids;
       })
     );

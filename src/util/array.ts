@@ -6,10 +6,10 @@ export function arrayInteger(count: number, from: number = 1, step: number = 1):
   return new Array(count).fill(0).map((_, index) => index * step + from);
 }
 
-export function arrayGroupBy<T>(arr: T[], groupBy: (el: T) => string): { [key: string]: T[] } {
+export function arrayGroupBy<T>(arr: T[], groupBy: (el: T, index?: number) => string): { [key: string]: T[] } {
   const flagObject = arr
-    .map(e => {
-      const flag: string = groupBy(e);
+    .map((e: T, index: number) => {
+      const flag: string = groupBy(e, index);
       return [flag, e] as [string, T];
     })
     .reduce((acc: { [k: string]: T[] }, cur: [string, T]) => {

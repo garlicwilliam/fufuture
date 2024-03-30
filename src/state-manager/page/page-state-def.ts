@@ -38,6 +38,11 @@ export const PAGE_STATE = {
     isLocalTest: {
       _default: window.location?.hostname === 'localhost' || window.location?.hostname === '127.0.0.1',
     },
+    isAlphaProd: {
+      _default:
+        window.location?.hostname === 'alpha.stakestone.io' ||
+        window.location?.hostname === 'alpha-carnival.stakestone.io',
+    },
   },
   Wallet: {
     Agree: {
@@ -217,6 +222,17 @@ export const PAGE_STATE = {
   Omni: {
     loginAddress: {
       _default: null as null | string,
+    },
+    SwitchUser: {
+      _default: false as boolean,
+    },
+    DisplayName: {
+      _default: false as boolean,
+    },
+    Points: {
+      LockStone: {
+        _default: false as boolean,
+      },
     },
   },
 };

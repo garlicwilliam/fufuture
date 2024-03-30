@@ -148,7 +148,13 @@ export class SldTabs extends BaseStateComponent<IProps, IState> {
 
         <Visible when={tabStyle === 'light'}>
           <div
-            className={styleMr(styles.lightTabNames, lightPadCss, cssPick(noBg, styles.noBg), this.props.tabClassName)}
+            className={styleMr(
+              styles.lightTabNames,
+              'sld-tabs-name-light',
+              lightPadCss,
+              cssPick(noBg, styles.noBg),
+              this.props.tabClassName
+            )}
           >
             {tabs.map((tab: ReactElement) => {
               return (
@@ -174,7 +180,7 @@ export class SldTabs extends BaseStateComponent<IProps, IState> {
         </Visible>
 
         <Visible when={tabStyle === 'offset'}>
-          <div className={styleMr(styles.offsetNames, this.props.tabClassName)}>
+          <div className={styleMr(styles.offsetNames, 'sld-tabs-name-offset', this.props.tabClassName)}>
             {tabs.map((tab: ReactElement, index: number) => {
               return (
                 <div
@@ -200,7 +206,13 @@ export class SldTabs extends BaseStateComponent<IProps, IState> {
         </Visible>
 
         <Visible when={tabStyle === 'normal'}>
-          <div className={styleMr(alignLeft ? styles.tabNamesAlign : styles.tabNames, this.props.tabClassName)}>
+          <div
+            className={styleMr(
+              alignLeft ? styles.tabNamesAlign : styles.tabNames,
+              'sld-tabs-name-normal',
+              this.props.tabClassName
+            )}
+          >
             {tabs.map((tab: ReactElement, index: number) => {
               return (
                 <div

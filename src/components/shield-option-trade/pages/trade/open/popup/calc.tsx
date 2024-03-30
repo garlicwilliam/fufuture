@@ -7,7 +7,7 @@ import { SldOverlay, TriggerEvent } from '../../../../../common/overlay/overlay'
 import { OverlayCard } from '../../../common/overlay-card';
 import { ReactNode } from 'react';
 import { fontCss } from '../../../../../i18n/font-switch';
-import { SldDecimal, SldDecPercent } from '../../../../../../util/decimal';
+import { minDecimal, SldDecimal, SldDecPercent } from '../../../../../../util/decimal';
 import { DecimalNumInput } from '../../../../../common/input/num-input-decimal';
 import { I18n } from '../../../../../i18n/i18n';
 import { TokenAmountInline } from '../../../../../common/content/token-amount-inline';
@@ -28,12 +28,14 @@ import { filter, finalize, map, startWith, take } from 'rxjs/operators';
 import { PendingHolder } from '../../../../../common/progress/pending-holder';
 import { computeOrderLaterPhaseFundingFee } from '../../../../utils/compute';
 import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
+import { SLD_ENV_CONF } from '../../../../const/env';
 
 type PState = { isMobile: boolean };
 type PProps = {
   index: number;
   fee: SldDecimal;
   loading?: boolean;
+  precision: number;
 };
 
 class Phase extends BaseStateComponent<PProps, PState> {
@@ -61,7 +63,7 @@ class Phase extends BaseStateComponent<PProps, PState> {
 
         <div className={styleMr(styles.valueFee)}>
           <PendingHolder loading={!!this.props.loading} useIcon={true}>
-            <TokenAmountInline amount={this.props.fee} token={''} fix={3} short={true} />
+            <TokenAmountInline amount={this.props.fee} token={''} precision={this.props.precision} short={true} />
           </PendingHolder>
         </div>
       </div>
@@ -321,9 +323,11 @@ export class Calc extends BaseStateComponent<IProps, IState> {
                     suffix={<span className={styleMr(styles.label)}>{this.state.indexUnderlying}</span>}
                     min={SldDecimal.ZERO}
                     max={this.maxAmount}
-                    disabled={this.state.userMaxOpen.lt(SldDecimal.fromNumeric('0.1', IndexUnderlyingDecimal))}
+                    disabled={this.state.userMaxOpen.lt(
+                      minDecimal(SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying], IndexUnderlyingDecimal)
+                    )}
                     value={this.state.userOpenAmount}
-                    fix={1}
+                    fix={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
                     onChange={val => P.Option.Trade.Calculator.OpenAmount.set(val)}
                   />
                 </HorizonItem>
@@ -331,15 +335,36 @@ export class Calc extends BaseStateComponent<IProps, IState> {
 
               <div className={styleMr(styles.phaseList)}>
                 <Phase
+                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
                   index={0}
                   loading={this.state.firstFundingFeePending}
                   fee={this.state.firstFundingFee?.phase0Fee || SldDecimal.ZERO}
                 />
-                <Phase index={1} fee={this.state.defaultPhaseFunding[1] || SldDecimal.ZERO} />
-                <Phase index={2} fee={this.state.defaultPhaseFunding[2] || SldDecimal.ZERO} />
-                <Phase index={3} fee={this.state.defaultPhaseFunding[3] || SldDecimal.ZERO} />
-                <Phase index={4} fee={this.state.defaultPhaseFunding[4] || SldDecimal.ZERO} />
-                <Phase index={5} fee={this.state.defaultPhaseFunding[5] || SldDecimal.ZERO} />
+                <Phase
+                  index={1}
+                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
+                  fee={this.state.defaultPhaseFunding[1] || SldDecimal.ZERO}
+                />
+                <Phase
+                  index={2}
+                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
+                  fee={this.state.defaultPhaseFunding[2] || SldDecimal.ZERO}
+                />
+                <Phase
+                  index={3}
+                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
+                  fee={this.state.defaultPhaseFunding[3] || SldDecimal.ZERO}
+                />
+                <Phase
+                  index={4}
+                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
+                  fee={this.state.defaultPhaseFunding[4] || SldDecimal.ZERO}
+                />
+                <Phase
+                  index={5}
+                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
+                  fee={this.state.defaultPhaseFunding[5] || SldDecimal.ZERO}
+                />
               </div>
             </ItemsBox>
           </FixPadding>
@@ -376,6 +401,8 @@ export class Calc extends BaseStateComponent<IProps, IState> {
                     token={this.state.quoteToken?.symbol || ''}
                     symClassName={styleMr(styles.label)}
                     short={true}
+                    rmZero={true}
+                    precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
                   />
                 </PendingHolder>
               </div>

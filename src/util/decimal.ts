@@ -756,3 +756,7 @@ export class SldDecPercent {
     return this.originDecObj.gtZero();
   }
 }
+
+export function minDecimal(decDigit: number, decimal: number): SldDecimal {
+  return SldDecimal.fromNumeric('0.' + '0'.repeat(decDigit - 1) + '1', decimal);
+}

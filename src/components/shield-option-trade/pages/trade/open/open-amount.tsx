@@ -12,7 +12,6 @@ import { IndexUnderlyingDecimal } from '../../../const/assets';
 import { S } from '../../../../../state-manager/contract/contract-state-parser';
 import { SldPercentSlider } from '../../common/percent-slider';
 import { SLD_ENV_CONF } from '../../../const/env';
-import { BigNumber } from 'ethers';
 import { baseBigNumber } from '../../../../../util/ethers';
 
 type IState = {
@@ -126,7 +125,7 @@ export class OpenAmount extends BaseStateComponent<IProps, IState> {
           suffix={this.state.percentVal.isZero() ? this.genMaxSuffix(styleMr) : this.genPercentSuffix(styleMr)}
           max={this.state.maxOpen}
           fix={fix}
-          placeholder={i18n('trade-max') + ' ' + this.state.maxOpen.format({ fix, floor: true })}
+          placeholder={i18n('trade-max') + ' ' + this.state.maxOpen.format({ fix, floor: true, removeZero: true })}
           value={this.state.inputAmount}
           onChange={this.onChange.bind(this)}
           onErrorChange={this.props.errorChange}

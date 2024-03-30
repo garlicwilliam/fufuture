@@ -6,3 +6,44 @@
   overflow: hidden;
   border-radius: @border-radius-btn3 !important;
 }
+
+.sld-wallet-connect-modal {
+  width: 360px !important;
+
+  &.drawRender {
+    width: 100vw !important;
+
+    .ant-drawer-content {
+      background-color: #000;
+
+      .ant-drawer-header {
+        border-color: fade(#ffffff, 20%);
+      }
+      .ant-drawer-close {
+        color: fade(#ffffff, 80%) !important;
+      }
+      .ant-drawer-title {
+        color: #ffffff !important;
+      }
+    }
+  }
+
+  .ant-modal-content {
+    background-color: #06070a;
+  }
+  .ant-modal-header {
+    background-color: #06070a;
+    padding-top: 24px !important;
+  }
+  .ant-modal-title {
+    color: #ffffff;
+    font-size: 16px !important;
+  }
+  .ant-modal-close-x {
+    background-color: #06070a;
+  }
+  .ant-modal-body {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0 !important;
+  }
+}

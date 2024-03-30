@@ -47,7 +47,7 @@ export default class ModalRender extends BaseStateComponent<IProps, IState> {
         height={height}
         maskClosable={maskClosable}
         placement="bottom"
-        className={styleMerge('drawRender', fontCss.mediumLatin)}
+        className={styleMerge('drawRender', fontCss.mediumLatin, this.props.className)}
         destroyOnClose={true}
         visible={visible}
       >
@@ -55,6 +55,7 @@ export default class ModalRender extends BaseStateComponent<IProps, IState> {
       </Drawer>
     ) : (
       <Modal
+        open={visible}
         {...this.props}
         closable={closable}
         maskClosable={maskClosable}

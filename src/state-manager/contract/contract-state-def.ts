@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { P } from '../page/page-state-parser';
 import { erc20ApprovedAmountGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
+
 import {
   shieldOptionTradeContracts,
   shieldOracleContracts,

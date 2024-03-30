@@ -10,6 +10,11 @@ import styles from './connect-wallet.module.less';
 import { CheckboxChangeEvent } from 'antd/es/checkbox';
 import { walletAgree } from '../../state-manager/wallet/wallet-agree';
 import { I18n } from '../i18n/i18n';
+import { genQrCode } from '../lib/wc-qrcode/wc-qrcode';
+import { WalletConnectModal } from './wallet-connect.modal';
+import { WcModalEvent, wcModalService, WcWalletInfo } from '../../services/wc-modal/wc-modal.service';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 type IProps = {
   manualPopup?: boolean;
@@ -23,6 +28,9 @@ type IState = {
   isWalletConnected: boolean;
   isVisible: boolean;
   agree: boolean | undefined;
+
+  walletConnectVisible: boolean;
+  walletConnectWallet?: WcWalletInfo;
 };
 
 export class ConnectWallet extends BaseStateComponent<IProps, IState> {
@@ -30,9 +38,11 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
     visible: false,
     account: null,
     isWalletConnected: true,
-
     isVisible: P.Layout.IsShowWalletModal.get(),
     agree: undefined,
+
+    walletConnectVisible: false,
+    walletConnectWallet: undefined,
   };
 
   componentDidMount() {
@@ -40,10 +50,31 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
     this.registerObservable('isWalletConnected', walletState.IS_CONNECTED);
     this.registerState('isVisible', P.Layout.IsShowWalletModal);
     this.registerObservable('agree', walletAgree.IS_AGREE);
+
+    this.mergeWcModalEvent();
+    this.registerMultiState(this.mergeWcModalEvent());
   }
 
   componentWillUnmount() {
     this.destroyState();
+  }
+
+  private mergeWcModalEvent(): Observable<Partial<IState>> {
+    return wcModalService.watchEvent().pipe(
+      map((event: WcModalEvent) => {
+        switch (event.type) {
+          case 'show': {
+            return { walletConnectVisible: true, walletConnectWallet: event.walletInfo };
+          }
+          case 'hide': {
+            return { walletConnectVisible: false };
+          }
+          default: {
+            return { walletConnectVisible: false };
+          }
+        }
+      })
+    );
   }
 
   onShow() {
@@ -92,6 +123,8 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
 
           <ConnectWalletPage styleType={'popup'} disableConnection={!this.state.agree} />
         </ModalRender>
+
+        <WalletConnectModal visible={this.state.walletConnectVisible} walletInfo={this.state.walletConnectWallet} />
       </div>
     );
   }

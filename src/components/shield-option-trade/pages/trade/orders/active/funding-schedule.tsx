@@ -21,6 +21,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { computeOrderLaterPhaseFundingFee } from '../../../../utils/compute';
 import { map, tap } from 'rxjs/operators';
 import { shieldOptionMatrixService } from '../../../../services/shield-option-matrix.service';
+import { SLD_ENV_CONF } from '../../../../const/env';
 
 type IState = {
   isMobile: boolean;
@@ -144,7 +145,11 @@ export class OrderFundingSchedule extends BaseStateComponent<IProps, IState> {
                     <I18n id={'trade-fund-phase'} />
                     {one.phaseIndex}
                   </div>
-                  <div className={styles.content}>{one.fundingFee.format({ fix: 3 })}</div>
+                  <div className={styles.content}>
+                    {one.fundingFee.format({
+                      precision: SLD_ENV_CONF.FixDigits.Open[this.props.order.indexUnderlying],
+                    })}
+                  </div>
                 </div>
               );
             })}
@@ -175,6 +180,8 @@ export class OrderFundingSchedule extends BaseStateComponent<IProps, IState> {
                   symClassName={styleMr(styles.label)}
                   short={true}
                   fix={3}
+                  rmZero={true}
+                  precision={SLD_ENV_CONF.FixDigits.Open[this.props.order.indexUnderlying]}
                 />
               </div>
             </div>

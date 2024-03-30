@@ -1,5 +1,5 @@
 import { WalletInterface } from './wallet-interface';
-import { Wallet } from '../constant';
+import {ETH_DECIMAL, Wallet} from '../constant';
 import * as ethers from 'ethers';
 import { BigNumber, providers, Signer } from 'ethers';
 import { Network } from '../constant/network';
@@ -17,7 +17,6 @@ import {
 } from 'rxjs';
 import { catchError, filter, map, startWith, take, tap } from 'rxjs/operators';
 import { SldDecimal } from '../util/decimal';
-import { ETH_WEI } from '../util/ethers';
 import { WcNetNamespace } from '../constant/walletconnect';
 import { wcOps } from '../constant/walletconnect.conf';
 import { UniversalProvider, UniversalProviderOpts } from '@walletconnect/universal-provider';
@@ -25,6 +24,7 @@ import IUniversalProvider from '@walletconnect/universal-provider';
 import { SessionTypes } from '@walletconnect/types';
 import { WalletConnectModal } from '@walletconnect/modal';
 import { networkHex } from '../constant/network-util';
+import { wcModalService, WcWalletInfo } from '../services/wc-modal/wc-modal.service';
 
 function getAccountsFromSession(session: SessionTypes.Struct, chain: string): string[] {
   const namespace: SessionTypes.BaseNamespace | undefined = session.namespaces[WcNetNamespace.eip155];
@@ -54,6 +54,8 @@ export class WalletConnect implements WalletInterface {
     projectId: this.createProjectId(),
     themeVariables: { '--wcm-z-index': '2000' },
   });
+
+  private customWalletInfo: WcWalletInfo | null = null;
 
   constructor() {
     this.initialize();
@@ -111,11 +113,18 @@ export class WalletConnect implements WalletInterface {
         }
       });
 
+      wcModalService.subscribeState().subscribe(state => {
+        if (!state && !provider.session) {
+          provider.abortPairingAttempt();
+        }
+      });
+
       accounts$ = from(provider.connect(opts)).pipe(
         switchMap((session: SessionTypes.Struct | undefined) => {
           if (session) {
             provider.setDefaultChain(defChain);
             this.modal.closeModal();
+            wcModalService.hide();
 
             return of(getAccountsFromSession(session, defChain));
           } else {
@@ -128,7 +137,13 @@ export class WalletConnect implements WalletInterface {
     return accounts$.pipe(map(accounts => ({ accounts, chain: defChain })));
   }
 
-  doConnect(): Observable<boolean> {
+  doConnect(wallet?: WcWalletInfo): Observable<boolean> {
+    if (wallet) {
+      this.customWalletInfo = wallet;
+    } else {
+      this.customWalletInfo = null;
+    }
+
     return this.walletConnectProviderHolder.pipe(
       filter(Boolean),
       take(1),
@@ -137,9 +152,6 @@ export class WalletConnect implements WalletInterface {
         return zip([accounts$, of(provider)]);
       }),
       tap(([{ accounts, chain }, provider]) => {
-        console.log('provider ==== ', provider);
-        console.log('accounts ====', accounts);
-        console.log('session ==== ', provider.session);
         this.walletConnectProviderHolder.next(provider);
       }),
       map(([{ accounts, chain }, provider]) => {
@@ -269,7 +281,7 @@ export class WalletConnect implements WalletInterface {
         return provider.getBalance(address);
       }),
       map((balance: BigNumber) => {
-        return SldDecimal.fromOrigin(balance, ETH_WEI);
+        return SldDecimal.fromOrigin(balance, ETH_DECIMAL);
       }),
       take(1)
     );
@@ -282,7 +294,7 @@ export class WalletConnect implements WalletInterface {
         return provider.getBalance(address);
       }),
       map((balance: BigNumber) => {
-        return SldDecimal.fromOrigin(balance, ETH_WEI);
+        return SldDecimal.fromOrigin(balance, ETH_DECIMAL);
       })
     );
   }
@@ -343,8 +355,13 @@ export class WalletConnect implements WalletInterface {
           this.updateAccount([]);
         });
         provider.on('display_uri', uri => {
-          this.modal.closeModal();
-          this.modal.openModal({ uri });
+          if (this.customWalletInfo) {
+            wcModalService.hide();
+            wcModalService.show({ ...this.customWalletInfo, uri });
+          } else {
+            this.modal.closeModal();
+            this.modal.openModal({ uri });
+          }
         });
         provider.on('default_chain_changed', (chainId: string) => {
           this.updateNetwork(chainId);

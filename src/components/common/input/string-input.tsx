@@ -24,6 +24,7 @@ type IProps = {
   isError?: boolean;
   theme?: number;
   onChange?: (val: string) => void;
+  maxLength?: number;
 };
 
 export class StringInput extends BaseStateComponent<IProps, IState> {
@@ -56,13 +57,10 @@ export class StringInput extends BaseStateComponent<IProps, IState> {
   }
 
   onChangeValue(event: BaseSyntheticEvent) {
-    const val = event.target.value;
-    this.updateState({ value: val }, () => {
-      asyncScheduler.schedule(() => {
-        if (this.props.onChange) {
-          this.props.onChange(event.target.value);
-        }
-      });
+    asyncScheduler.schedule(() => {
+      if (this.props.onChange) {
+        this.props.onChange(event.target.value);
+      }
     });
   }
 
@@ -92,12 +90,13 @@ export class StringInput extends BaseStateComponent<IProps, IState> {
             <input
               type={'text'}
               className={styleMr('sld_str_input_form', this.props.inputClassName)}
-              value={this.state.value}
+              value={this.state.value || undefined}
               placeholder={this.props.placeholder}
               onBlur={() => this.onFocus(false)}
               onFocus={() => this.onFocus(true)}
               onChange={this.onChangeValue.bind(this)}
               name={this.props.name}
+              maxLength={this.props.maxLength}
             />
           )}
 

@@ -220,6 +220,7 @@ export class MenuListImp extends BaseStateComponent<IProps, IState> {
                 'sld-menu-list-ellipsis-overlay-content',
                 this.props.overlayContentClassName
               )}
+              zIndex={1100}
             >
               <div
                 className={styleMr(styles.ellipsisBtn, 'sld-menu-list-ellipsis-btn')}

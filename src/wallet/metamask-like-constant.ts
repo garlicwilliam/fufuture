@@ -1,9 +1,8 @@
 import { EthereumProviderName } from '../constant';
-import { EMPTY, interval, NEVER, Observable, of } from 'rxjs';
+import { NEVER, Observable, of } from 'rxjs';
 import { EthereumProviderInterface } from './metamask-like-types';
-import { filter, map } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import * as _ from 'lodash';
-import { fn } from 'numeral';
 
 declare const window: Window & { ethereum: any } & any;
 

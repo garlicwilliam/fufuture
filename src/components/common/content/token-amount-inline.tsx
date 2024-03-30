@@ -3,9 +3,10 @@ import { P } from '../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../util/string';
 import { SldDecimal, SldDecPrice, SldUsdValue } from '../../../util/decimal';
 import styles from './token-amount-inline.module.less';
-import { numString } from '../../../util/math';
+import { FormatOption, numString } from '../../../util/math';
 import * as _ from 'lodash';
 import { Visible } from '../../builtin/hidden';
+import { PendingHolder } from '../progress/pending-holder';
 
 type IState = {
   isMobile: boolean;
@@ -17,12 +18,14 @@ type IProps = {
   numClassName?: string;
   symClassName?: string;
   fix?: number;
+  precision?: number;
   rmZero?: boolean; // default true
   split?: boolean;
   round?: 0 | 1 | -1;
   short?: boolean;
   sign?: boolean;
   maxDisplay?: SldDecimal | SldUsdValue | SldDecPrice | number;
+  pending?: boolean | { isPending: boolean; width?: number; height?: number };
 };
 
 export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
@@ -62,14 +65,15 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
     const floor = this.props.round === -1;
     const fix = this.confirmFix();
 
-    const option = {
+    const option: FormatOption = {
       fix,
       split: this.props.split,
       removeZero: this.props.rmZero,
       ceil,
       floor,
       short: this.props.short,
-      sign: this.props.sign
+      sign: this.props.sign,
+      precision: this.props.precision,
     };
 
     let prefix = '';
@@ -91,6 +95,16 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
     return prefix + numStr;
   }
 
+  genPendingProps(): { isPending: boolean; width?: number; height?: number } {
+    const isPending: boolean =
+      this.props.pending === true || (this.props.pending !== false && !!this.props.pending?.isPending);
+
+    const width: number | undefined = typeof this.props.pending === 'object' ? this.props.pending.width : undefined;
+    const height: number | undefined = typeof this.props.pending === 'object' ? this.props.pending.height : undefined;
+
+    return { isPending, width, height };
+  }
+
   render() {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
@@ -100,9 +114,18 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
 
     const amountStr: string = this.amountString();
 
+    const { isPending, width, height } = this.genPendingProps();
+
     return (
-      <div className={styleMr(styles.wrapperToken, this.props.className)}>
-        <div className={styleMr(this.props.numClassName)}>{amountStr}</div>
+      <div
+        className={styleMr(styles.wrapperToken, this.props.className)}
+        style={isPending ? { alignItems: 'flex-end' } : undefined}
+      >
+        <div className={styleMr(this.props.numClassName)} style={{ lineHeight: isPending ? 0 : undefined }}>
+          <PendingHolder loading={isPending} width={width} height={height}>
+            {amountStr}
+          </PendingHolder>
+        </div>
 
         <Visible when={!!this.props.token}>
           <div className={styleMr(this.props.symClassName)}>{tokenSymbol}</div>

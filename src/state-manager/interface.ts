@@ -41,6 +41,8 @@ export interface ContractState<T> {
 
   pending(): Observable<boolean>;
 
+  lastTime(): Observable<Date | null>;
+
   tick(): void;
 
   debug(label?: string): this;

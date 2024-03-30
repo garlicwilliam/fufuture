@@ -117,7 +117,7 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
 
   onClickBtn() {
     if (this.state.isProviderExist) {
-      walletState.connectToWallet(Wallet.Metamask, this.props.targetProvider);
+      walletState.connectToWallet(Wallet.Metamask, { provider: this.props.targetProvider });
     } else {
       this.onInstallEthereumProvider();
     }

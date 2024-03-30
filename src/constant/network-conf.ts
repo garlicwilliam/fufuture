@@ -2,26 +2,29 @@ import {
   NET_ARBITRUM,
   NET_ARBITRUM_GOERLI,
   NET_ARBITRUM_SEPOLIA,
+  NET_ASTAR_ZK_EVM,
   NET_BASE,
   NET_BASE_GOERLI,
   NET_BNB,
   NET_BNB_TEST,
   NET_ETHEREUM,
   NET_ETHEREUM_FORK,
-  NET_GOERLI,
   NET_LINEA,
   NET_LINEA_GOERLI,
   NET_MANTA_PACIFIC,
   NET_MANTA_PACIFIC_TEST,
   NET_MANTLE,
   NET_MANTLE_TEST,
+  NET_MODE_MAINNET,
   NET_OPT_ETH,
   NET_POLYGON,
+  NET_SCROLL,
+  NET_SEPOLIA,
   Network,
 } from './network';
 import eth from '../assets/imgs/chains/eth.svg';
 import eth_f from '../assets/imgs/chains/eth-f.svg';
-import gor from '../assets/imgs/chains/goerli.svg';
+import scroll from '../assets/imgs/chains/scroll.svg';
 import bsc from '../assets/imgs/chains/bnb.svg';
 import base from '../assets/imgs/chains/base.svg';
 import arbitrum from '../assets/imgs/chains/arbitrum.svg';
@@ -31,13 +34,15 @@ import linea from '../assets/imgs/chains/linea.svg';
 import linea_goerli from '../assets/imgs/chains/linea-test.svg';
 import mantle from '../assets/imgs/chains/mantle.svg';
 import manta from '../assets/imgs/chains/manta-pacific.svg';
+import mode from '../assets/imgs/chains/mode.svg';
+import astar from '../assets/imgs/chains/astar.svg';
 import * as _ from 'lodash';
 
 import { NetworkConfMap, NetworkParamConfig } from './network-type';
 
 export const NetworkNames: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: 'Ethereum Mainnet' as const,
-  [NET_GOERLI]: 'Goerli' as const,
+  [NET_SEPOLIA]: 'Sepolia' as const,
   [NET_BNB_TEST]: 'BNB Testnet' as const,
   [NET_BNB]: 'BNB Chain' as const,
   [NET_BASE]: 'Base' as const,
@@ -54,14 +59,17 @@ export const NetworkNames: NetworkConfMap<Network, string> = {
   [NET_MANTA_PACIFIC]: 'Manta Pacific Mainnet' as const,
   [NET_MANTA_PACIFIC_TEST]: 'Manta Pacific Testnet' as const,
   [NET_BASE_GOERLI]: 'Base Goerli' as const,
+  [NET_MODE_MAINNET]: 'Mode Mainnet' as const,
+  [NET_ASTAR_ZK_EVM]: 'Astar zkEVM' as const,
+  [NET_SCROLL]: 'Scroll' as const,
 };
 export const NetworkCurrency: NetworkConfMap<Network, string> = {
   [NET_BNB_TEST]: 'BNB',
   [NET_BNB]: 'BNB',
   [NET_BASE]: 'ETH',
   [NET_BASE_GOERLI]: 'ETH',
-  [NET_GOERLI]: 'ETH',
   [NET_ETHEREUM]: 'ETH',
+  [NET_SEPOLIA]: 'ETH',
   [NET_POLYGON]: 'MATIC',
   [NET_ARBITRUM]: 'ETH',
   [NET_ARBITRUM_GOERLI]: 'AGOR',
@@ -74,10 +82,13 @@ export const NetworkCurrency: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM_FORK]: 'ETH',
   [NET_MANTA_PACIFIC]: 'ETH',
   [NET_MANTA_PACIFIC_TEST]: 'MANTA',
+  [NET_MODE_MAINNET]: 'ETH',
+  [NET_ASTAR_ZK_EVM]: 'ETH',
+  [NET_SCROLL]: 'ETH',
 };
 export const NetworkLabels: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: 'Ethereum' as const,
-  [NET_GOERLI]: 'Goerli' as const,
+  [NET_SEPOLIA]: 'Sepolia' as const,
   [NET_BNB_TEST]: 'BNB Testnet' as const,
   [NET_BNB]: 'BNB Chain' as const,
   [NET_BASE]: 'Base' as const,
@@ -94,10 +105,13 @@ export const NetworkLabels: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM_FORK]: 'Ethereum Fork' as const,
   [NET_MANTA_PACIFIC_TEST]: 'Manta Pacific Test' as const,
   [NET_MANTA_PACIFIC]: 'Manta Pacific' as const,
+  [NET_MODE_MAINNET]: 'Mode' as const,
+  [NET_ASTAR_ZK_EVM]: 'Astar zkEVM' as const,
+  [NET_SCROLL]: 'Scroll' as const,
 };
 export const NetworkIcons: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: eth,
-  [NET_GOERLI]: gor,
+  [NET_SEPOLIA]: eth,
   [NET_BNB_TEST]: bsc,
   [NET_BNB]: bsc,
   [NET_BASE]: base,
@@ -114,6 +128,9 @@ export const NetworkIcons: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM_FORK]: eth_f,
   [NET_MANTA_PACIFIC]: manta,
   [NET_MANTA_PACIFIC_TEST]: manta,
+  [NET_MODE_MAINNET]: mode,
+  [NET_ASTAR_ZK_EVM]: astar,
+  [NET_SCROLL]: scroll,
 };
 export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
   [NET_BNB_TEST]: {
@@ -182,14 +199,14 @@ export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
       decimals: 18,
     },
   },
-  [NET_GOERLI]: {
-    chainId: '0x5',
-    chainName: NetworkNames[NET_GOERLI],
-    rpcUrls: ['https://goerli.infura.io/v3/abc4c36a4ae54715bc7a4ecedd5a8490'],
-    blockExplorerUrls: ['https://goerli.etherscan.io'],
+  [NET_SEPOLIA]: {
+    chainId: '0xaa36a7',
+    chainName: NetworkNames[NET_SEPOLIA],
+    rpcUrls: ['https://rpc.sepolia.org', 'https://eth-sepolia.g.alchemy.com/v2/demo'],
+    blockExplorerUrls: ['https://sepolia.etherscan.io'],
     nativeCurrency: {
-      name: NetworkCurrency[NET_GOERLI],
-      symbol: NetworkCurrency[NET_GOERLI],
+      name: NetworkCurrency[NET_SEPOLIA],
+      symbol: NetworkCurrency[NET_SEPOLIA],
       decimals: 18,
     },
   },
@@ -311,6 +328,43 @@ export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
     nativeCurrency: {
       name: NetworkCurrency[NET_MANTA_PACIFIC_TEST],
       symbol: NetworkCurrency[NET_MANTA_PACIFIC_TEST],
+      decimals: 18,
+    },
+  },
+  [NET_MODE_MAINNET]: {
+    chainId: '0x868b',
+    chainName: NetworkNames[NET_MODE_MAINNET],
+    rpcUrls: ['https://mainnet.mode.network', 'https://1rpc.io/mode'],
+    blockExplorerUrls: ['https://explorer.mode.network'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_MODE_MAINNET],
+      symbol: NetworkCurrency[NET_MODE_MAINNET],
+      decimals: 18,
+    },
+  },
+  [NET_ASTAR_ZK_EVM]: {
+    chainId: '0xec0',
+    chainName: NetworkNames[NET_ASTAR_ZK_EVM],
+    rpcUrls: [
+      'https://rpc.startale.com/astar-zkevm',
+      'https://rpc.astar-zkevm.gelato.digital',
+      'https://astar-zkevm-rpc.dwellir.com',
+    ],
+    blockExplorerUrls: ['https://astar-zkevm.explorer.startale.com'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_ASTAR_ZK_EVM],
+      symbol: NetworkCurrency[NET_ASTAR_ZK_EVM],
+      decimals: 18,
+    },
+  },
+  [NET_SCROLL]: {
+    chainId: '0x82750',
+    chainName: NetworkNames[NET_SCROLL],
+    rpcUrls: ['https://rpc.scroll.io'],
+    blockExplorerUrls: ['https://scrollscan.com'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_SCROLL],
+      symbol: NetworkCurrency[NET_SCROLL],
       decimals: 18,
     },
   },

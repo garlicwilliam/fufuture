@@ -130,7 +130,15 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
       key: 'fundingFeePaid',
       align: 'right',
       render: (fundingFee: SldDecimal, row: ShieldClosedOrderInfo) => {
-        return <TokenAmountInline amount={fundingFee} token={row.token.symbol} symClassName={styles.label} />;
+        return (
+          <TokenAmountInline
+            amount={fundingFee}
+            token={row.token.symbol}
+            rmZero={true}
+            precision={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
+            symClassName={styles.label}
+          />
+        );
       },
     },
     {
@@ -147,6 +155,8 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
             symClassName={styles.label}
             short={true}
             sign={true}
+            rmZero={true}
+            precision={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
           />
         );
       },
@@ -254,6 +264,8 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
                 symClassName={styles.cellDesc}
                 short={true}
                 sign={true}
+                rmZero={true}
+                precision={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
               />
             </div>
           </div>
@@ -340,6 +352,8 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
             token={row.token.symbol}
             numClassName={styles.value}
             symClassName={styles.label}
+            rmZero={true}
+            precision={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
           />
         </VerticalItem>
       </div>

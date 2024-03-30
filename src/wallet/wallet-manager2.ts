@@ -5,6 +5,7 @@ import { BehaviorSubject, combineLatest, Observable, of, switchMap } from 'rxjs'
 import { EthereumProviderName, Wallet } from '../constant';
 import { filter, map, tap } from 'rxjs/operators';
 import { metamaskProviderManager } from './metamask-like-manager';
+import { WcWalletInfo } from '../services/wc-modal/wc-modal.service';
 
 type WalletStateInfo = {
   metamask: boolean;
@@ -106,18 +107,18 @@ export class WalletManager2 {
     );
   }
 
-  public doSelectWallet(wallet: Wallet, provider?: EthereumProviderName): void {
-    if (wallet === Wallet.Metamask && !provider) {
+  public doSelectWallet(wallet: Wallet, op?: { provider?: EthereumProviderName; walletInfo?: WcWalletInfo }): void {
+    if (wallet === Wallet.Metamask && !op?.provider) {
       return;
     }
 
     if (wallet === Wallet.Metamask) {
-      const isSpecified: boolean = metamaskProviderManager.setUserSelected(provider!);
+      const isSpecified: boolean = metamaskProviderManager.setUserSelected(op!.provider!);
       if (isSpecified) {
         this.userSelected.next(Wallet.Metamask);
       }
     } else {
-      this.walletConnect.doConnect().subscribe((done: boolean) => {
+      this.walletConnect.doConnect(op?.walletInfo).subscribe((done: boolean) => {
         if (done) {
           this.userSelected.next(Wallet.WalletConnect);
         }

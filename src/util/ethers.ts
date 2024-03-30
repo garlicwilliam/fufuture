@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers';
-
-export const ETH_WEI = 18;
+import { SldDecimal } from './decimal';
 
 export function baseBigNumber(wei: number): BigNumber {
   wei = Math.abs(wei);

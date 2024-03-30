@@ -16,6 +16,7 @@ import safepal from '../../assets/imgs/wallet/safepal.svg';
 import gate from '../../assets/imgs/wallet/gatewallet.svg';
 
 import { EthereumProviderName } from '../../constant';
+import { ReactNode } from 'react';
 export {
   metamask,
   imtoken,
@@ -52,3 +53,42 @@ export const WALLET_ICONS_MAP: { [w in EthereumProviderName]: string } = {
   [EthereumProviderName.Coin98]: coin98,
   [EthereumProviderName.GateWallet]: gate,
 };
+
+export const WALLET_NAME_MAP: { [w in EthereumProviderName]: string } = {
+  [EthereumProviderName.MetaMask]: 'MetaMask',
+  [EthereumProviderName.MathWallet]: 'Math Wallet',
+  [EthereumProviderName.BitKeep]: 'Bitget Wallet',
+  [EthereumProviderName.Onto]: 'Onto Wallet',
+  [EthereumProviderName.Coinbase]: 'Coinbase Wallet',
+  [EthereumProviderName.HyperPay]: 'HyperPay',
+  [EthereumProviderName.TokenPocket]: 'TokenPocket',
+  [EthereumProviderName.OKXWallet]: 'OKX Wallet',
+  [EthereumProviderName.MetaMaskLike]: 'MetaMask',
+  [EthereumProviderName.Bitizen]: 'Bitizen',
+  [EthereumProviderName.ImToken]: 'ImToken',
+  [EthereumProviderName.SafePal]: 'SafePal',
+  [EthereumProviderName.TrustWallet]: 'Trust Wallet',
+  [EthereumProviderName.Coin98]: 'Coin98 Wallet',
+  [EthereumProviderName.GateWallet]: 'Gate Wallet',
+};
+
+export function iconNode(name: EthereumProviderName): ReactNode {
+  return (
+    <div
+      style={{
+        lineHeight: '0px',
+        width: '20px',
+        height: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <img
+        alt={WALLET_NAME_MAP[name]}
+        src={WALLET_ICONS_MAP[name]}
+        style={{ maxWidth: '20px', maxHeight: '20px', borderRadius: '2px' }}
+      />
+    </div>
+  );
+}

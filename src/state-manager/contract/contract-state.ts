@@ -1,5 +1,6 @@
 import { ContractState, StateGetter, StateReference } from '../interface';
 import {
+  asyncScheduler,
   AsyncSubject,
   BehaviorSubject,
   combineLatest,
@@ -28,6 +29,7 @@ import * as _ from 'lodash';
 
 export class ContractStateImp<T> implements ContractState<T> {
   private state: BehaviorSubject<T | null> = new BehaviorSubject<T | null>(null);
+  private lastTimeStore: BehaviorSubject<Date | null> = new BehaviorSubject<Date | null>(null);
   private isPending: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private subscription: Subscription | null = null;
 
@@ -49,14 +51,17 @@ export class ContractStateImp<T> implements ContractState<T> {
   public get(): Observable<T> {
     const whenDisable$: Observable<T> = this.empty();
     const whenNormal$: Observable<T> = this.isWatching() ? this.stateNotNull().pipe(take(1)) : this.doGet();
-
-    const realGet$ = this.disableSwitch(whenDisable$, whenNormal$);
+    const realGet$: Observable<T> = this.disableSwitch(whenDisable$, whenNormal$);
 
     return this.mockPrefix(realGet$);
   }
 
   public pending(): Observable<boolean> {
     return this.disableSwitch(of(false), this.isPending);
+  }
+
+  public lastTime(): Observable<Date | null> {
+    return this.lastTimeStore.pipe();
   }
 
   public tick(): void {
@@ -121,7 +126,7 @@ export class ContractStateImp<T> implements ContractState<T> {
     return this;
   }
 
-  public setToDefault() {
+  public setToDefault(): void {
     if (this.defaultValue !== undefined) {
       this.state.next(this.defaultValue);
     } else {
@@ -203,6 +208,11 @@ export class ContractStateImp<T> implements ContractState<T> {
         if (this.isDebug) {
           console.info(this.debugLabel, 'Query state value', value);
         }
+
+        const now: Date = new Date();
+        asyncScheduler.schedule(() => {
+          this.lastTimeStore.next(now);
+        });
       }),
       finalize(() => {
         this.isPending.next(false);
@@ -306,6 +316,14 @@ export class ContractStateRef<T> implements ContractState<T> {
     return this.curRef.pipe(
       switchMap((cur: ContractState<T> | null) => {
         return !cur ? of(false) : cur.pending();
+      })
+    );
+  }
+
+  public lastTime(): Observable<Date | null> {
+    return this.curRef.pipe(
+      switchMap((cur: ContractState<T> | null) => {
+        return !cur ? of(null) : cur.lastTime();
       })
     );
   }

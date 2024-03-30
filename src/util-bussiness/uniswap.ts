@@ -11,7 +11,7 @@ import {
 import { BigNumber } from 'ethers';
 import * as _ from 'lodash';
 import { baseBigNumber, keepE18Number } from '../util/ethers';
-import { NET_BNB, NET_BNB_TEST, NET_ETHEREUM, NET_GOERLI, Network } from '../constant/network';
+import { NET_BNB, NET_BNB_TEST, NET_ETHEREUM, Network } from '../constant/network';
 import { SldDecimal, SldDecPrice } from '../util/decimal';
 import { isSameAddress } from '../util/address';
 import { DexType, E18, Q192 } from '../constant';
@@ -24,8 +24,6 @@ export const VAULT_DM_SUPPORT_DEX_FACTORY = [DexType.UNI, DexType.CAKE];
 export const UNISWAP_FACTORY_ADDRESS: DexFactory[] = [
   { ver: 3, dex: DexType.UNI, net: NET_ETHEREUM, factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984' },
   { ver: 2, dex: DexType.UNI, net: NET_ETHEREUM, factory: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f' },
-  { ver: 3, dex: DexType.UNI, net: NET_GOERLI, factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984' },
-  { ver: 2, dex: DexType.UNI, net: NET_GOERLI, factory: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f' },
   { ver: 2, dex: DexType.CAKE, net: NET_BNB_TEST, factory: '0xB7926C0430Afb07AA7DEfDE6DA862aE0Bde767bc' },
   { ver: 1, dex: DexType.IZUMI, net: NET_BNB_TEST, factory: '0xfc601E5D885d0545ee1B20EA1711D1F1c0eA7d0A' },
   { ver: 2, dex: DexType.CAKE, net: NET_BNB, factory: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73' },

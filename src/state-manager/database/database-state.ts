@@ -113,7 +113,9 @@ export class DatabaseStateImp<T> implements DatabaseState<T> {
   }
 
   private combineAllArgs(): Observable<any[]> {
-    return this.depends.length === 0 ? of([]) : combineLatest(this.depends).pipe(tap(args => (this.lastArgs = args)));
+    return this.depends.length === 0
+      ? of([]).pipe(tap(args => (this.lastArgs = args)))
+      : combineLatest(this.depends).pipe(tap(args => (this.lastArgs = args)));
   }
 
   private watchArgs(): Observable<any[]> {

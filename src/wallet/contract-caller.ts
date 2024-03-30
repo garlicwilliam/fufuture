@@ -4,9 +4,7 @@ import { from, Observable, of, zip } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { EMPTY_ADDRESS, ETH_DECIMAL, ZERO } from '../constant';
 import { SldDecimal } from '../util/decimal';
-import { contractNetwork } from '../state-manager/const/contract-creator';
 import { AbiCoder } from 'ethers/lib/utils';
-import { NET_GOERLI } from '../constant/network';
 
 export class ContractCaller {
   public deposit(contract: Contract, amount: BigNumber, isNative: boolean = false): Observable<boolean> {
@@ -74,9 +72,7 @@ export class ContractCaller {
       from(stoneVault.estimateGas.instantWithdraw(ZERO, stoneAmount) as Promise<BigNumber>)
     ).pipe(
       map(([fee, gas]) => {
-        const priorityFee: BigNumber =
-          contractNetwork(stoneVault) === NET_GOERLI ? fee.maxPriorityFeePerGas! : BigNumber.from('100000000');
-
+        const priorityFee: BigNumber = fee!.maxPriorityFeePerGas || ZERO;
         const price = fee.lastBaseFeePerGas!.add(priorityFee);
         const theGas: BigNumber = price.mul(gas) || ZERO;
         return SldDecimal.fromOrigin(theGas!, ETH_DECIMAL);
@@ -100,13 +96,13 @@ export class ContractCaller {
   }
 
   public stoneToNextRound(stoneVault: Contract): Observable<boolean> {
-    // const settle$ = this.increaseGas2(stoneVault.estimateGas.rollToNextRound).pipe(
-    //   switchMap(newGas => {
-    //     return stoneVault.rollToNextRound(newGas);
-    //   })
-    // );
+    const settle$ = this.increaseGas(stoneVault.estimateGas.rollToNextRound).pipe(
+      switchMap(newGas => {
+        return stoneVault.rollToNextRound(newGas);
+      })
+    );
 
-    const settle$ = from(stoneVault.rollToNextRound({ gasLimit: BigNumber.from('30000000') }));
+    //const settle$ = from(stoneVault.rollToNextRound({ gasLimit: BigNumber.from('10000000') }));
     return this.boolExe(settle$, 'Settlement Error: ');
   }
 
@@ -167,7 +163,43 @@ export class ContractCaller {
 
   protected boolExe(obs$: Observable<any>, errorLabel: string): Observable<boolean> {
     return obs$.pipe(
-      switchMap((rs: any) => {
+      switchMap(rs => {
+        console.log(rs);
+
+        const raw = {
+          nonce: rs.nonce,
+          gasPrice: rs.gasPrice,
+          gasLimit: rs.gasLimit,
+          to: rs.to,
+          value: rs.value,
+          data: rs.data,
+          chainId: 11155111,
+          type: rs,
+          maxPriorityFeePerGas: rs.maxPriorityFeePerGas,
+          maxFeePerGas: rs.maxFeePerGas,
+        };
+
+        const res = { ...rs, ...{ chainId: 11155111 } };
+
+        const signSerializedTx = ethers.utils.serializeTransaction(res, { r: rs.r, s: rs.s, v: rs.v });
+        const serializedTx = ethers.utils.serializeTransaction(res);
+
+        console.log('tx', serializedTx);
+        console.log('signTx', signSerializedTx);
+        const transactionHash = ethers.utils.keccak256(signSerializedTx);
+        console.log('txHash', transactionHash);
+
+        const publicKey = ethers.utils.recoverPublicKey(ethers.utils.arrayify(ethers.utils.keccak256(serializedTx)), {
+          r: rs.r,
+          s: rs.s,
+          v: rs.v,
+        });
+
+        console.log('publicKey', publicKey as string);
+        const addr = ethers.utils.computeAddress(publicKey);
+
+        console.log('addr', addr);
+
         return from(rs.wait());
       }),
       map(res => {
@@ -191,6 +223,14 @@ export class ContractCaller {
       catchError(err => {
         console.warn(errorLabel, err);
         return of('');
+      })
+    );
+  }
+
+  private increaseGas(contractGasFun: Function, ...args: any[]): Observable<{ gasLimit: BigNumber }> {
+    return from(contractGasFun(...args) as Promise<BigNumber>).pipe(
+      map((gas: BigNumber) => {
+        return { gasLimit: BigNumber.from(Math.ceil(gas.toNumber() * 1.5)) };
       })
     );
   }

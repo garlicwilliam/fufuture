@@ -128,7 +128,14 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
       key: 'tradingFee',
       align: 'right',
       render: (tradingFee: SldDecimal, row: ShieldOrderInfo) => (
-        <TokenAmountInline amount={tradingFee} token={row.token.symbol} symClassName={styles.label} short={true} />
+        <TokenAmountInline
+          amount={tradingFee}
+          token={row.token.symbol}
+          symClassName={styles.label}
+          short={true}
+          rmZero={true}
+          precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
+        />
       ),
     },
     {
@@ -162,6 +169,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               amount={fundingFee.paid}
               symClassName={styles.label}
               short={true}
+              rmZero={true}
+              precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
             />
 
             <OrderFundingSchedule order={row} />
@@ -185,6 +194,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
             symClassName={styles.label}
             short={true}
             sign={true}
+            rmZero={true}
+            precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
           />
         );
       },
@@ -299,6 +310,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               symClassName={styleMerge(styles.smallSize, styles.line1, styles.descColor)}
               short={true}
               sign={true}
+              precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
             />
           </div>
         );
@@ -385,6 +397,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               token={row.token.symbol}
               symClassName={styles.label}
               short={true}
+              rmZero={true}
+              precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
             />
           </VerticalItem>
 
@@ -400,6 +414,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               token={row.token.symbol}
               symClassName={styles.label}
               short={true}
+              rmZero={true}
+              precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
             />
           </VerticalItem>
 

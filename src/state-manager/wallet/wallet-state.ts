@@ -7,6 +7,7 @@ import { Network } from '../../constant/network';
 import { Signer, providers } from 'ethers';
 import { SldDecimal } from '../../util/decimal';
 import { walletAgree } from './wallet-agree';
+import { WcWalletInfo } from '../../services/wc-modal/wc-modal.service';
 
 export class WalletState {
   public readonly USER_ADDR: Observable<string>;
@@ -124,8 +125,8 @@ export class WalletState {
   }
 
   // do connect the specified wallet.
-  connectToWallet(wallet: Wallet, provider?: EthereumProviderName): void {
-    this.manager.doSelectWallet(wallet, provider);
+  connectToWallet(wallet: Wallet, op?: { provider?: EthereumProviderName; walletInfo?: WcWalletInfo }): void {
+    this.manager.doSelectWallet(wallet, op);
   }
 
   disconnectWallet(wallet: Wallet | null): Observable<boolean> {

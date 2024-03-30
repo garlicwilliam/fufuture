@@ -98,7 +98,7 @@ export class ResultMask extends BaseStateComponent<IProps, IState> {
     return (
       <AppendBody>
         <div className={styleMr(styles.bgMask)} style={{ display: this.state.show ? 'block' : 'none' }}>
-          <div className={styleMr(styles.content)}>
+          <div className={styleMr(styles.content, 'sld-mask-content')}>
             <div onClick={() => maskService.hide()} className={styleMr(styles.close)}>
               <CloseOutlined />
             </div>

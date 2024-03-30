@@ -22,6 +22,7 @@ import { OpenSetting } from './popup/setting';
 import { TokenIndex } from '../../common/token-index';
 import { PendingHolder } from '../../../../common/progress/pending-holder';
 import { OpenConfirm } from './popup/open-confirm';
+import {SLD_ENV_CONF} from "../../../const/env";
 
 type IState = {
   isMobile: boolean;
@@ -111,6 +112,8 @@ export class OpenLabel extends BaseStateComponent<IProps, IState> {
               token={this.state.quoteToken?.symbol || ''}
               symClassName={styleMr(styles.label)}
               short={true}
+              rmZero={true}
+              precision={SLD_ENV_CONF.FixDigits.Open[this.state.baseToken]}
             />
           </HorizonItem>
 
@@ -130,6 +133,8 @@ export class OpenLabel extends BaseStateComponent<IProps, IState> {
                 token={this.state.quoteToken?.symbol || ''}
                 symClassName={styleMr(styles.label)}
                 short={true}
+                rmZero={true}
+                precision={SLD_ENV_CONF.FixDigits.Open[this.state.baseToken]}
               />
             </PendingHolder>
           </HorizonItem>

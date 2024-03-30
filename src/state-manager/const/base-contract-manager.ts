@@ -4,6 +4,7 @@ import { walletState } from '../wallet/wallet-state';
 import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/operators';
 import { Contract, providers, Signer } from 'ethers';
 import { createChainContract } from './contract-creator';
+import { isValidAddress } from '../../util/address';
 
 export type ContractAddress = { address: string; network: Network };
 
@@ -61,7 +62,7 @@ export abstract class BaseContractManager<F extends string> {
     return this.watchNetwork().pipe(
       map((network: Network) => {
         const address: string | undefined = this.getContractAddress(network, contractName);
-        return address ? { address, network } : null;
+        return !!address && isValidAddress(address) ? { address, network } : null;
       }),
       filter(Boolean)
     );

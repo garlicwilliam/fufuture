@@ -169,6 +169,9 @@ export class DecimalNumInput extends BaseStateComponent<IProps, IState> {
 
             valCondition.value = newVal;
           }
+        } else if (checkResult === ErrorType.Min || checkResult === ErrorType.Max) {
+          this.syncValueString(valCondition.value!);
+          this.updateErrorState(checkResult as ErrorType);
         } else {
           this.updateErrorState(checkResult as ErrorType);
         }
@@ -179,7 +182,7 @@ export class DecimalNumInput extends BaseStateComponent<IProps, IState> {
         return combineLatest([value$, of(valCondition)]);
       }),
       tap(([value, valCondition]: [string, ValueCondition]) => {
-        // if user not input value, this will never be called
+        // if user not input value, this will never be called because value$ is a subject
         const newValue: SldDecimal | null = value === '' ? null : SldDecimal.fromNumeric(value, valCondition.decimal);
 
         const newCondition: ValueCondition = Object.assign({}, valCondition, { value: newValue });

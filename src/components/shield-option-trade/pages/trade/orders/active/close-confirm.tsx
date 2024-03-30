@@ -24,6 +24,7 @@ import { C } from '../../../../../../state-manager/cache/cache-state-parser';
 import { DEFAULT_SLIPPAGE } from '../../../../const/default';
 import { SortAsc } from '../../../../../common/svg/sort-asc';
 import { SortDesc } from '../../../../../common/svg/sort-desc';
+import { SLD_ENV_CONF } from '../../../../const/env';
 
 type IState = {
   isMobile: boolean;
@@ -166,6 +167,8 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
                 amount={this.state.order.orderAmount}
                 token={this.state.order.indexUnderlying}
                 symClassName={styles.label}
+                fix={SLD_ENV_CONF.FixDigits.Open[this.state.order.indexUnderlying]}
+                rmZero={true}
               />
             </HorizonItem>
             <HorizonItem
@@ -222,6 +225,8 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
                   cssPick(pnl.gtZero(), styles.long),
                   cssPick(pnl.lt(SldDecimal.ZERO), styles.short)
                 )}
+                rmZero={true}
+                precision={SLD_ENV_CONF.FixDigits.Open[this.state.order.indexUnderlying]}
               />
             </HorizonItem>
           </ItemsBox>

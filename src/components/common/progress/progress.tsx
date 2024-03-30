@@ -30,18 +30,23 @@ export class SldProgress extends BaseStateComponent<IProps, IState> {
   }
 
   private genInnerStyle(): CSSProperties {
+    const miniDis = this.props.percent > 0 ? this.props.minDisplay || 0 : 0;
+
     const style: CSSProperties = {
       height: this.props.strokeWidth + 'px',
-      width: Math.max(this.props.percent, this.props.minDisplay || 0) + '%',
+      width: Math.max(this.props.percent, miniDis) + '%',
     };
 
     return style;
   }
 
   private genInner2Style(): CSSProperties {
+    const percent2 = this.props.percent2 || 0;
+    const miniDis = percent2 > 0 ? this.props.minDisplay || 0 : 0;
+
     const style: CSSProperties = {
       height: this.props.strokeWidth + 'px',
-      width: Math.max(this.props.percent2 || 0, this.props.minDisplay || 0) + '%',
+      width: Math.max(percent2, miniDis) + '%',
     };
 
     return style;
