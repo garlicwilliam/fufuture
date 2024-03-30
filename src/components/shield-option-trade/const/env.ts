@@ -137,8 +137,8 @@ const env2: { [k in Env]: EnvConfig } = {
     },
     FixDigits: {
       Open: {
-        BTC: 3,
-        ETH: 3,
+        BTC: 8,
+        ETH: 8,
       },
     },
   },
