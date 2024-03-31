@@ -75,6 +75,7 @@ export function numStrFormat(num: string, opt?: FormatOption): string {
 
   if (opt?.precision && opt.precision > 0) {
     num = numPrecision(num, opt.precision, strategy);
+    num = numFixed(num, fix, strategy, opt?.debug || false);
   } else {
     num = numFixed(num, fix, strategy, opt?.debug || false);
   }

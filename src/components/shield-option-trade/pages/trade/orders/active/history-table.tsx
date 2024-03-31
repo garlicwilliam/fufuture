@@ -135,6 +135,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
             amount={fundingFee}
             token={row.token.symbol}
             rmZero={true}
+            fix={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
             precision={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
             symClassName={styles.label}
           />
@@ -156,6 +157,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
             short={true}
             sign={true}
             rmZero={true}
+            fix={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
             precision={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
           />
         );
@@ -265,6 +267,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
                 short={true}
                 sign={true}
                 rmZero={true}
+                fix={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
                 precision={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
               />
             </div>
@@ -353,6 +356,7 @@ export class HistoryOrderTable extends BaseStateComponent<IProps, IState> {
             numClassName={styles.value}
             symClassName={styles.label}
             rmZero={true}
+            fix={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
             precision={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
           />
         </VerticalItem>

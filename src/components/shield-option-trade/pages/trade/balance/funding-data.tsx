@@ -5,7 +5,12 @@ import styles from './funding-data.module.less';
 import { HorizonItem } from '../../../../common/content/horizon-item';
 import { I18n } from '../../../../i18n/i18n';
 import { TokenAmountInline } from '../../../../common/content/token-amount-inline';
-import { ShieldOrderInfo, ShieldUserAccountInfo, TokenErc20 } from '../../../../../state-manager/state-types';
+import {
+  ShieldOrderInfo,
+  ShieldUnderlyingType,
+  ShieldUserAccountInfo,
+  TokenErc20,
+} from '../../../../../state-manager/state-types';
 import { SldDecimal } from '../../../../../util/decimal';
 import { PendingHolder } from '../../../../common/progress/pending-holder';
 import { S } from '../../../../../state-manager/contract/contract-state-parser';
@@ -15,12 +20,13 @@ import { filter, map, startWith } from 'rxjs/operators';
 import { BigNumber } from 'ethers';
 import { SldTips } from '../../../../common/tips/tips';
 import { fontCss } from '../../../../i18n/font-switch';
-import * as _ from 'lodash';
 import { isSameToken } from '../../../../../util/token';
+import { SLD_ENV_CONF } from '../../../const/env';
 
 type IState = {
   isMobile: boolean;
   quoteToken: TokenErc20 | null;
+  underlying: ShieldUnderlyingType;
   userAccount: ShieldUserAccountInfo | undefined;
   activeOrderList: ShieldOrderInfo[];
   nextFund: SldDecimal;
@@ -32,6 +38,7 @@ export class FundingData extends BaseStateComponent<IProps, IState> {
   state: IState = {
     isMobile: P.Layout.IsMobile.get(),
     quoteToken: P.Option.Trade.Pair.Quote.get(),
+    underlying: P.Option.Trade.Pair.Base.get(),
     userAccount: undefined,
     activeOrderList: [],
     nextFund: SldDecimal.ZERO,
@@ -41,6 +48,7 @@ export class FundingData extends BaseStateComponent<IProps, IState> {
   componentDidMount() {
     this.registerIsMobile('isMobile');
     this.registerState('quoteToken', P.Option.Trade.Pair.Quote);
+    this.registerState('underlying', P.Option.Trade.Pair.Base);
     this.registerState('userAccount', S.Option.User.Account.Info);
     this.registerObservable('countDown', this.mergeFundingCountdown());
     this.registerObservable('nextFund', this.mergeNextFund());
@@ -142,6 +150,9 @@ export class FundingData extends BaseStateComponent<IProps, IState> {
               token={this.state.quoteToken?.symbol || ''}
               symClassName={styleMr(styles.label)}
               short={true}
+              fix={SLD_ENV_CONF.FixDigits.Open[this.state.underlying]}
+              rmZero={true}
+              precision={SLD_ENV_CONF.FixDigits.Open[this.state.underlying]}
             />
           </PendingHolder>
         </HorizonItem>
@@ -161,6 +172,9 @@ export class FundingData extends BaseStateComponent<IProps, IState> {
             token={this.state.quoteToken?.symbol || ''}
             symClassName={styleMr(styles.label)}
             short={true}
+            fix={SLD_ENV_CONF.FixDigits.Open[this.state.underlying]}
+            rmZero={true}
+            precision={SLD_ENV_CONF.FixDigits.Open[this.state.underlying]}
           />
         </HorizonItem>
       </div>

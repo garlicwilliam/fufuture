@@ -158,6 +158,8 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 
+    const fixDigit: number = this.state.curPair ? SLD_ENV_CONF.FixDigits.Open[this.state.curPair.indexUnderlying] : 2;
+
     return (
       <>
         <SldButton
@@ -215,7 +217,7 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
                   amount={this.state.openAmount}
                   token={this.state.curPair?.indexUnderlying || ''}
                   symClassName={styleMr(styles.label)}
-                  fix={this.state.curPair ? SLD_ENV_CONF.FixDigits.Open[this.state.curPair.indexUnderlying] : 2}
+                  fix={fixDigit}
                   rmZero={true}
                 />
               </HorizonItem>
@@ -239,7 +241,8 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
                   short={true}
                   symClassName={styleMr(styles.label)}
                   rmZero={true}
-                  precision={this.state.curPair ? SLD_ENV_CONF.FixDigits.Open[this.state.curPair?.indexUnderlying] : 6}
+                  fix={fixDigit}
+                  precision={fixDigit}
                 />
               </HorizonItem>
 
@@ -254,7 +257,8 @@ export class OpenConfirm extends BaseStateComponent<IProps, IState> {
                   short={true}
                   symClassName={styleMr(styles.label)}
                   rmZero={true}
-                  precision={this.state.curPair ? SLD_ENV_CONF.FixDigits.Open[this.state.curPair?.indexUnderlying] : 6}
+                  fix={fixDigit}
+                  precision={fixDigit}
                 />
               </HorizonItem>
             </ItemsBox>

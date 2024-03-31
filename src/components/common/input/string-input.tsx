@@ -90,7 +90,8 @@ export class StringInput extends BaseStateComponent<IProps, IState> {
             <input
               type={'text'}
               className={styleMr('sld_str_input_form', this.props.inputClassName)}
-              value={this.state.value || undefined}
+              //value={this.state.value || undefined}
+              defaultValue={this.props.value}
               placeholder={this.props.placeholder}
               onBlur={() => this.onFocus(false)}
               onFocus={() => this.onFocus(true)}

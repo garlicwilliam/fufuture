@@ -147,6 +147,8 @@ export class OrderFundingSchedule extends BaseStateComponent<IProps, IState> {
                   </div>
                   <div className={styles.content}>
                     {one.fundingFee.format({
+                      removeZero: true,
+                      fix: SLD_ENV_CONF.FixDigits.Open[this.props.order.indexUnderlying],
                       precision: SLD_ENV_CONF.FixDigits.Open[this.props.order.indexUnderlying],
                     })}
                   </div>
@@ -179,7 +181,7 @@ export class OrderFundingSchedule extends BaseStateComponent<IProps, IState> {
                   token={this.props.order.token.symbol}
                   symClassName={styleMr(styles.label)}
                   short={true}
-                  fix={3}
+                  fix={SLD_ENV_CONF.FixDigits.Open[this.props.order.indexUnderlying]}
                   rmZero={true}
                   precision={SLD_ENV_CONF.FixDigits.Open[this.props.order.indexUnderlying]}
                 />

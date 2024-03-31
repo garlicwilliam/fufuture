@@ -134,6 +134,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
           symClassName={styles.label}
           short={true}
           rmZero={true}
+          fix={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
           precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
         />
       ),
@@ -170,6 +171,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               symClassName={styles.label}
               short={true}
               rmZero={true}
+              fix={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
               precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
             />
 
@@ -195,6 +197,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
             short={true}
             sign={true}
             rmZero={true}
+            fix={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
             precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
           />
         );
@@ -310,6 +313,8 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               symClassName={styleMerge(styles.smallSize, styles.line1, styles.descColor)}
               short={true}
               sign={true}
+              rmZero={true}
+              fix={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
               precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
             />
           </div>
@@ -398,6 +403,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               symClassName={styles.label}
               short={true}
               rmZero={true}
+              fix={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
               precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
             />
           </VerticalItem>
@@ -415,6 +421,7 @@ export class ActiveOrderTable extends BaseStateComponent<IProps, IState> {
               symClassName={styles.label}
               short={true}
               rmZero={true}
+              fix={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
               precision={SLD_ENV_CONF.FixDigits.Open[row.indexUnderlying]}
             />
           </VerticalItem>

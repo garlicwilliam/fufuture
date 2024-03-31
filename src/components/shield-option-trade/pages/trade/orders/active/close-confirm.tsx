@@ -226,6 +226,7 @@ export class CloseOrderConfirm extends BaseStateComponent<IProps, IState> {
                   cssPick(pnl.lt(SldDecimal.ZERO), styles.short)
                 )}
                 rmZero={true}
+                fix={SLD_ENV_CONF.FixDigits.Open[this.state.order.indexUnderlying]}
                 precision={SLD_ENV_CONF.FixDigits.Open[this.state.order.indexUnderlying]}
               />
             </HorizonItem>

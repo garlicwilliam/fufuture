@@ -1,14 +1,14 @@
-import { EMPTY, from, Observable, of } from 'rxjs';
+import { concatMap, EMPTY, from, Observable, of } from 'rxjs';
 import * as request from 'superagent';
 import { Response } from 'superagent';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, filter, map, take } from 'rxjs/operators';
 
 export type HttpError = { err: any; ok: boolean };
 
 export function httpPost(
   url: string,
   param: any,
-  ops?: { isForm?: boolean; withCredentials?: boolean }
+  ops?: { isForm?: boolean; withCredentials?: boolean; throwErr?: boolean }
 ): Observable<any> {
   try {
     const postUrl = ops?.isForm
@@ -17,13 +17,46 @@ export function httpPost(
     return from(postUrl.send(param)).pipe(
       catchError(err => {
         console.warn('http post error is', err);
-        return of({ err, ok: false } as HttpError);
+        if (ops?.throwErr) {
+          throw err;
+        } else {
+          return of({ err, ok: false } as HttpError);
+        }
       })
     );
   } catch (err) {
     console.warn('http post error', err);
     return of({ err, ok: false, body: { code: 500 } } as HttpError);
   }
+}
+
+export function httpPostUseRetry(
+  urls: string[],
+  param: any,
+  ops?: { isForm?: boolean; withCredentials?: boolean; checker?: (res: Response) => boolean }
+): Observable<any> {
+  return from(urls).pipe(
+    concatMap(url => {
+      return httpPost(url, param, { ...ops, throwErr: true }).pipe(
+        catchError(err => {
+          return of(null);
+        }),
+        map(res => {
+          if (ops?.checker) {
+            if (ops.checker(res)) {
+              return res;
+            } else {
+              return null;
+            }
+          } else {
+            return res;
+          }
+        })
+      );
+    }),
+    filter(res => res !== null),
+    take(1)
+  );
 }
 
 export function httpGet(

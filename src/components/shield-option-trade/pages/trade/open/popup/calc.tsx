@@ -63,7 +63,14 @@ class Phase extends BaseStateComponent<PProps, PState> {
 
         <div className={styleMr(styles.valueFee)}>
           <PendingHolder loading={!!this.props.loading} useIcon={true}>
-            <TokenAmountInline amount={this.props.fee} token={''} precision={this.props.precision} short={true} />
+            <TokenAmountInline
+              amount={this.props.fee}
+              token={''}
+              fix={this.props.precision}
+              precision={this.props.precision}
+              rmZero={true}
+              short={true}
+            />
           </PendingHolder>
         </div>
       </div>
@@ -273,7 +280,7 @@ export class Calc extends BaseStateComponent<IProps, IState> {
     );
   }
 
-  genOverlay(styleMr: StyleMerger): ReactNode {
+  genOverlay(styleMr: StyleMerger, ops: { fixDigit: number }): ReactNode {
     const period: DeltaTime = displayDuration(this.state.fundingPeriod.toNumber());
 
     return (
@@ -323,11 +330,9 @@ export class Calc extends BaseStateComponent<IProps, IState> {
                     suffix={<span className={styleMr(styles.label)}>{this.state.indexUnderlying}</span>}
                     min={SldDecimal.ZERO}
                     max={this.maxAmount}
-                    disabled={this.state.userMaxOpen.lt(
-                      minDecimal(SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying], IndexUnderlyingDecimal)
-                    )}
+                    disabled={this.state.userMaxOpen.lt(minDecimal(ops.fixDigit, IndexUnderlyingDecimal))}
                     value={this.state.userOpenAmount}
-                    fix={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
+                    fix={ops.fixDigit}
                     onChange={val => P.Option.Trade.Calculator.OpenAmount.set(val)}
                   />
                 </HorizonItem>
@@ -335,36 +340,16 @@ export class Calc extends BaseStateComponent<IProps, IState> {
 
               <div className={styleMr(styles.phaseList)}>
                 <Phase
-                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
+                  precision={ops.fixDigit}
                   index={0}
                   loading={this.state.firstFundingFeePending}
                   fee={this.state.firstFundingFee?.phase0Fee || SldDecimal.ZERO}
                 />
-                <Phase
-                  index={1}
-                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
-                  fee={this.state.defaultPhaseFunding[1] || SldDecimal.ZERO}
-                />
-                <Phase
-                  index={2}
-                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
-                  fee={this.state.defaultPhaseFunding[2] || SldDecimal.ZERO}
-                />
-                <Phase
-                  index={3}
-                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
-                  fee={this.state.defaultPhaseFunding[3] || SldDecimal.ZERO}
-                />
-                <Phase
-                  index={4}
-                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
-                  fee={this.state.defaultPhaseFunding[4] || SldDecimal.ZERO}
-                />
-                <Phase
-                  index={5}
-                  precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
-                  fee={this.state.defaultPhaseFunding[5] || SldDecimal.ZERO}
-                />
+                <Phase index={1} precision={ops.fixDigit} fee={this.state.defaultPhaseFunding[1] || SldDecimal.ZERO} />
+                <Phase index={2} precision={ops.fixDigit} fee={this.state.defaultPhaseFunding[2] || SldDecimal.ZERO} />
+                <Phase index={3} precision={ops.fixDigit} fee={this.state.defaultPhaseFunding[3] || SldDecimal.ZERO} />
+                <Phase index={4} precision={ops.fixDigit} fee={this.state.defaultPhaseFunding[4] || SldDecimal.ZERO} />
+                <Phase index={5} precision={ops.fixDigit} fee={this.state.defaultPhaseFunding[5] || SldDecimal.ZERO} />
               </div>
             </ItemsBox>
           </FixPadding>
@@ -402,7 +387,8 @@ export class Calc extends BaseStateComponent<IProps, IState> {
                     symClassName={styleMr(styles.label)}
                     short={true}
                     rmZero={true}
-                    precision={SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying]}
+                    fix={ops.fixDigit}
+                    precision={ops.fixDigit}
                   />
                 </PendingHolder>
               </div>
@@ -417,6 +403,8 @@ export class Calc extends BaseStateComponent<IProps, IState> {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 
+    const fixDigit = SLD_ENV_CONF.FixDigits.Open[this.state.indexUnderlying];
+
     return (
       <div className={styleMr(styles.wrapperCalc)}>
         <SldOverlay
@@ -424,7 +412,7 @@ export class Calc extends BaseStateComponent<IProps, IState> {
           offset={4}
           useArrow={false}
           trigger={'click'}
-          overlay={this.genOverlay(styleMr)}
+          overlay={this.genOverlay(styleMr, { fixDigit })}
           placement={'top-start'}
           forceTriggerEvent={this.state.forceClose}
         >
