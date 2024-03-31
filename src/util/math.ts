@@ -160,7 +160,6 @@ function numPrecision(num: string, precision: number, strategy: 'ceil' | 'round'
 
   const decStart = isInt0 ? digitIndex(dec) : 0;
   if (decStart === -1) {
-    console.log(intStr);
     return intStr;
   }
 
@@ -169,7 +168,6 @@ function numPrecision(num: string, precision: number, strategy: 'ceil' | 'round'
 
   if (decLen <= decTargetLen) {
     const decStr = _.padEnd(dec, decTargetLen, '0');
-    console.log(intStr, decStr);
     return [intStr, decStr].join('.');
   }
 
@@ -186,7 +184,6 @@ function numPrecision(num: string, precision: number, strategy: 'ceil' | 'round'
     numStr = '-' + numStr;
   }
 
-  console.log('num str', numStr);
   return numStr;
 }
 
