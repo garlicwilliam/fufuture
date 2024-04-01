@@ -175,9 +175,7 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
                   disabled={this.props.disableConnection}
                 />
               ) : (
-                <>
-                  <DeeplinkButton name={EthereumProviderName.MetaMask} />
-                </>
+                <>{/*<DeeplinkButton name={EthereumProviderName.MetaMask} />*/}</>
               )}
 
               <WalletConnectButton styleType={buttonType} disabled={this.props.disableConnection} />
