@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs';
-import { Wallet } from '../constant';
 import { Network } from '../constant/network';
 import { providers, Signer } from 'ethers';
 import { SldDecimal } from '../util/decimal';
 import { WcWalletInfo } from '../services/wc-modal/wc-modal.service';
+import { Wallet } from './define';
 
 /**
  * 一个钱包实例要实现的接口
@@ -35,5 +35,7 @@ export interface WalletInterface {
 
   getNativeBalance(): Observable<SldDecimal>;
 
-  walletName(): string;
+  walletName(): string | { name: string; url: string };
+
+  signMessage(message: string): Observable<{ signature: string }>;
 }

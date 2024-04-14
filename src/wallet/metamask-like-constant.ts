@@ -1,8 +1,8 @@
-import { EthereumProviderName } from '../constant';
 import { NEVER, Observable, of } from 'rxjs';
 import { EthereumProviderInterface } from './metamask-like-types';
 import { filter } from 'rxjs/operators';
 import * as _ from 'lodash';
+import { EthereumProviderName } from './define';
 
 declare const window: Window & { ethereum: any } & any;
 
@@ -17,6 +17,7 @@ const nonMetaMaskFields = [
   'isTrust',
   'isONTO',
   'isCoin98',
+  'isBinance',
 ];
 
 function isGateWalletProvider(provider: any): boolean {
@@ -24,7 +25,9 @@ function isGateWalletProvider(provider: any): boolean {
 }
 
 function metamaskDetect(): boolean {
-  const hasWeb3: boolean = !!window.web3 && !!window.web3.currentProvider && !!window.web3.currentProvider.isMetaMask;
+  const web3Provider = !!window.web3 && !!window.web3.currentProvider ? window.web3.currentProvider : null;
+  const hasWeb3: boolean = !!web3Provider && !!web3Provider.isMetaMask;
+
   const hasEthereum: boolean =
     checkWalletInjection('isMetaMask', nonMetaMaskFields) && !isGateWalletProvider(window.ethereum);
 
@@ -42,8 +45,18 @@ function metamaskGetter(): Observable<EthereumProviderInterface> {
   }
 }
 
+function providerConfirm(provider: any, checkField: string, not?: string[]): boolean {
+  return provider[checkField] && !(not || []).some(one => !!provider[one]);
+}
+
 function checkEthereum(checkField: string, not?: string[]): boolean {
-  return !!window.ethereum && window.ethereum[checkField] && !(not || []).some(one => !!window.ethereum[one]);
+  const provider = window.ethereum;
+
+  if (provider) {
+    return providerConfirm(provider, checkField, not);
+  } else {
+    return false;
+  }
 }
 
 function checkEthereumProviders(checkField: string, not?: string[]): boolean {
@@ -100,6 +113,7 @@ function findWalletInjection(checkField: string, not?: string[]): EthereumProvid
 export const ProviderExistDetectors: { [key in EthereumProviderName]: () => boolean } = {
   [EthereumProviderName.MetaMask]: () => metamaskDetect(),
   [EthereumProviderName.BitKeep]: () => !!window?.bitkeep && !!window.bitkeep.ethereum?.isBitKeep,
+  [EthereumProviderName.Binance]: () => !!window.ethereum && window.ethereum.isBinance,
   [EthereumProviderName.MetaMaskLike]: () => !!window.ethereum,
   [EthereumProviderName.Coinbase]: () => {
     return checkWalletInjection('isCoinbaseWallet');
@@ -144,6 +158,7 @@ export const ProviderExistDetectors: { [key in EthereumProviderName]: () => bool
 export const ProviderGetters: { [key in EthereumProviderName]: () => Observable<EthereumProviderInterface> } = {
   [EthereumProviderName.MetaMask]: () => metamaskGetter(),
   [EthereumProviderName.BitKeep]: () => of(window?.bitkeep?.ethereum),
+  [EthereumProviderName.Binance]: () => of(window?.ethereum),
   [EthereumProviderName.MetaMaskLike]: () => of(window?.ethereum),
   [EthereumProviderName.Coinbase]: () => {
     return of(findWalletInjection('isCoinbaseWallet')).pipe(filter(Boolean));

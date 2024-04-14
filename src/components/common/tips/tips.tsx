@@ -34,6 +34,11 @@ export class SldTips extends BaseStateComponent<IProps, IState> {
     this.destroyState();
   }
 
+  stopClick(event: React.MouseEvent<HTMLSpanElement, MouseEvent>) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
   render() {
     return (
       <SldOverlay
@@ -45,7 +50,7 @@ export class SldTips extends BaseStateComponent<IProps, IState> {
         overlayClassName={this.props.overlayClassName}
         useBorder={true}
       >
-        {this.props.icon ? this.props.icon : <InfoCircleOutlined />}
+        <span onClick={this.stopClick.bind(this)}>{this.props.icon ? this.props.icon : <InfoCircleOutlined />}</span>
       </SldOverlay>
     );
   }

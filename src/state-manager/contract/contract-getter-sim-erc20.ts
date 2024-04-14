@@ -38,7 +38,6 @@ export function erc20SymbolGetter(erc20Contract: Contract): Observable<string> {
     erc20Contract.symbol() as Promise<string>,
     `[${shortAddress(erc20Contract.address)}] symbol()`
   );
-
   return cacheService.tryUseCache(symbol$, cacheKey, CACHE_FOREVER);
 }
 

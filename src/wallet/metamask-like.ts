@@ -1,8 +1,8 @@
-import { asyncScheduler, BehaviorSubject, combineLatest, Observable, of, switchMap, zip } from 'rxjs';
+import { asyncScheduler, BehaviorSubject, combineLatest, from, Observable, of, switchMap, zip } from 'rxjs';
 import { WalletInterface } from './wallet-interface';
 import { Network } from '../constant/network';
 import { SldDecimal } from '../util/decimal';
-import { ETH_DECIMAL, EthereumProviderName, Wallet } from '../constant';
+import { ETH_DECIMAL } from '../constant';
 import * as ethers from 'ethers';
 import { BigNumber, providers, Signer } from 'ethers';
 import {
@@ -19,6 +19,7 @@ import { EthereumProviderInterface, EthereumProviderState, EthereumSpecifyMethod
 import { isEthNetworkGroup } from '../constant/network-util';
 import { NetworkParams } from '../constant/network-conf';
 import { NetworkParamConfig } from '../constant/network-type';
+import { EthereumProviderName, Wallet } from './define';
 
 type AccountRetrievedType = string | null;
 type AccountValType = AccountRetrievedType | undefined;
@@ -274,5 +275,17 @@ export class MetamaskLike implements WalletInterface {
   public walletName(): string {
     const curProviderState: ProviderStateType = this.manager.getCurrentSelected();
     return curProviderState ? curProviderState.name : EthereumProviderName.MetaMask;
+  }
+
+  public signMessage(message: string): Observable<{ signature: string }> {
+    return this.watchSigner().pipe(
+      take(1),
+      switchMap((signer: Signer) => {
+        return from(signer.signMessage(message));
+      }),
+      map(signature => {
+        return { signature };
+      })
+    );
   }
 }

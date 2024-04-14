@@ -9,6 +9,7 @@ const fufutureEntries = [
   },
 ];
 
+
 const entries = fufutureEntries;
 
 module.exports = { entries };

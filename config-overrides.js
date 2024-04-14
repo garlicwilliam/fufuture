@@ -125,6 +125,11 @@ module.exports = {
   devServer: overrideDevServer(config => {
     return {
       ...config,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
+      },
       historyApiFallback: {
         // rewrites: [{ from: /^\/v2/, to: '/dds2.html' }],
       },

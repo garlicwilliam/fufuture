@@ -219,20 +219,4 @@ export const PAGE_STATE = {
       },
     },
   },
-  Omni: {
-    loginAddress: {
-      _default: null as null | string,
-    },
-    SwitchUser: {
-      _default: false as boolean,
-    },
-    DisplayName: {
-      _default: false as boolean,
-    },
-    Points: {
-      LockStone: {
-        _default: false as boolean,
-      },
-    },
-  },
 };

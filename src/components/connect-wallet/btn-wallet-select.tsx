@@ -1,6 +1,5 @@
 import { BaseStateComponent } from '../../state-manager/base-state-component';
 import { SelectButton } from '../common/buttons/select-btn';
-import { Wallet } from '../../constant';
 import { combineLatest, Observable, of, switchMap } from 'rxjs';
 import { walletState } from '../../state-manager/wallet/wallet-state';
 import { map, take, tap } from 'rxjs/operators';
@@ -12,6 +11,7 @@ import { cssPick } from '../../util/string';
 import { fontCss } from '../i18n/font-switch';
 import { WalletInterface } from '../../wallet/wallet-interface';
 import { WcWalletInfo } from '../../services/wc-modal/wc-modal.service';
+import { checkIsMatchWalletInfo, checkRegisteredWalletConnectPeer, Wallet } from '../../wallet/define';
 
 type IProps = {
   onClick?: (wallet: Wallet) => void;
@@ -50,16 +50,16 @@ export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
           return walletState.watchWalletInstance().pipe(
             take(1),
             map((wallet: WalletInterface) => {
-              return wallet.walletName();
+              return wallet.walletName() as { url: string; name: string };
             }),
-            tap(peerName => {
-              this.updateState({ peerName });
+            tap((peer: { url: string; name: string }) => {
+              this.updateState({ peerName: peer.name });
             }),
-            map((name: string): boolean => {
+            map((peer): boolean => {
               if (this.props.walletInfo) {
-                return name.toLowerCase().indexOf(this.props.walletInfo.nameShort.toLowerCase()) >= 0;
+                return checkIsMatchWalletInfo(peer, this.props.walletInfo);
               } else {
-                return isActive;
+                return !checkRegisteredWalletConnectPeer(peer);
               }
             })
           );
@@ -70,7 +70,7 @@ export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
     );
   }
 
-  onClickBtn() {
+  private onClickBtn() {
     walletState.connectToWallet(Wallet.WalletConnect, { walletInfo: this.props.walletInfo || undefined });
   }
 

@@ -1,10 +1,13 @@
-import { NET_ARBITRUM, NET_BNB, Network } from '../../../constant/network';
+import { NET_ARBITRUM, NET_BNB, NET_POLYGON, Network } from '../../../constant/network';
 import { ShieldUnderlyingType, TokenErc20 } from '../../../state-manager/state-types';
 import { ShieldOptionTradeContracts, ShieldUnderlyingContracts } from './shield-option-address';
 
 import fufutureLogoDark from '../../../assets/imgs/logo/fufuture/fufuture-1-dark.svg';
 import fufutureLogo from '../../../assets/imgs/logo/fufuture/fufuture-1-light.svg';
 import fufutureMobile from '../../../assets/imgs/logo/fufuture/fufuture-1.svg';
+import deepLight from '../../../assets/imgs/logo/deepex/deepex-light.svg';
+import deepDark from '../../../assets/imgs/logo/deepex/deepex-dark.svg';
+import deepMobile from '../../../assets/imgs/logo/deepex/deepex.svg';
 
 enum OracleType {
   ChainLink,
@@ -121,6 +124,40 @@ const env2: { [k in Env]: EnvConfig } = {
           BTC: {
             type: OracleType.ChainLink,
             address: '0x6ce185860a4963106506C203335A2910413708e9',
+          },
+        },
+        ClosePriceNeedFix: false,
+      },
+      [NET_POLYGON]: {
+        CurNetwork: NET_POLYGON,
+        DefaultToken: {
+          symbol: 'POT',
+          address: '0x4Cbfcb5772A79E8f08A0D9eaE06279176392FbC3',
+          decimal: 18,
+          network: NET_POLYGON,
+        },
+        SubGraphUrl: 'https://api.studio.thegraph.com/query/70107/fufuture-polygon/version/latest',
+        SubGraphOracleUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/chainlink-price-bsc',
+        Addresses: {
+          trade: {
+            optionTrade: '0xe52adac17dcfc9be6975ce99c1637e38336c8931',
+            liquidityManager: '0xb711ba37fa74b99e70c27e82def0b15a50ac7a9e',
+            liquidityFactory: '0x95fd2771a95caf4a89e83d744c8f28e1d041da4e',
+            broker: '0x502c7c64692b94c6c8f4d755878cc50e768566ce',
+          },
+          underlying: {
+            ETH: '0x11d7b1dd7ba4f93f04a94d5301f5fe397495380e',
+            BTC: '0x38e11092e0c935db3beed7929ee023acd86ae7c8',
+          },
+        },
+        Oracles: {
+          ETH: {
+            type: OracleType.ChainLink,
+            address: '0xF9680D99D6C9589e2a93a78A04A279e509205945',
+          },
+          BTC: {
+            type: OracleType.ChainLink,
+            address: '0xc907E116054Ad103354f2D350FD2514433D57F6f',
           },
         },
         ClosePriceNeedFix: false,

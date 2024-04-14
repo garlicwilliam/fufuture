@@ -151,6 +151,25 @@ export class BaseStateComponent<O, S> extends Component<O, S> {
     this.subs.push(sub);
   }
 
+  public registerStatePick<N extends keyof S, F extends string, T extends { [k in F]: S[N] }>(
+    name: N,
+    state:
+      | ContractState<T>
+      | PageState<T>
+      | DatabaseState<T>
+      | CacheState<T | null>
+      | Observable<ContractState<T> | PageState<T> | DatabaseState<T> | CacheState<T | null>>,
+    pickField: F
+  ): void {
+    const stateObs = isObservable(state) ? state : of(state);
+    const sub: Subscription = stateObs.pipe(switchMap(state => state.watch())).subscribe(t => {
+      const newState = { [name]: t ? t[pickField] : null };
+      this.updateState(newState as Partial<S>);
+    });
+
+    this.subs.push(sub);
+  }
+
   public registerStateWithLast<N extends keyof S>(
     name: N,
     oldName: N,

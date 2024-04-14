@@ -1,5 +1,4 @@
 import { AsyncSubject, distinctUntilChanged, Observable, of, Subject, combineLatest } from 'rxjs';
-import { EthereumProviderName, Wallet } from '../../constant';
 import { walletManager2 } from '../../wallet/wallet-manager2';
 import { filter, map, switchMap, take } from 'rxjs/operators';
 import { WalletInterface } from '../../wallet/wallet-interface';
@@ -8,6 +7,7 @@ import { Signer, providers } from 'ethers';
 import { SldDecimal } from '../../util/decimal';
 import { walletAgree } from './wallet-agree';
 import { WcWalletInfo } from '../../services/wc-modal/wc-modal.service';
+import { EthereumProviderName, Wallet } from '../../wallet/define';
 
 export class WalletState {
   public readonly USER_ADDR: Observable<string>;
@@ -118,7 +118,8 @@ export class WalletState {
 
     return combineLatest([isWalletAgree$, realConnected$]).pipe(
       map(([isAgree, isConnected]) => {
-        return isAgree && isConnected;
+        // console.log('isAgree', isAgree, 'isConnected', isConnected);
+        return isConnected;
       }),
       distinctUntilChanged()
     );
@@ -150,6 +151,17 @@ export class WalletState {
       .subscribe(res);
 
     return res;
+  }
+
+  // sign the message
+  signMessage(message: string): Observable<string> {
+    return this.watchWalletInstance().pipe(
+      take(1),
+      switchMap((wallet: WalletInterface) => {
+        return wallet.signMessage(message);
+      }),
+      map(res => res.signature)
+    );
   }
 }
 

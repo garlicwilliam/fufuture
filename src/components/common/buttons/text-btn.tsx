@@ -1,6 +1,7 @@
 import { BaseStateComponent } from '../../../state-manager/base-state-component';
 import styles from './text-btn.module.less';
-import { styleMerge } from '../../../util/string';
+import { bindStyleMerger, cssPick, styleMerge, StyleMerger } from '../../../util/string';
+import { P } from '../../../state-manager/page/page-state-parser';
 
 type IProps = {
   onClick?: () => void;
@@ -14,7 +15,7 @@ type IState = {
 
 export class TextBtn extends BaseStateComponent<IProps, IState> {
   state: IState = {
-    isMobile: false,
+    isMobile: P.Layout.IsMobile.get(),
   };
 
   componentDidMount() {
@@ -37,10 +38,17 @@ export class TextBtn extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
-    const disableCss = this.props.disabled ? styles.disabled : '';
+    const mobileCss: string = this.state.isMobile ? styles.mobile : '';
+    const styleMr: StyleMerger = bindStyleMerger(mobileCss);
+
     return (
       <div
-        className={styleMerge(styles.textButton, disableCss, this.props.className)}
+        className={styleMr(
+          styles.textButton,
+          'sld-txt-button',
+          cssPick(this.props.disabled, styles.disabled, 'sld-txt-button-disabled'),
+          this.props.className
+        )}
         onClick={this.onClick.bind(this)}
       >
         {this.props.children}

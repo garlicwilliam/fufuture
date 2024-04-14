@@ -1,4 +1,4 @@
-import { concatMap, EMPTY, from, Observable, of } from 'rxjs';
+import { concatMap, EMPTY, from, isObservable, Observable, of, switchMap, timeout } from 'rxjs';
 import * as request from 'superagent';
 import { Response } from 'superagent';
 import { catchError, filter, map, take } from 'rxjs/operators';
@@ -30,14 +30,39 @@ export function httpPost(
   }
 }
 
-export function httpPostUseRetry(
-  urls: string[],
+export const normalChecker = (res: Response) => res.status === 200;
+export const normalTimeout = 20000;
+
+export function httpPostDetect(
+  url: string,
   param: any,
-  ops?: { isForm?: boolean; withCredentials?: boolean; checker?: (res: Response) => boolean }
+  ops: { isForm?: boolean; withCredentials?: boolean; checker: (res: Response) => boolean; timeout?: number }
+): Observable<boolean> {
+  return httpPost(url, param, { ...ops, throwErr: true }).pipe(
+    timeout(ops.timeout || 30000),
+    catchError(err => {
+      return of(false);
+    }),
+    map(res => {
+      return ops.checker(res);
+    })
+  );
+}
+
+export function httpPostUseRetry(
+  urls: string[] | Observable<string[]>,
+  param: any,
+  ops?: { isForm?: boolean; withCredentials?: boolean; checker: (res: Response) => boolean; timeout?: number }
 ): Observable<any> {
-  return from(urls).pipe(
+  const urls$ = isObservable(urls) ? urls : of(urls);
+
+  return urls$.pipe(
+    switchMap(urls => {
+      return from(urls);
+    }),
     concatMap(url => {
       return httpPost(url, param, { ...ops, throwErr: true }).pipe(
+        timeout(ops?.timeout || 30000),
         catchError(err => {
           return of(null);
         }),

@@ -8,14 +8,19 @@ import {
   NET_MANTA_PACIFIC_TEST,
   NET_SEPOLIA,
 } from './network';
+import { genRpcProviderGetter, RpcProviderGen } from '../state-manager/contract/contract-provider-utils';
 
 export const RPC_URLS = {
   [NET_BNB_TEST]: 'https://data-seed-prebsc-2-s2.binance.org:8545/',
   [NET_BNB]: 'https://bscrpc.com',
-  [NET_ETHEREUM]: 'https://mainnet.infura.io/v3/abc4c36a4ae54715bc7a4ecedd5a8490',
+  [NET_ETHEREUM]: 'https://rpc.mevblocker.io/fast', //'https://mainnet.infura.io/v3/abc4c36a4ae54715bc7a4ecedd5a8490',
   [NET_SEPOLIA]: 'https://sepolia.infura.io/v3/abc4c36a4ae54715bc7a4ecedd5a8490',
   [NET_MANTA_PACIFIC]: 'https://pacific-rpc.manta.network/http',
   [NET_MANTA_PACIFIC_TEST]: 'https://pacific-rpc.testnet.manta.network/http',
   [NET_ARBITRUM]: 'https://arbitrum.public-rpc.com',
   [NET_ARBITRUM_SEPOLIA]: 'https://arbitrum-sepolia.infura.io/v3/abc4c36a4ae54715bc7a4ecedd5a8490',
 };
+
+const providers: RpcProviderGen = genRpcProviderGetter(RPC_URLS);
+
+export const getRpcProvider = providers;

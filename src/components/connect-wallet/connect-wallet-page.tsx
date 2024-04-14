@@ -2,13 +2,6 @@ import { BaseStateComponent } from '../../state-manager/base-state-component';
 import { MetamaskButton } from './btn-metamask';
 import { WalletConnectButton } from './btn-wallet-select';
 import { AddressButton } from './btn-address';
-import {
-  EthereumProviderName,
-  SldWalletId,
-  Wallet,
-  WalletConnectWalletInfo,
-  WalletConnectWalletName,
-} from '../../constant';
 import { walletState } from '../../state-manager/wallet/wallet-state';
 import styles from './connect-wallet-page.module.less';
 import { DisconnectButton } from './btn-disconnect';
@@ -21,6 +14,13 @@ import { Visible } from '../builtin/hidden';
 import { AppName, getAppName } from '../../util/app';
 import * as _ from 'lodash';
 import { DeeplinkButton } from './btn-deeplink';
+import {
+  EthereumProviderName,
+  SldWalletId,
+  Wallet,
+  WalletConnectWalletInfo,
+  WalletConnectWalletName,
+} from '../../wallet/define';
 
 type IProps = {
   styleType?: WalletButtonStyleType;
@@ -175,7 +175,12 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
                   disabled={this.props.disableConnection}
                 />
               ) : (
-                <>{/*<DeeplinkButton name={EthereumProviderName.MetaMask} />*/}</>
+                <>
+                  <DeeplinkButton name={EthereumProviderName.MetaMask} />
+                  <Visible when={getAppName() === AppName.Stone || getAppName() === AppName.StoneOmni}>
+                    <DeeplinkButton name={WalletConnectWalletName.Binance} />
+                  </Visible>
+                </>
               )}
 
               <WalletConnectButton styleType={buttonType} disabled={this.props.disableConnection} />
@@ -200,6 +205,7 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
                   />
                 ) : (
                   <WalletConnectButton
+                    key={walletId.id}
                     walletInfo={WalletConnectWalletInfo[walletId.id]}
                     styleType={buttonType}
                     disabled={this.props.disableConnection}

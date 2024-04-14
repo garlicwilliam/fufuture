@@ -19,6 +19,7 @@ type IState = {
 type IProps = {
   children?: any;
   curTabId?: string;
+  priorityTabId?: string;
   tabStyle?: 'normal' | 'light' | 'offset';
   tabParam?: {
     normal?: { align?: 'left'; noBg?: boolean };
@@ -109,7 +110,12 @@ export class SldTabs extends BaseStateComponent<IProps, IState> {
     }
 
     if (!curTab) {
-      const defaultSelect = tabs.find(one => !one.props.disabled);
+      const prioritySelect: ReactElement | undefined = tabs.find(
+        (one: ReactElement) => one.props.tid === this.props.priorityTabId && !one.props.disabled
+      );
+      const defaultSelect: ReactElement | undefined =
+        prioritySelect || tabs.find((one: ReactElement) => !one.props.disabled);
+
       curTab = defaultSelect ? defaultSelect : tabs.length > 0 ? tabs[0] : undefined;
     }
 

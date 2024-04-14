@@ -14,9 +14,12 @@ import walletconnect from '../../assets/imgs/wallet/wallet-connect.svg';
 import bitizen from '../../assets/imgs/wallet/bitizen.svg';
 import safepal from '../../assets/imgs/wallet/safepal.svg';
 import gate from '../../assets/imgs/wallet/gatewallet.svg';
+import safe from '../../assets/imgs/wallet/safe.svg';
+import binance from '../../assets/imgs/wallet/binance.svg';
+import binance2 from '../../assets/imgs/wallet/binance2.svg';
 
-import { EthereumProviderName } from '../../constant';
 import { ReactNode } from 'react';
+import { EthereumProviderName, WalletConnectWalletInfo, WalletConnectWalletName } from '../../wallet/define';
 export {
   metamask,
   imtoken,
@@ -34,9 +37,12 @@ export {
   safepal,
   bitget,
   gate,
+  safe,
+  binance,
+  binance2,
 };
 
-export const WALLET_ICONS_MAP: { [w in EthereumProviderName]: string } = {
+export const WALLET_ICONS_MAP: { [w in EthereumProviderName | WalletConnectWalletName]: string } = {
   [EthereumProviderName.MetaMask]: metamask,
   [EthereumProviderName.MathWallet]: math,
   [EthereumProviderName.BitKeep]: bitget,
@@ -52,9 +58,12 @@ export const WALLET_ICONS_MAP: { [w in EthereumProviderName]: string } = {
   [EthereumProviderName.TrustWallet]: trust,
   [EthereumProviderName.Coin98]: coin98,
   [EthereumProviderName.GateWallet]: gate,
+  [EthereumProviderName.Binance]: binance2,
+  [WalletConnectWalletName.Binance]: binance,
+  [WalletConnectWalletName.WalletConnect]: walletconnect,
 };
 
-export const WALLET_NAME_MAP: { [w in EthereumProviderName]: string } = {
+export const WALLET_NAME_MAP: { [w in EthereumProviderName | WalletConnectWalletName]: string } = {
   [EthereumProviderName.MetaMask]: 'MetaMask',
   [EthereumProviderName.MathWallet]: 'Math Wallet',
   [EthereumProviderName.BitKeep]: 'Bitget Wallet',
@@ -70,9 +79,13 @@ export const WALLET_NAME_MAP: { [w in EthereumProviderName]: string } = {
   [EthereumProviderName.TrustWallet]: 'Trust Wallet',
   [EthereumProviderName.Coin98]: 'Coin98 Wallet',
   [EthereumProviderName.GateWallet]: 'Gate Wallet',
+  [EthereumProviderName.Binance]: 'Binance Web3 Wallet',
+  [WalletConnectWalletName.Binance]:
+    WalletConnectWalletInfo[WalletConnectWalletName.Binance]?.name || 'Binance Web3 Wallet',
+  [WalletConnectWalletName.WalletConnect]: 'Wallet Connect',
 };
 
-export function iconNode(name: EthereumProviderName): ReactNode {
+export function iconNode(name: EthereumProviderName | WalletConnectWalletName): ReactNode {
   return (
     <div
       style={{

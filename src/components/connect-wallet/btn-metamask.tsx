@@ -1,10 +1,10 @@
 import { BaseStateComponent } from '../../state-manager/base-state-component';
 import { SelectButton } from '../common/buttons/select-btn';
-import { EthereumProviderName, Wallet } from '../../constant';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { walletState } from '../../state-manager/wallet/wallet-state';
 import { map } from 'rxjs/operators';
 import {
+  binance,
   bitget,
   bitizen,
   coin98,
@@ -30,6 +30,7 @@ import { ReactNode } from 'react';
 import { fontCss } from '../i18n/font-switch';
 import { cssPick } from '../../util/string';
 import { metamaskProviderManager } from '../../wallet/metamask-like-manager';
+import { EthereumProviderName, Wallet } from '../../wallet/define';
 
 const isImToken: boolean = (window as any).ethereum?.isImToken || false;
 const isMetaMask: boolean = (window as any).ethereum?.isMetaMask || false;
@@ -45,6 +46,7 @@ const isTokenPocket: boolean = (window as any).ethereum?.isTokenPocket || false;
 const isOKXWallet: boolean = (window as any).okexchain?.isOKExWallet || false;
 const isBitizen: boolean = (window as any).ethereum?.isBitizen || false;
 const isSafePal: boolean = (window as any).ethereum?.isSafePal || false;
+const isBinance: boolean = (window as any).ethereum?.isBinance || false;
 
 type IProps = {
   targetProvider: EthereumProviderName;
@@ -256,7 +258,7 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
     } else if (this.props.targetProvider === EthereumProviderName.BitKeep) {
       return { icon: bitget, name: 'Bitget Wallet' };
     } else if (this.props.targetProvider === EthereumProviderName.MetaMask) {
-      return { icon: metamask, name: 'MetaMask' };
+      return { icon: metamask, name: 'MetaMask.' };
     } else if (this.props.targetProvider === EthereumProviderName.Coinbase) {
       return { icon: coinbase, name: 'Coinbase Wallet' };
     } else if (this.props.targetProvider === EthereumProviderName.HyperPay) {
@@ -275,11 +277,15 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
       return { icon: coin98, name: 'Coin98' };
     } else if (this.props.targetProvider === EthereumProviderName.GateWallet) {
       return { icon: gate, name: 'Gate Wallet' };
+    } else if (this.props.targetProvider === EthereumProviderName.Binance) {
+      return { icon: binance, name: 'Binance Web3 Wallet' };
     } else if (this.props.targetProvider === EthereumProviderName.MetaMaskLike) {
       if (isBitizen) {
         return { icon: bitizen, name: 'Bitizen' };
       } else if (isBitKeep) {
         return { icon: bitget, name: 'Bitget Wallet' };
+      } else if (isBinance) {
+        return { icon: binance, name: 'Binance Web3 Wallet' };
       } else if (isSafePal) {
         return { icon: safepal, name: 'SafePal' };
       } else if (isImToken) {
@@ -307,7 +313,7 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
       }
     }
 
-    return { icon: metamask, name: 'MetaMask' };
+    return { icon: metamask, name: 'Injected' };
   }
 
   private messageInstallMetamask(walletName: string): ReactNode {
@@ -372,7 +378,7 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
       ? this.messageInstallMetamask(name)
       : this.messageSwitchToWallet(name);
 
-    const iconNode = this.props.styleType === 'popup' ? this.genBtnIcon() : this.genIcon();
+    const iconNode: ReactNode = this.props.styleType === 'popup' ? this.genBtnIcon() : this.genIcon();
 
     return hidden ? null : (
       <SelectButton

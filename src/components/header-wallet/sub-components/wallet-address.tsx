@@ -4,13 +4,13 @@ import { walletState } from '../../../state-manager/wallet/wallet-state';
 import { shortAddress } from '../../../util';
 import { P } from '../../../state-manager/page/page-state-parser';
 import { bindStyleMerger, styleMerge, StyleMerger } from '../../../util/string';
-import { EthereumProviderName, Wallet } from '../../../constant';
 import { ReactNode } from 'react';
-import { WALLET_ICONS_MAP, walletconnect } from '../../connect-wallet/wallet-icons';
+import { WALLET_ICONS_MAP, walletconnect, safe } from '../../connect-wallet/wallet-icons';
 import { metamaskProviderManager } from '../../../wallet/metamask-like-manager';
 import { map } from 'rxjs/operators';
 import { ConnectWallet } from './connect-wallet';
 import { Visible } from '../../builtin/hidden';
+import { EthereumProviderName, Wallet } from '../../../wallet/define';
 
 type IProps = {
   className?: string;
@@ -53,7 +53,11 @@ export class WalletAddress extends BaseStateComponent<IProps, IState> {
     const className: string = styleMr(styles.walletIcon, 'shield-wallet-address-icon');
 
     if (this.state.walletType === Wallet.WalletConnect) {
-      return <img src={walletconnect} alt={''} className={className} />;
+      return <img src={walletconnect} alt={'WalletConnect'} className={className} />;
+    }
+
+    if (this.state.walletType === Wallet.SafeWallet) {
+      return <img src={safe} alt={'Safe'} className={className} />;
     }
 
     if (this.state.metamaskWalletProvider === null) {
@@ -64,6 +68,13 @@ export class WalletAddress extends BaseStateComponent<IProps, IState> {
     return <img src={icon} alt={''} className={className} />;
   }
 
+  onClickAddr() {
+    if (this.state.walletType === Wallet.SafeWallet) {
+      return;
+    }
+    P.Layout.IsShowWalletModal.set(true);
+  }
+
   render(): JSX.Element {
     const mobileCss: string = this.state.isMobile ? styles.mobile : '';
     const styleMr: StyleMerger = bindStyleMerger(mobileCss);
@@ -71,7 +82,7 @@ export class WalletAddress extends BaseStateComponent<IProps, IState> {
     return this.state.walletConnected ? (
       <div
         className={styleMerge(styles.walletAddress, 'shield-wallet-address', this.props.className)}
-        onClick={() => P.Layout.IsShowWalletModal.set(true)}
+        onClick={this.onClickAddr.bind(this)}
       >
         <>
           {this.genProviderIcon(styleMr)}

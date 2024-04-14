@@ -1,5 +1,5 @@
 import { WalletInterface } from './wallet-interface';
-import {ETH_DECIMAL, Wallet} from '../constant';
+import { ETH_DECIMAL } from '../constant';
 import * as ethers from 'ethers';
 import { BigNumber, providers, Signer } from 'ethers';
 import { Network } from '../constant/network';
@@ -25,6 +25,8 @@ import { SessionTypes } from '@walletconnect/types';
 import { WalletConnectModal } from '@walletconnect/modal';
 import { networkHex } from '../constant/network-util';
 import { wcModalService, WcWalletInfo } from '../services/wc-modal/wc-modal.service';
+import { Wallet } from './define';
+import * as _ from 'lodash';
 
 function getAccountsFromSession(session: SessionTypes.Struct, chain: string): string[] {
   const namespace: SessionTypes.BaseNamespace | undefined = session.namespaces[WcNetNamespace.eip155];
@@ -53,6 +55,17 @@ export class WalletConnect implements WalletInterface {
   private modal: WalletConnectModal = new WalletConnectModal({
     projectId: this.createProjectId(),
     themeVariables: { '--wcm-z-index': '2000' },
+    explorerRecommendedWalletIds: [
+      'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96',
+      '8a0ee50d1f22f6651afcae7eb4253e52a3310b90af5daef78a8c4929a9bb99d4',
+      '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0',
+      'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa',
+      '38f5d18bd8522c244bdd70cb4a68e0e718865155811c043f052fb9f1c51de662',
+      '971e689d0a5be527bac79629b4ee9b925e82208e5168b733496a09c0faed0709',
+      '20459438007b75f4f4acb98bf29aa3b800550309646d375da5fd4aac6c2a2c66',
+      '2a3c89040ac3b723a1972a33a125b1db11e258a6975d3a61252cd64e6ea5ea01',
+      '19177a98252e07ddfc9af2083ba8e07ef627cb6103467ffebb3f8f4205fd7927',
+    ],
   });
 
   private customWalletInfo: WcWalletInfo | null = null;
@@ -138,13 +151,15 @@ export class WalletConnect implements WalletInterface {
   }
 
   doConnect(wallet?: WcWalletInfo): Observable<boolean> {
-    if (wallet) {
-      this.customWalletInfo = wallet;
-    } else {
-      this.customWalletInfo = null;
-    }
+    const specifyWalletInfo: WcWalletInfo | null = wallet ? wallet : null;
+    const preDeal$: Observable<boolean> = specifyWalletInfo !== this.customWalletInfo ? this.disconnect() : of(true);
 
-    return this.walletConnectProviderHolder.pipe(
+    this.customWalletInfo = specifyWalletInfo ? specifyWalletInfo : null;
+
+    return preDeal$.pipe(
+      switchMap(() => {
+        return this.walletConnectProviderHolder;
+      }),
       filter(Boolean),
       take(1),
       switchMap((provider: IUniversalProvider) => {
@@ -257,12 +272,17 @@ export class WalletConnect implements WalletInterface {
     return this.curNetwork.pipe(filter(Boolean));
   }
 
-  walletName(): string {
+  walletName(): string | { name: string; url: string } {
     const provider = this.walletConnectProviderHolder.getValue();
+
     if (provider && provider.isWalletConnect) {
       const session = provider.session;
+
       if (session) {
-        return session.peer.metadata.name;
+        const name: string = session.peer.metadata.name;
+        const url: string = session.peer.metadata.url;
+
+        return { name, url };
       }
     }
 
@@ -295,6 +315,18 @@ export class WalletConnect implements WalletInterface {
       }),
       map((balance: BigNumber) => {
         return SldDecimal.fromOrigin(balance, ETH_DECIMAL);
+      })
+    );
+  }
+
+  public signMessage(message: string): Observable<{ signature: string }> {
+    return this.watchSigner().pipe(
+      take(1),
+      switchMap((signer: Signer) => {
+        return from(signer.signMessage(message));
+      }),
+      map(signature => {
+        return { signature };
       })
     );
   }

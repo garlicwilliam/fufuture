@@ -13,7 +13,6 @@ import {
   switchMap,
   zip,
 } from 'rxjs';
-import { EthereumProviderName, EthereumProviderUUIDtoName } from '../constant';
 import { catchError, delay, filter, finalize, map, take, tap, toArray } from 'rxjs/operators';
 import {
   EIP6963ProviderDetail,
@@ -25,6 +24,7 @@ import { ProviderExistDetectors, ProviderGetters } from './metamask-like-constan
 import * as _ from 'lodash';
 import { NetworkParamConfig } from '../constant/network-type';
 import { EIP6963_PROVIDERS } from './metamask-like.eip6963';
+import {EthereumProviderName, EthereumProviderUUIDtoName} from "./define";
 
 export function ethAccounts(ethereum: EthereumProviderInterface): Observable<string[]> {
   return from(ethereum.request({ method: 'eth_accounts' }) as Promise<string[]>).pipe(

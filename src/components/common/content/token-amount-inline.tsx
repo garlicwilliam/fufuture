@@ -25,6 +25,7 @@ type IProps = {
   short?: boolean;
   sign?: boolean;
   maxDisplay?: SldDecimal | SldUsdValue | SldDecPrice | number;
+  useMinDispaly?: boolean;
   pending?: boolean | { isPending: boolean; width?: number; height?: number };
 };
 
@@ -65,6 +66,20 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
     const floor = this.props.round === -1;
     const fix = this.confirmFix();
 
+    let precision = this.props.precision;
+
+    if (this.props.amount) {
+      const strnum: string =
+        typeof this.props.amount === 'number' ? numString(this.props.amount) : this.props.amount.toNumeric(true);
+
+      const [intPart] = strnum.split('.');
+
+      // at lease 2 decimal
+      if (!!precision && intPart.length + 2 >= precision) {
+        precision = intPart.length + Math.min(fix, 2);
+      }
+    }
+
     const option: FormatOption = {
       fix,
       split: this.props.split,
@@ -73,7 +88,7 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
       floor,
       short: this.props.short,
       sign: this.props.sign,
-      precision: this.props.precision,
+      precision: precision,
     };
 
     let prefix = '';
@@ -85,7 +100,7 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
     if (maxDisplay && amount.gt(maxDisplay)) {
       prefix = '> ';
       amount = maxDisplay;
-    } else if (amount.gtZero() && minDisplay.gt(amount)) {
+    } else if (amount.gtZero() && minDisplay.gt(amount) && this.props.useMinDispaly !== false) {
       prefix = '< ';
       amount = minDisplay;
     }

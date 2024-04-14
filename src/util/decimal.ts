@@ -196,6 +196,10 @@ export class SldDecimal {
     }
   }
 
+  public toString() {
+    return this.toNumeric(true);
+  }
+
   public format(opt?: FormatOption) {
     return numStrFormat(this.toNumeric(), opt);
   }
@@ -482,6 +486,14 @@ export class SldDecPrice {
     return this.decimalObj;
   }
 
+  public toNumeric(removeZero?: boolean): string {
+    return this.toDecimal().toNumeric(removeZero);
+  }
+
+  public toString() {
+    return this.toDecimal().toString();
+  }
+
   public toE18(): BigNumber {
     return this.decimalObj.toE18();
   }
@@ -573,6 +585,14 @@ export class SldUsdValue {
 
   public toDecimal() {
     return this.decimalObj;
+  }
+
+  public toNumeric(removeZero?: boolean): string {
+    return this.toDecimal().toNumeric(removeZero);
+  }
+
+  public toString() {
+    return this.toNumeric(true);
   }
 
   public toTokenDecimal() {
@@ -693,6 +713,10 @@ export class SldDecPercent {
   }
 
   public applyTo(multiplicand: SldDecimal): SldDecimal {
+    if (multiplicand.isZero()) {
+      return SldDecimal.ZERO;
+    }
+
     const rs: BigNumber = multiplicand.toE18().mul(this.toE18()).div(E18);
     return SldDecimal.fromE18(rs, multiplicand.getOriginDecimal());
   }

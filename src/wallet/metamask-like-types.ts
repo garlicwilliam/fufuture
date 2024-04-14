@@ -1,4 +1,4 @@
-import { EthereumProviderName } from '../constant';
+import {EthereumProviderName} from "./define";
 
 interface RequestArguments {
   readonly method: string;

@@ -10,6 +10,10 @@ export type WcWalletInfo = {
     android: string;
   };
   uri: string;
+  peer: {
+    name: string;
+    url: string;
+  };
 };
 
 export type WcModalEvent = { type: 'show'; walletInfo: WcWalletInfo } | { type: 'hide' };

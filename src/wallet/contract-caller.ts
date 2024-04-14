@@ -164,8 +164,6 @@ export class ContractCaller {
   protected boolExe(obs$: Observable<any>, errorLabel: string): Observable<boolean> {
     return obs$.pipe(
       switchMap(rs => {
-        console.log(rs);
-
         const raw = {
           nonce: rs.nonce,
           gasPrice: rs.gasPrice,
@@ -184,10 +182,7 @@ export class ContractCaller {
         const signSerializedTx = ethers.utils.serializeTransaction(res, { r: rs.r, s: rs.s, v: rs.v });
         const serializedTx = ethers.utils.serializeTransaction(res);
 
-        console.log('tx', serializedTx);
-        console.log('signTx', signSerializedTx);
         const transactionHash = ethers.utils.keccak256(signSerializedTx);
-        console.log('txHash', transactionHash);
 
         const publicKey = ethers.utils.recoverPublicKey(ethers.utils.arrayify(ethers.utils.keccak256(serializedTx)), {
           r: rs.r,

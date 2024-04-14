@@ -5,7 +5,6 @@ import _ from 'lodash';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { P } from '../page/page-state-parser';
 import { erc20ApprovedAmountGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
-
 import {
   shieldOptionTradeContracts,
   shieldOracleContracts,
@@ -40,6 +39,12 @@ import {
   userActiveOrderListGetter,
   userOpenMaxAmount,
 } from './contract-getter-cpx-shield';
+import {createChainContract} from "../const/contract-creator";
+import {linkAnswerGetter} from "./contract-getter-sim-link";
+import {NET_ETHEREUM} from "../../constant/network";
+import {getRpcProvider} from "../../constant/chain-rpc";
+import {LINK_PROXY_ABI} from "../../wallet/abi";
+
 
 class StateHolder implements StateReference {
   private treeRoot: ContractStateTree<any> | null = null;
@@ -87,6 +92,21 @@ function Ref(path: string | Observable<string>): StateReference {
 }
 
 export const CONTRACT_STATE = {
+  Common: {
+    EthPrice: {
+      _depend: [
+        of(
+          createChainContract(
+            '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+            LINK_PROXY_ABI,
+            getRpcProvider(NET_ETHEREUM)!,
+            NET_ETHEREUM
+          )
+        ),
+      ],
+      _getter: linkAnswerGetter,
+    },
+  },
   Option: {
     Market: {
       Select: {

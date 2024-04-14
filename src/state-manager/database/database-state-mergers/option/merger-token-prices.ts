@@ -7,16 +7,20 @@ import { finalize, map } from 'rxjs/operators';
 import { tokenSymbolFromName } from '../../../../constant/tokens';
 import { httpGet } from '../../../../util/http';
 import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
-import { NET_BNB } from '../../../../constant/network';
+import { NET_BNB, Network } from '../../../../constant/network';
 
 export class TokenPricesMerger
-  implements DatabaseStateMerger<TokenPriceHistory, [PriceDuration, ShieldUnderlyingType]>
+  implements DatabaseStateMerger<TokenPriceHistory, [PriceDuration, ShieldUnderlyingType, Network]>
 {
   //
   private isPending: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  public mergeWatch(...args: [PriceDuration, ShieldUnderlyingType]): Observable<TokenPriceHistory> {
-    return this.doGet(args[0], args[1]);
+  public mergeWatch(...args: [PriceDuration, ShieldUnderlyingType, Network]): Observable<TokenPriceHistory> {
+    return this.doGet(args[0], args[1]).pipe(
+      map(rs => {
+        return Object.assign(rs, { network: args[2] });
+      })
+    );
   }
 
   public pending(): Observable<boolean> {
@@ -66,18 +70,20 @@ export class TokenPricesMerger
         const data: [number, number][] = body.prices || [];
         const curPrice: number = data[data.length - 1][1];
 
-        const { min, max } = this.minMax(data);
+        const { min, max, percent } = this.minMax(data);
 
-        return {
+        const rs = {
           curPrice,
           history: data,
           minPrice: min,
           maxPrice: max,
           underlying,
-          priceChange: 0,
+          priceChange: percent,
           duration,
           network: NET_BNB,
         };
+
+        return rs;
       }),
       finalize(() => {
         this.isPending.next(false);
@@ -85,14 +91,18 @@ export class TokenPricesMerger
     );
   }
 
-  private minMax(data: [number, number][]): { min: number; max: number } {
+  private minMax(data: [number, number][]): { min: number; max: number; percent: number } {
     let min = -1;
     let max = 0;
+    const start = data[0][1];
+    const end = data[data.length - 1][1];
+    const percent = ((end - start) * 100) / start;
+
     data.forEach(one => {
       min = min >= 0 ? Math.min(min, one[1]) : one[1];
       max = Math.max(max, one[1]);
     });
 
-    return { min, max };
+    return { min, max, percent };
   }
 }
