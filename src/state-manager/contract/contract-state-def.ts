@@ -4,7 +4,7 @@ import { ContractState, ContractStateTree, StateReference } from '../interface';
 import _ from 'lodash';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { P } from '../page/page-state-parser';
-import { erc20ApprovedAmountGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
+import { erc20ApprovedAmountGetter, erc20TotalSupplyGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
 import {
   shieldOptionTradeContracts,
   shieldOracleContracts,
@@ -39,11 +39,13 @@ import {
   userActiveOrderListGetter,
   userOpenMaxAmount,
 } from './contract-getter-cpx-shield';
+
 import {createChainContract} from "../const/contract-creator";
 import {linkAnswerGetter} from "./contract-getter-sim-link";
 import {NET_ETHEREUM} from "../../constant/network";
 import {getRpcProvider} from "../../constant/chain-rpc";
 import {LINK_PROXY_ABI} from "../../wallet/abi";
+
 
 
 class StateHolder implements StateReference {
@@ -98,6 +100,19 @@ export const CONTRACT_STATE = {
         of(
           createChainContract(
             '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+            LINK_PROXY_ABI,
+            getRpcProvider(NET_ETHEREUM)!,
+            NET_ETHEREUM
+          )
+        ),
+      ],
+      _getter: linkAnswerGetter,
+    },
+    BtcPrice: {
+      _depend: [
+        of(
+          createChainContract(
+            '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
             LINK_PROXY_ABI,
             getRpcProvider(NET_ETHEREUM)!,
             NET_ETHEREUM

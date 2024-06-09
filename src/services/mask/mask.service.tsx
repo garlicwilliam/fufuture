@@ -6,6 +6,7 @@ export type MaskEvent = {
   type: 'success' | 'failed' | 'pending' | 'hide';
   text?: ReactNode;
   title?: ReactNode;
+  useBtn?: boolean;
 };
 
 export class MaskService {
@@ -15,11 +16,12 @@ export class MaskService {
     return this.curStatus.pipe(filter(Boolean));
   }
 
-  success(text: ReactNode, title?: ReactNode) {
+  success(text: ReactNode, title?: ReactNode, useBtn?: boolean) {
     const event: MaskEvent = {
       type: 'success',
       text,
       title,
+      useBtn
     };
     this.curStatus.next(event);
   }

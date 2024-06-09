@@ -1,5 +1,4 @@
 import { BigNumber } from 'ethers';
-import { SldDecimal } from './decimal';
 
 export function baseBigNumber(wei: number): BigNumber {
   wei = Math.abs(wei);

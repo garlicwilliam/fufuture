@@ -21,6 +21,11 @@ enum EthNetwork {
   mode_mainnet = '34443',
   astar_zkEVM = '3776',
   scroll = '534352',
+  merlin_test = '686868',
+  merlin = '4200',
+  b2_mainnet = '223',
+  meter_mainnet = '82',
+  bevm = '11501',
 }
 
 export type Network = EthNetwork;
@@ -46,6 +51,14 @@ export const NET_MANTA_PACIFIC_TEST = EthNetwork.manta_pacific_test;
 export const NET_MODE_MAINNET = EthNetwork.mode_mainnet;
 export const NET_ASTAR_ZK_EVM = EthNetwork.astar_zkEVM;
 export const NET_SCROLL = EthNetwork.scroll;
+
+export const NET_MERLIN_TEST = EthNetwork.merlin_test;
+export const NET_MERLIN = EthNetwork.merlin;
+
+export const NET_B2 = EthNetwork.b2_mainnet;
+export const NET_BEVM = EthNetwork.bevm;
+
+export const NET_METER = EthNetwork.meter_mainnet;
 
 export const NETWORKS_ETH = [NET_ETHEREUM, NET_SEPOLIA] as const;
 export const NETWORKS_BNB = [NET_BNB, NET_BNB_TEST] as const;

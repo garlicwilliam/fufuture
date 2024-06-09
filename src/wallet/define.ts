@@ -23,6 +23,8 @@ export enum EthereumProviderName {
   TrustWallet = 'TrustWallet',
   Coin98 = 'Coin98',
   GateWallet = 'Gate Wallet',
+  OneKey = 'OneKey',
+  Rabby = 'Rabby',
 
   MetaMaskLike = 'MetaMaskLike', // Not Include bitKeep,
 }
@@ -34,7 +36,7 @@ export enum WalletConnectWalletName {
 
 export type SldWalletId = {
   wallet: Wallet;
-  id: EthereumProviderName | WalletConnectWalletName;
+  id: EthereumProviderName | WalletConnectWalletName | 'SafeWallet';
 };
 
 export const EthereumProviderUUIDtoName: { [k: string]: EthereumProviderName } = {
@@ -47,6 +49,8 @@ export const EthereumProviderUUIDtoName: { [k: string]: EthereumProviderName } =
   'com.okex.wallet': EthereumProviderName.OKXWallet,
   'https://www.safepal.com/download': EthereumProviderName.SafePal,
   'com.coinbase.wallet': EthereumProviderName.Coinbase,
+  'so.onekey.wallet': EthereumProviderName.OneKey,
+  'io.rabby': EthereumProviderName.Rabby,
 };
 
 export const WalletConnectWalletInfo: { [w in WalletConnectWalletName]: WcWalletInfo | null } = {

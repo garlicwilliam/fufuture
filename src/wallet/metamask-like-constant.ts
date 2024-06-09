@@ -1,4 +1,4 @@
-import { NEVER, Observable, of } from 'rxjs';
+import { EMPTY, NEVER, Observable, of } from 'rxjs';
 import { EthereumProviderInterface } from './metamask-like-types';
 import { filter } from 'rxjs/operators';
 import * as _ from 'lodash';
@@ -6,7 +6,7 @@ import { EthereumProviderName } from './define';
 
 declare const window: Window & { ethereum: any } & any;
 
-const nonMetaMaskFields = [
+export const nonMetaMaskFields = [
   'isImToken',
   'isBitKeep',
   'isCoinbaseWallet',
@@ -18,6 +18,8 @@ const nonMetaMaskFields = [
   'isONTO',
   'isCoin98',
   'isBinance',
+  'isOneKey',
+  'isRabby',
 ];
 
 function isGateWalletProvider(provider: any): boolean {
@@ -25,9 +27,7 @@ function isGateWalletProvider(provider: any): boolean {
 }
 
 function metamaskDetect(): boolean {
-  const web3Provider = !!window.web3 && !!window.web3.currentProvider ? window.web3.currentProvider : null;
-  const hasWeb3: boolean = !!web3Provider && !!web3Provider.isMetaMask;
-
+  const hasWeb3: boolean = checkWeb3('isMetaMask', nonMetaMaskFields);
   const hasEthereum: boolean =
     checkWalletInjection('isMetaMask', nonMetaMaskFields) && !isGateWalletProvider(window.ethereum);
 
@@ -69,6 +69,16 @@ function checkEthereumProviders(checkField: string, not?: string[]): boolean {
     .filter(provider => !(not || []).some(one => provider[one]));
 
   return find.length > 0;
+}
+
+function checkWeb3(checkField: string, not?: string[]): boolean {
+  const provider = window.web3?.currentProvider;
+
+  if (provider) {
+    return providerConfirm(provider, checkField, not);
+  } else {
+    return false;
+  }
 }
 
 function getEthereum(checkField: string, not?: string[]): EthereumProviderInterface | null {
@@ -153,6 +163,12 @@ export const ProviderExistDetectors: { [key in EthereumProviderName]: () => bool
   [EthereumProviderName.GateWallet]: () => {
     return !!window.gatewallet;
   },
+  [EthereumProviderName.OneKey]: () => {
+    return !!window.$onekey?.ethereum;
+  },
+  [EthereumProviderName.Rabby]: () => {
+    return false;
+  },
 };
 
 export const ProviderGetters: { [key in EthereumProviderName]: () => Observable<EthereumProviderInterface> } = {
@@ -201,5 +217,11 @@ export const ProviderGetters: { [key in EthereumProviderName]: () => Observable<
   },
   [EthereumProviderName.GateWallet]: () => {
     return of(window.gatewallet);
+  },
+  [EthereumProviderName.OneKey]: () => {
+    return of(window.$onekey?.ethereum);
+  },
+  [EthereumProviderName.Rabby]: () => {
+    return EMPTY;
   },
 };

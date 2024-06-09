@@ -19,6 +19,7 @@ type IProps = {
   zIndex?: number;
   contentClassName?: string;
   overlayClassName?: string;
+  stopClick?: boolean;
 };
 
 export class SldTips extends BaseStateComponent<IProps, IState> {
@@ -35,8 +36,10 @@ export class SldTips extends BaseStateComponent<IProps, IState> {
   }
 
   stopClick(event: React.MouseEvent<HTMLSpanElement, MouseEvent>) {
-    event.stopPropagation();
-    event.preventDefault();
+    if (this.props.stopClick !== false) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
   }
 
   render() {

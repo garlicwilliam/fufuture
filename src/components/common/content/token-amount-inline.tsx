@@ -26,7 +26,7 @@ type IProps = {
   sign?: boolean;
   maxDisplay?: SldDecimal | SldUsdValue | SldDecPrice | number;
   useMinDispaly?: boolean;
-  pending?: boolean | { isPending: boolean; width?: number; height?: number };
+  pending?: boolean | { isPending: boolean; width?: number; height?: number; useIcon?: boolean };
 };
 
 export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
@@ -110,14 +110,16 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
     return prefix + numStr;
   }
 
-  genPendingProps(): { isPending: boolean; width?: number; height?: number } {
+  genPendingProps(): { isPending: boolean; width?: number; height?: number; useIcon?: boolean } {
     const isPending: boolean =
       this.props.pending === true || (this.props.pending !== false && !!this.props.pending?.isPending);
 
     const width: number | undefined = typeof this.props.pending === 'object' ? this.props.pending.width : undefined;
     const height: number | undefined = typeof this.props.pending === 'object' ? this.props.pending.height : undefined;
+    const useIcon: boolean | undefined =
+      typeof this.props.pending === 'object' ? this.props.pending.useIcon : undefined;
 
-    return { isPending, width, height };
+    return { isPending, width, height, useIcon };
   }
 
   render() {
@@ -129,7 +131,7 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
 
     const amountStr: string = this.amountString();
 
-    const { isPending, width, height } = this.genPendingProps();
+    const { isPending, width, height, useIcon } = this.genPendingProps();
 
     return (
       <div
@@ -137,7 +139,7 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
         style={isPending ? { alignItems: 'flex-end' } : undefined}
       >
         <div className={styleMr(this.props.numClassName)} style={{ lineHeight: isPending ? 0 : undefined }}>
-          <PendingHolder loading={isPending} width={width} height={height}>
+          <PendingHolder loading={isPending} width={width} height={height} useIcon={useIcon}>
             {amountStr}
           </PendingHolder>
         </div>

@@ -10,6 +10,7 @@ import {
   Observable,
   of,
   Subscription,
+  timeout,
 } from 'rxjs';
 import {
   catchError,
@@ -74,7 +75,7 @@ export class ContractStateImp<T> implements ContractState<T> {
         take(1),
         filter(disabled => !disabled && this.isWatching()),
         map(() => {
-          return this.doGet();
+          return this.doGet().pipe(timeout(10000));
         })
       )
       .subscribe();
@@ -242,6 +243,7 @@ export class ContractStateImp<T> implements ContractState<T> {
     const rs = new AsyncSubject();
     this.combineAllArgs()
       .pipe(
+        timeout(10000),
         take(1),
         switchMap((args: any[]) => {
           return this.callGetter(args);

@@ -40,3 +40,10 @@ export function setDelAll<T>(set: Set<T>, elements: T[]): Set<T> {
 
   return set;
 }
+
+export function arrayRandomSelect<T>(arr: T[]): T {
+  const rInt: number = Math.floor(Math.random() * arr.length * 11);
+  const index: number = rInt % arr.length;
+
+  return arr[index];
+}

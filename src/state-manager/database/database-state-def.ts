@@ -1,6 +1,6 @@
 import { walletState } from '../wallet/wallet-state';
 import { P } from '../page/page-state-parser';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { TokenPricesMerger } from './database-state-mergers/option/merger-token-prices';
 import { Observable, of } from 'rxjs';
 import { DatabaseState, DatabaseStateRef, DatabaseStateTree } from '../interface';
@@ -137,5 +137,5 @@ export const DATABASE_STATE = {
         _merger: new MergerPoolAddress(),
       },
     },
-  },
+  }
 };

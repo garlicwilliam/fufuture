@@ -5,9 +5,6 @@ import { ShieldOptionTradeContracts, ShieldUnderlyingContracts } from './shield-
 import fufutureLogoDark from '../../../assets/imgs/logo/fufuture/fufuture-1-dark.svg';
 import fufutureLogo from '../../../assets/imgs/logo/fufuture/fufuture-1-light.svg';
 import fufutureMobile from '../../../assets/imgs/logo/fufuture/fufuture-1.svg';
-import deepLight from '../../../assets/imgs/logo/deepex/deepex-light.svg';
-import deepDark from '../../../assets/imgs/logo/deepex/deepex-dark.svg';
-import deepMobile from '../../../assets/imgs/logo/deepex/deepex.svg';
 
 enum OracleType {
   ChainLink,
@@ -68,8 +65,10 @@ const env2: { [k in Env]: EnvConfig } = {
           decimal: 6,
           network: NET_BNB,
         },
-        SubGraphUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/fufutrue-history-bsc',
-        SubGraphOracleUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/chainlink-price-bsc',
+        SubGraphUrl:
+          'https://gateway-arbitrum.network.thegraph.com/api/c7536e819321ccf5b100d72663fe1e2f/subgraphs/id/5sxFk8gzWhRseZh39SbWpCt7UWM9gnGu14TLUdcesfpj',
+        SubGraphOracleUrl:
+          'https://gateway-arbitrum.network.thegraph.com/api/c7536e819321ccf5b100d72663fe1e2f/subgraphs/id/EA3FYEqMLXg3fATwr2yUdfgyvDz7g3FDssC5pN7Emyra',
         Addresses: {
           trade: {
             optionTrade: '0x1e933E0957e6236E519e64CD13f967146Fcb4755',
@@ -102,8 +101,8 @@ const env2: { [k in Env]: EnvConfig } = {
           decimal: 18,
           network: NET_ARBITRUM,
         },
-        SubGraphUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/fufuture-history-arbitrum',
-        SubGraphOracleUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/chainlink-price-arb',
+        SubGraphUrl: 'https://api.studio.thegraph.com/query/77308/fufuture-arb/version/latest',
+        SubGraphOracleUrl: 'https://gateway-arbitrum.network.thegraph.com/api/c7536e819321ccf5b100d72663fe1e2f/subgraphs/id/9997gh5T5sEXs8YpxgRcV8MsyuGekZ7rd215yT27ERE8',
         Addresses: {
           trade: {
             optionTrade: '0x1e933E0957e6236E519e64CD13f967146Fcb4755',
@@ -136,8 +135,8 @@ const env2: { [k in Env]: EnvConfig } = {
           decimal: 18,
           network: NET_POLYGON,
         },
-        SubGraphUrl: 'https://api.studio.thegraph.com/query/70107/fufuture-polygon/version/latest',
-        SubGraphOracleUrl: 'https://api.thegraph.com/subgraphs/name/garlicwilliam/chainlink-price-bsc',
+        SubGraphUrl: 'https://api.studio.thegraph.com/query/77308/fufuture-matic/version/latest',
+        SubGraphOracleUrl: 'https://gateway-arbitrum.network.thegraph.com/api/c7536e819321ccf5b100d72663fe1e2f/subgraphs/id/EA3FYEqMLXg3fATwr2yUdfgyvDz7g3FDssC5pN7Emyra',
         Addresses: {
           trade: {
             optionTrade: '0xe52adac17dcfc9be6975ce99c1637e38336c8931',

@@ -7,11 +7,13 @@ import walletConnect from '../../assets/imgs/wallet/wallet-connect.svg';
 import { i18n } from '../i18n/i18n-fn';
 import { WalletButtonStyleType } from './common-types';
 import { ReactNode } from 'react';
-import { cssPick } from '../../util/string';
+import { cssPick, styleMerge } from '../../util/string';
 import { fontCss } from '../i18n/font-switch';
 import { WalletInterface } from '../../wallet/wallet-interface';
 import { WcWalletInfo } from '../../services/wc-modal/wc-modal.service';
 import { checkIsMatchWalletInfo, checkRegisteredWalletConnectPeer, Wallet } from '../../wallet/define';
+import { px } from '../common/svg/util-function';
+import { Visible } from '../builtin/hidden';
 
 type IProps = {
   onClick?: (wallet: Wallet) => void;
@@ -96,12 +98,13 @@ export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
   }
 
   private genBtnIcon(): ReactNode {
+    const iconSize = 40;
     return (
       <div
         style={{
           lineHeight: '0px',
-          width: '32px',
-          height: '32px',
+          width: px(iconSize),
+          height: px(iconSize),
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -110,16 +113,22 @@ export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
         <img
           alt={''}
           src={this.props.walletInfo ? this.props.walletInfo.icon : walletConnect}
-          style={{ maxWidth: '32px', maxHeight: '32px', borderRadius: '4px' }}
+          style={{ maxWidth: px(iconSize), maxHeight: px(iconSize), borderRadius: '4px' }}
         />
       </div>
     );
   }
 
   render() {
-    const stateAppend: string =
-      this.state.peerName && !this.props.walletInfo ? this.state.peerName : i18n('com-connected');
-    const connectedState: string = this.state.isWalletConnectActivate ? ` (${stateAppend})` : '';
+    const realWallet: string = this.props.walletInfo
+      ? this.props.walletInfo.name
+      : this.state.peerName
+      ? this.state.peerName
+      : 'WalletConnect.';
+
+    const displayWallet: string = this.state.isWalletConnectActivate
+      ? realWallet
+      : this.props.walletInfo?.name || 'WalletConnect.';
 
     return (
       <>
@@ -131,9 +140,17 @@ export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
           disabled={this.props.disabled}
         >
           <div>{this.props.styleType === 'popup' ? this.genBtnIcon() : this.genIcon()}</div>
-          <span className={cssPick(this.props.styleType === 'popup', fontCss.bold)}>
-            {this.props.walletInfo ? this.props.walletInfo.name : 'WalletConnect'} {connectedState}
-          </span>
+          <div
+            className={styleMerge(
+              'wallet-name',
+              cssPick(this.state.isWalletConnectActivate && this.props.styleType === 'popup', fontCss.bold)
+            )}
+          >
+            {displayWallet}
+            <Visible when={this.state.isWalletConnectActivate}>
+              <span className={styleMerge('wallet-active')} />
+            </Visible>
+          </div>
         </SelectButton>
       </>
     );

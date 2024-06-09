@@ -7,6 +7,7 @@ export type FormatOption = {
   precision?: number;
   ceil?: boolean;
   floor?: boolean;
+  roundMode?: 'up' | 'down' | 'even';
   removeZero?: boolean;
   debug?: boolean;
   short?: boolean;
@@ -75,9 +76,9 @@ export function numStrFormat(num: string, opt?: FormatOption): string {
 
   if (opt?.precision && opt.precision > 0) {
     num = numPrecision(num, opt.precision, strategy);
-    num = numFixed(num, fix, strategy, opt?.debug || false);
+    num = numFixed(num, fix, strategy, opt.roundMode, opt?.debug || false);
   } else {
-    num = numFixed(num, fix, strategy, opt?.debug || false);
+    num = numFixed(num, fix, strategy, opt?.roundMode, opt?.debug || false);
   }
 
   if (split) {
@@ -187,19 +188,25 @@ function numPrecision(num: string, precision: number, strategy: 'ceil' | 'round'
   return numStr;
 }
 
-function numFixed(num: string, fix: number, strategy: 'ceil' | 'round' | 'floor', debug: boolean = false): string {
+function numFixed(
+  num: string,
+  fix: number,
+  strategy: 'ceil' | 'round' | 'floor',
+  roundMode: 'up' | 'down' | 'even' = 'even',
+  debug: boolean = false
+): string {
   const { int, dec } = numToDec(num);
 
-  let carry = false;
-  let decStr = dec;
+  let carry: boolean = false;
+  let decStr: string = dec;
 
   if (dec.length <= fix) {
     decStr = dec + _.repeat('0', fix - dec.length);
   } else if (fix === 0) {
     decStr = '';
-    carry = carrySign(dec, strategy);
+    carry = carrySign(dec, strategy, roundMode);
   } else {
-    carry = carrySign(dec.substr(fix), strategy);
+    carry = carrySign(dec.substr(fix), strategy, roundMode);
     decStr = dec.substr(0, fix);
   }
 
@@ -262,15 +269,24 @@ function doCarry(num: string): string {
   return fir + num.substr(0, pos) + arr.slice(pos).join('');
 }
 
-function carrySign(roundBits: string, strategy: 'ceil' | 'round' | 'floor' = 'round'): boolean {
+function carrySign(
+  roundBits: string,
+  strategy: 'ceil' | 'round' | 'floor' = 'round',
+  roundMode: 'up' | 'down' | 'even' = 'even'
+): boolean {
   if (strategy === 'round') {
-    const fir = Number(roundBits[0]);
+    const fir: number = Number(roundBits[0]);
+
     if (fir < 5) {
       return false;
     } else if (fir > 5) {
       return true;
     } else {
-      return !(roundBits.length === 1 || Number(roundBits[1]) % 2 === 0);
+      if (roundMode === 'even') {
+        return !(roundBits.length === 1 || Number(roundBits[1]) % 2 === 0);
+      } else {
+        return roundMode === 'up';
+      }
     }
   } else if (strategy === 'ceil') {
     return Number(roundBits) > 0;

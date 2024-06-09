@@ -19,6 +19,7 @@ export class DatabaseStateImp<T> implements DatabaseState<T> {
   private subscription: Subscription | null = null;
   private isMock: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private mockArgs: Observable<any> | null = null;
+  private paramOpt: { onlyFirstPending?: boolean } = {};
 
   constructor(private merger: DatabaseStateMerger<T, any[]>, private depends: Observable<any>[]) {}
 
@@ -73,8 +74,16 @@ export class DatabaseStateImp<T> implements DatabaseState<T> {
     );
   }
 
-  pending(): Observable<boolean> {
-    return this.merger.pending();
+  pending(onlyFirst?: boolean): Observable<boolean> {
+    onlyFirst = onlyFirst !== undefined ? onlyFirst : this.paramOpt.onlyFirstPending || false;
+
+    return onlyFirst
+      ? this.state.pipe(
+          switchMap(val => {
+            return val === null ? this.merger.pending() : of(false);
+          })
+        )
+      : this.merger.pending();
   }
 
   useMock(mockArg?: Observable<any>): this {
@@ -82,6 +91,11 @@ export class DatabaseStateImp<T> implements DatabaseState<T> {
     if (mockArg) {
       this.mockArgs = mockArg;
     }
+    return this;
+  }
+
+  setParam(opt: { onlyFirstPending?: boolean }): this {
+    this.paramOpt = opt;
     return this;
   }
 
@@ -115,7 +129,11 @@ export class DatabaseStateImp<T> implements DatabaseState<T> {
   private combineAllArgs(): Observable<any[]> {
     return this.depends.length === 0
       ? of([]).pipe(tap(args => (this.lastArgs = args)))
-      : combineLatest(this.depends).pipe(tap(args => (this.lastArgs = args)));
+      : combineLatest(this.depends).pipe(
+          tap(args => {
+            this.lastArgs = args;
+          })
+        );
   }
 
   private watchArgs(): Observable<any[]> {

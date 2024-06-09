@@ -123,6 +123,8 @@ export interface CacheState<T> {
 
   get(): Observable<T | null>;
 
+  readWithRealKey(realKey: string): T | null;
+
   getWithDef(defVal: T): Observable<T>;
 
   watch(): Observable<T | null>;
@@ -136,9 +138,11 @@ export interface DatabaseState<T> {
 
   tick(): void;
 
-  pending(): Observable<boolean>;
+  pending(onlyFirst?: boolean): Observable<boolean>;
 
   useMock(mockArg?: Observable<any>): this;
+
+  setParam(opt: { onlyFirstPending?: boolean }): this;
 }
 
 export interface DatabaseStateMerger<T, A extends readonly any[]> {

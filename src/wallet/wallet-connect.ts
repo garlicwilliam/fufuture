@@ -17,16 +17,17 @@ import {
 } from 'rxjs';
 import { catchError, filter, map, startWith, take, tap } from 'rxjs/operators';
 import { SldDecimal } from '../util/decimal';
-import { WcNetNamespace } from '../constant/walletconnect';
+import { WcChainId, WcNetNamespace } from '../constant/walletconnect';
 import { wcOps } from '../constant/walletconnect.conf';
-import { UniversalProvider, UniversalProviderOpts } from '@walletconnect/universal-provider';
-import IUniversalProvider from '@walletconnect/universal-provider';
+import IUniversalProvider, { UniversalProvider, UniversalProviderOpts } from '@walletconnect/universal-provider';
 import { SessionTypes } from '@walletconnect/types';
 import { WalletConnectModal } from '@walletconnect/modal';
 import { networkHex } from '../constant/network-util';
 import { wcModalService, WcWalletInfo } from '../services/wc-modal/wc-modal.service';
-import { Wallet } from './define';
+import { SldWalletId, Wallet, WalletConnectWalletName } from './define';
+import { TokenErc20 } from '../state-manager/state-types';
 import * as _ from 'lodash';
+import { NetworkParams } from '../constant/network-conf';
 
 function getAccountsFromSession(session: SessionTypes.Struct, chain: string): string[] {
   const namespace: SessionTypes.BaseNamespace | undefined = session.namespaces[WcNetNamespace.eip155];
@@ -187,20 +188,28 @@ export class WalletConnect implements WalletInterface {
     if (provider) {
       const res = new AsyncSubject<boolean>();
 
-      from(provider.disconnect())
-        .pipe(
-          map(() => true),
-          catchError(err => of(false)),
-          tap((isDone: boolean) => {
-            if (isDone) {
-              this.updateAccount([]);
-            }
+      try {
+        from(provider.disconnect())
+          .pipe(
+            map(() => true),
+            catchError(err => {
+              return of(false);
+            }),
+            tap((isDone: boolean) => {
+              if (isDone) {
+                this.updateAccount([]);
+              }
 
-            res.next(isDone);
-            res.complete();
-          })
-        )
-        .subscribe();
+              res.next(isDone);
+              res.complete();
+            })
+          )
+          .subscribe();
+      } catch (e) {
+        console.warn(e);
+        res.next(false);
+        res.complete();
+      }
 
       return res;
     }
@@ -260,6 +269,35 @@ export class WalletConnect implements WalletInterface {
     );
   }
 
+  public addErc20Token(token: TokenErc20, icon?: string): Observable<boolean> {
+    const provider: IUniversalProvider | null = this.walletConnectProviderHolder.getValue();
+    if (!provider) {
+      return of(false);
+    }
+
+    const req: Promise<any> = provider.request(
+      {
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: token.address,
+            symbol: token.symbol,
+            decimals: token.decimal,
+            image: icon,
+          },
+        },
+      },
+      WcChainId[token.network]
+    );
+
+    return from(req).pipe(
+      map(rs => {
+        return !!rs;
+      })
+    );
+  }
+
   wasConnected(): Observable<boolean> {
     return this.curAccount.pipe(map(accounts => !!accounts));
   }
@@ -270,6 +308,37 @@ export class WalletConnect implements WalletInterface {
 
   watchNetwork(): Observable<Network> {
     return this.curNetwork.pipe(filter(Boolean));
+  }
+
+  walletId(): Observable<SldWalletId> {
+    return this.walletConnectProviderHolder.pipe(
+      filter(Boolean),
+      map((provider: IUniversalProvider) => {
+        return provider.session;
+      }),
+      filter(Boolean),
+      map(session => {
+        const isBinance: boolean = session.peer.metadata.name.toLowerCase().indexOf('binance') >= 0;
+
+        return {
+          wallet: Wallet.WalletConnect,
+          id: isBinance ? WalletConnectWalletName.Binance : WalletConnectWalletName.WalletConnect,
+        };
+      })
+    );
+  }
+
+  walletIcon(): Observable<string> {
+    return this.walletConnectProviderHolder.pipe(
+      filter(Boolean),
+      map((provider: IUniversalProvider) => {
+        return provider.session;
+      }),
+      filter(Boolean),
+      map(session => {
+        return _.get(session, 'peer.metadata.icons[0]', '');
+      })
+    );
   }
 
   walletName(): string | { name: string; url: string } {
@@ -307,14 +376,18 @@ export class WalletConnect implements WalletInterface {
     );
   }
 
-  public watchNativeBalance(trigger?: Observable<any>): Observable<SldDecimal> {
+  public watchNativeBalance(trigger?: Observable<any>): Observable<{ balance: SldDecimal; network: Network }> {
     const refreshTrigger: Observable<any> = trigger ? trigger.pipe(startWith(true)) : of(null);
     return combineLatest([this.watchProvider(), this.watchAccount(), this.watchNetwork(), refreshTrigger]).pipe(
       switchMap(([provider, address, network, refresh]) => {
-        return provider.getBalance(address);
+        return zip(from(provider.getBalance(address)), of(network));
       }),
-      map((balance: BigNumber) => {
-        return SldDecimal.fromOrigin(balance, ETH_DECIMAL);
+      map(([balance, network]: [BigNumber, Network]) => {
+        const decimals: number = NetworkParams[network].nativeCurrency?.decimals || 18;
+        return {
+          balance: SldDecimal.fromOrigin(balance, decimals),
+          network: network,
+        };
       })
     );
   }

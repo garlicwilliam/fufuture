@@ -8,6 +8,7 @@ export type DeltaTime = {
   seconds: number;
   ceilDays: number;
   totalHours: number;
+  totalMinutes: number;
 };
 
 export const EMPTY_DELTA_TIME = {
@@ -17,6 +18,7 @@ export const EMPTY_DELTA_TIME = {
   seconds: 0,
   ceilDays: 0,
   totalHours: 0,
+  totalMinutes: 0,
 };
 
 function toMilliseconds(time: string | number): number {
@@ -73,6 +75,7 @@ export function displayDuration(seconds: number): DeltaTime {
 
     ceilDays: hrs > 0 || min > 0 ? day + 1 : day,
     totalHours: day * 24 + hrs,
+    totalMinutes: day * 24 * 60 + hrs * 60 + min,
   };
 }
 

@@ -1,6 +1,6 @@
 import { AsyncSubject, distinctUntilChanged, Observable, of, Subject, combineLatest } from 'rxjs';
-import { walletManager2 } from '../../wallet/wallet-manager2';
-import { filter, map, switchMap, take } from 'rxjs/operators';
+import { WalletManager2, walletManager2 } from '../../wallet/wallet-manager2';
+import { filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { WalletInterface } from '../../wallet/wallet-interface';
 import { Network } from '../../constant/network';
 import { Signer, providers } from 'ethers';
@@ -12,11 +12,12 @@ import { EthereumProviderName, Wallet } from '../../wallet/define';
 export class WalletState {
   public readonly USER_ADDR: Observable<string>;
   public readonly NATIVE_BALANCE: Observable<SldDecimal>;
+  public readonly NET_NATIVE_BALANCE: Observable<{ balance: SldDecimal; network: Network }>;
   public readonly IS_CONNECTED: Observable<boolean>;
   public readonly NETWORK: Observable<Network>;
   public readonly WALLET_TYPE: Observable<Wallet>;
 
-  private readonly manager = walletManager2;
+  private readonly manager: WalletManager2 = walletManager2;
   private balanceTrigger: Subject<any> = new Subject();
 
   public refreshBalance() {
@@ -29,6 +30,7 @@ export class WalletState {
     this.NETWORK = this.watchNetwork();
     this.WALLET_TYPE = this.watchWalletType();
     this.NATIVE_BALANCE = this.watchBalance(this.balanceTrigger);
+    this.NET_NATIVE_BALANCE = this.watchNetNativeBalance(this.balanceTrigger);
   }
 
   // the current connected wallet type
@@ -44,6 +46,17 @@ export class WalletState {
     return this.manager.watchConnectedWalletInstance().pipe(
       filter(wallet => wallet !== null),
       map(wallet => wallet as WalletInterface)
+    );
+  }
+
+  watchWalletName(): Observable<string> {
+    return walletState.watchWalletInstance().pipe(
+      switchMap((wallet: WalletInterface) => {
+        return of(wallet.walletName());
+      }),
+      map(info => {
+        return typeof info === 'string' ? info : info.name;
+      })
     );
   }
 
@@ -103,6 +116,15 @@ export class WalletState {
     return this.watchWalletInstance().pipe(
       switchMap((wallet: WalletInterface) => {
         return wallet.watchNativeBalance(refresh);
+      }),
+      map(res => res.balance)
+    );
+  }
+
+  watchNetNativeBalance(refresh?: Observable<any>): Observable<{ balance: SldDecimal; network: Network }> {
+    return this.watchWalletInstance().pipe(
+      switchMap((wallet: WalletInterface) => {
+        return wallet.watchNativeBalance(refresh);
       })
     );
   }
@@ -118,7 +140,6 @@ export class WalletState {
 
     return combineLatest([isWalletAgree$, realConnected$]).pipe(
       map(([isAgree, isConnected]) => {
-        // console.log('isAgree', isAgree, 'isConnected', isConnected);
         return isConnected;
       }),
       distinctUntilChanged()

@@ -24,7 +24,8 @@ import { ProviderExistDetectors, ProviderGetters } from './metamask-like-constan
 import * as _ from 'lodash';
 import { NetworkParamConfig } from '../constant/network-type';
 import { EIP6963_PROVIDERS } from './metamask-like.eip6963';
-import {EthereumProviderName, EthereumProviderUUIDtoName} from "./define";
+import { EthereumProviderName, EthereumProviderUUIDtoName } from './define';
+import { TokenErc20 } from '../state-manager/state-types';
 
 export function ethAccounts(ethereum: EthereumProviderInterface): Observable<string[]> {
   return from(ethereum.request({ method: 'eth_accounts' }) as Promise<string[]>).pipe(
@@ -37,7 +38,7 @@ export function ethAccounts(ethereum: EthereumProviderInterface): Observable<str
 }
 
 export function netVersion(ethereum: EthereumProviderInterface): Observable<string> {
-  return from(ethereum.request({ method: 'net_version' }) as Promise<string>).pipe(map(net => net.toString()));
+  return from(ethereum.request({ method: 'eth_chainId' }) as Promise<string>).pipe(map(net => net.toString()));
 }
 
 export function ethRequestAccounts(ethereum: EthereumProviderInterface): Observable<string[]> {
@@ -50,6 +51,23 @@ export function ethRequestAccounts(ethereum: EthereumProviderInterface): Observa
 
 export function walletAddChain(ethereum: EthereumProviderInterface, chainParam: NetworkParamConfig): Observable<any> {
   const promise = ethereum.request({ method: 'wallet_addEthereumChain', params: [chainParam] });
+
+  return from(promise);
+}
+
+export function walletAddToken(ethereum: EthereumProviderInterface, token: TokenErc20, icon?: string): Observable<any> {
+  const promise = ethereum.request({
+    method: 'wallet_watchAsset',
+    params: {
+      type: 'ERC20',
+      options: {
+        address: token.address,
+        symbol: token.symbol,
+        decimals: token.decimal,
+        image: icon,
+      },
+    },
+  });
 
   return from(promise);
 }
@@ -69,6 +87,8 @@ export function walletSwitchChain(
 function detectIsConnected(ethereum: EthereumProviderInterface): Observable<boolean> {
   if (ethereum['isCoin98']) {
     return of(ethereum.isConnected());
+  } else if (ethereum['isBinance']) {
+    return ethRequestAccounts(ethereum).pipe(map(acc => acc.length > 0));
   } else {
     return ethAccounts(ethereum).pipe(map(acc => acc.length > 0));
   }
@@ -104,7 +124,7 @@ export class EthereumProviderStateManager {
       });
     });
 
-    const init$ = this.doDetect().pipe(
+    const init$: Observable<any> = this.doDetect().pipe(
       delay(1000),
       switchMap(() => {
         return this.doDetect();
@@ -114,8 +134,8 @@ export class EthereumProviderStateManager {
       })
     );
 
-    const sub1 = init$.subscribe();
-    const sub2 = this.watchInitEvent().subscribe();
+    const sub1: Subscription = init$.subscribe();
+    const sub2: Subscription = this.watchInitEvent().subscribe();
 
     this.subs.push(sub1, sub2, sub0);
   }
@@ -184,7 +204,7 @@ export class EthereumProviderStateManager {
     return true;
   }
 
-  public destroy() {
+  public destroy(): void {
     this.injectedProviders.complete();
     this.connectedProviders.complete();
     this.curSelected.complete();
@@ -293,6 +313,9 @@ export class EthereumProviderStateManager {
       tap((injected: Set<EthereumProviderName>) => {
         this.addInjectedProviderName(injected);
       }),
+      map(() => {
+        return this.injectedProviders.getValue() || new Set<EthereumProviderName>();
+      }),
       switchMap((injected: Set<EthereumProviderName>) => {
         return this.detectConnectedProvider(injected);
       }),
@@ -307,6 +330,7 @@ export class EthereumProviderStateManager {
   private detectInjectedProviders(): Observable<Set<EthereumProviderName>> {
     const existObs: Observable<string | null>[] = Object.keys(ProviderExistDetectors).map((key: string) => {
       const detector: () => boolean | Observable<boolean> = ProviderExistDetectors[key];
+
       const isExist$: boolean | Observable<boolean> = detector();
       const exist$: Observable<boolean> = isObservable(isExist$) ? isExist$ : of(isExist$);
 
@@ -323,6 +347,13 @@ export class EthereumProviderStateManager {
         keys.forEach((key: EthereumProviderName) => names.add(key));
 
         return names;
+      }),
+      map((injected: Set<EthereumProviderName>) => {
+        if (injected.size > 1 && injected.has(EthereumProviderName.MetaMaskLike)) {
+          injected.delete(EthereumProviderName.MetaMaskLike);
+        }
+
+        return injected;
       })
     );
   }
@@ -352,6 +383,12 @@ export class EthereumProviderStateManager {
       map((connected: [EthereumProviderName, boolean][]) => {
         const providers: EthereumProviderName[] = connected.filter(one => one[1]).map(one => one[0]);
         return new Set<EthereumProviderName>(providers);
+      }),
+      map((connected: Set<EthereumProviderName>) => {
+        if (connected.size > 1 && connected.has(EthereumProviderName.MetaMaskLike)) {
+          connected.delete(EthereumProviderName.MetaMaskLike);
+        }
+        return connected;
       })
     );
   }

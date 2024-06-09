@@ -6,26 +6,24 @@ import {
   combineLatest,
   EMPTY,
   from,
-  interval,
   Observable,
   of,
   retry,
   switchMap,
   zip,
 } from 'rxjs';
-import { WcWalletInfo } from '../services/wc-modal/wc-modal.service';
 import { SldDecimal } from '../util/decimal';
 import { Network } from '../constant/network';
 import { BigNumber, ethers, providers, Signer } from 'ethers';
-import { Wallet } from './define';
+import { SldWalletId, Wallet } from './define';
 import { SafeAppProvider } from '@safe-global/safe-apps-provider';
-import SafeAppsSDK, { SafeAppInfo, SafeInfo, SignMessageResponse } from '@safe-global/safe-apps-sdk';
+import SafeAppsSDK, { SafeInfo, SignMessageResponse } from '@safe-global/safe-apps-sdk';
 import { catchError, delay, expand, filter, map, startWith, take, tap } from 'rxjs/operators';
 import { ETH_DECIMAL } from '../constant';
 import { NetworkParamConfig } from '../constant/network-type';
-import * as _ from 'lodash';
 import { NetworkParams } from '../constant/network-conf';
-import { OffChainSignMessageResponse, SendTransactionsResponse } from '@safe-global/safe-apps-sdk/src/types/sdk';
+import { TokenErc20 } from '../state-manager/state-types';
+import safe from '../assets/imgs/wallet/safe.svg';
 
 function networkParse(chainId: string | number): Network {
   const network: Network =
@@ -94,6 +92,10 @@ export function switchNetwork(provider: SafeAppProvider, chainParam: NetworkPara
   return switch$;
 }
 
+export function addToken(provider: SafeAppProvider, token: TokenErc20, icon?: string): Observable<boolean> {
+  return of(false);
+}
+
 export class SafeWallet implements WalletInterface {
   walletType: Wallet = Wallet.SafeWallet;
 
@@ -108,7 +110,6 @@ export class SafeWallet implements WalletInterface {
   );
 
   private handlerAccounts = (accounts: string[]) => {
-    console.log('accounts', accounts);
     const account = accounts[0] || null;
     this.account$.next(account);
   };
@@ -116,7 +117,6 @@ export class SafeWallet implements WalletInterface {
   private handlerChainChanged = (chainId: string | number) => {
     const network: Network = networkParse(chainId);
 
-    console.log(network);
     if (this.network$.getValue() !== network) {
       asyncScheduler.schedule(() => {
         this.network$.next(network);
@@ -130,7 +130,7 @@ export class SafeWallet implements WalletInterface {
 
     safeInfo$.subscribe(info => {
       this.safeInfo = info;
-      console.log('info', info);
+
       const provider = new SafeAppProvider(info, this.appSdk);
       this.provider$.next(provider);
     });
@@ -143,7 +143,6 @@ export class SafeWallet implements WalletInterface {
       .pipe(
         filter(Boolean),
         tap((provider: SafeAppProvider) => {
-          console.log('provider', provider);
           provider.on('chainChanged', this.handlerChainChanged);
           provider.on('accountsChanged', this.handlerAccounts);
         }),
@@ -222,8 +221,28 @@ export class SafeWallet implements WalletInterface {
     return switchNetwork(provider, param);
   }
 
+  addErc20Token(token: TokenErc20, icon?: string): Observable<boolean> {
+    const provider: SafeAppProvider | null = this.provider$.getValue();
+    if (!provider) {
+      return of(false);
+    }
+
+    return addToken(provider, token, icon).pipe();
+  }
+
   walletName(): string | { name: string; url: string } {
     return { name: 'SafeWallet', url: 'https://app.safe.global/' };
+  }
+
+  walletId(): Observable<SldWalletId> {
+    return of({
+      wallet: Wallet.SafeWallet,
+      id: 'SafeWallet',
+    });
+  }
+
+  walletIcon(): Observable<string> {
+    return of(safe);
   }
 
   wasConnected(): Observable<boolean> {
@@ -234,16 +253,18 @@ export class SafeWallet implements WalletInterface {
     return this.account$.pipe(filter(Boolean));
   }
 
-  watchNativeBalance(trigger?: Observable<any>): Observable<SldDecimal> {
+  watchNativeBalance(trigger?: Observable<any>): Observable<{ balance: SldDecimal; network: Network }> {
     type CombineRs = [ethers.providers.Provider, string, Network, any];
     const refreshTrigger: Observable<any> = trigger ? trigger.pipe(startWith(true)) : of(null);
 
     return combineLatest([this.watchProvider(), this.watchAccount(), this.watchNetwork(), refreshTrigger]).pipe(
       switchMap(([provider, address, network, refresh]: CombineRs) => {
-        return provider.getBalance(address);
+        const balance$: Observable<BigNumber> = from(provider.getBalance(address) as Promise<BigNumber>);
+        return zip(balance$, of(network));
       }),
-      map((balance: BigNumber) => {
-        return SldDecimal.fromOrigin(balance, ETH_DECIMAL);
+      map(([balance, network]: [BigNumber, Network]) => {
+        const decimals: number = NetworkParams[network].nativeCurrency?.decimals || 18;
+        return { balance: SldDecimal.fromOrigin(balance, decimals), network };
       })
     );
   }

@@ -2,7 +2,7 @@ import { BaseContractManager, ContractAddress } from '../../../state-manager/con
 import { SHIELD_OPTION_TRADE_CONFIG_KEYS, ShieldOptionTradeField } from '../const/shield-option-address';
 import { Network } from '../../../constant/network';
 import { ABI_CHAIN_LINK, ABI_UNDERLYING_ASSET, SHIELD_OPTION_TRADE_ABI } from '../const/shield-option-abi';
-import { Observable, switchMap } from 'rxjs';
+import { NEVER, Observable, of, switchMap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SLD_ENV_CONF } from '../const/env';
 import { ShieldUnderlyingType } from '../../../state-manager/state-types';
@@ -53,8 +53,8 @@ export class ShieldUnderlyingContracts extends BaseContractManager<ShieldUnderly
     return underlying$.pipe(
       switchMap((name: ShieldUnderlyingType) => {
         return this.watchContractAddress(name).pipe(
-          map((address: ContractAddress) => {
-            return Object.assign(address, { underlying: name });
+          switchMap((address: ContractAddress | null) => {
+            return address ? of(Object.assign(address, { underlying: name })) : NEVER;
           })
         );
       })

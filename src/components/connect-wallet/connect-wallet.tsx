@@ -23,10 +23,10 @@ type IProps = {
 };
 
 type IState = {
-  visible: boolean;
   account: string | null;
   isWalletConnected: boolean;
   isVisible: boolean;
+  autoClose: boolean;
   agree: boolean | undefined;
 
   walletConnectVisible: boolean;
@@ -35,10 +35,13 @@ type IState = {
 
 export class ConnectWallet extends BaseStateComponent<IProps, IState> {
   state: IState = {
-    visible: false,
     account: null,
     isWalletConnected: true,
-    isVisible: P.Layout.IsShowWalletModal.get(),
+    isVisible:
+      typeof P.Layout.IsShowWalletModal.get() === 'boolean'
+        ? P.Layout.IsShowWalletModal.get()
+        : P.Layout.IsShowWalletModal.get()['show'],
+    autoClose: false,
     agree: undefined,
 
     walletConnectVisible: false,
@@ -48,7 +51,7 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
   componentDidMount() {
     this.registerObservable('account', walletState.USER_ADDR);
     this.registerObservable('isWalletConnected', walletState.IS_CONNECTED);
-    this.registerState('isVisible', P.Layout.IsShowWalletModal);
+    this.registerMultiState(this.mergeVisible());
     this.registerObservable('agree', walletAgree.IS_AGREE);
 
     this.mergeWcModalEvent();
@@ -57,6 +60,18 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
 
   componentWillUnmount() {
     this.destroyState();
+  }
+
+  mergeVisible(): Observable<Partial<IState>> {
+    return P.Layout.IsShowWalletModal.watch().pipe(
+      map((visible: boolean | { show: boolean; autoClose: boolean }) => {
+        if (typeof visible === 'boolean') {
+          return { isVisible: visible, autoClose: false };
+        } else {
+          return { isVisible: visible.show, autoClose: visible.autoClose };
+        }
+      })
+    );
   }
 
   private mergeWcModalEvent(): Observable<Partial<IState>> {
@@ -77,10 +92,6 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
     );
   }
 
-  onShow() {
-    this.setState({ visible: true });
-  }
-
   onHide() {
     P.Layout.IsShowWalletModal.set(false);
   }
@@ -89,9 +100,14 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
     walletAgree.setAgree(checked);
   }
 
-  render() {
+  private isShowVisible(): boolean {
+    const isClose: boolean = this.state.isWalletConnected && this.state.autoClose;
+    return isClose ? false : this.state.isVisible || (!this.state.isWalletConnected && !this.props.manualPopup);
+  }
+
+  render(): JSX.Element {
     const closeable: boolean = !!this.state.account || !!this.props.manualPopup;
-    const visible: boolean = this.state.isVisible || (!this.state.isWalletConnected && !this.props.manualPopup);
+    const visible: boolean = this.isShowVisible();
 
     return (
       <div>
@@ -100,7 +116,7 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
           title={<I18n id={'com-connect-wallet'} />}
           onCancel={this.onHide.bind(this)}
           onClose={this.onHide.bind(this)}
-          height={300}
+          height={320}
           width={600}
           closable={closeable}
           maskClosable={closeable}
@@ -121,7 +137,7 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
             </div>
           </Visible>
 
-          <ConnectWalletPage styleType={'popup'} disableConnection={!this.state.agree} />
+          <ConnectWalletPage disableConnection={!this.state.agree} />
         </ModalRender>
 
         <WalletConnectModal visible={this.state.walletConnectVisible} walletInfo={this.state.walletConnectWallet} />

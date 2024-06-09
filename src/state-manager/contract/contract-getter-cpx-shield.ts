@@ -1471,7 +1471,7 @@ export function paramRiskFundAddrGetter(optionContract: Contract): Observable<st
 
 export function paramBrokerPortionGetter(optionContract: Contract): Observable<SldDecPercent> {
   const cacheKey: string = genCacheKey(optionContract, 'broker_portion');
-  const percent$ = from(optionContract.brokerPortion() as Promise<BigNumber>).pipe(
+  const percent$: Observable<SldDecPercent> = from(optionContract.brokerPortion() as Promise<BigNumber>).pipe(
     map((portion: BigNumber) => {
       return SldDecPercent.fromOrigin(portion, 2);
     })

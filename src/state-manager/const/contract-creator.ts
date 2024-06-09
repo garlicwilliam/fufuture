@@ -98,3 +98,9 @@ export function isConnectedNetworkChanged(contract: Contract): boolean {
   const rs = conNetwork !== null && curNetwork !== null && conNetwork !== curNetwork;
   return rs;
 }
+
+export function contractFixNetFilter(network: Network): (contract: Contract) => boolean {
+  return (contract: Contract) => {
+    return contractNetwork(contract) === network;
+  };
+}

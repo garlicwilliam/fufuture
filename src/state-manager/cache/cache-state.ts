@@ -29,7 +29,6 @@ export class CacheStateImp<T> implements CacheState<T> {
   }
 
   // ---------------- get
-
   public get(): Observable<T | null> {
     const rs$: Observable<T | null> = this.getRealKey().pipe(
       map(realKey => {
@@ -38,6 +37,10 @@ export class CacheStateImp<T> implements CacheState<T> {
     );
 
     return rs$;
+  }
+
+  public readWithRealKey(realKey: string): T | null {
+    return this.realGet(realKey);
   }
 
   public getWithDef(defVal: T): Observable<T> {

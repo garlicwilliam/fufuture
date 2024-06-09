@@ -92,6 +92,13 @@ export type StoneStrategyInfo = {
   amount: SldDecimal;
   targetAllocation: SldDecPercent;
 };
+export type StrategyComposition = {
+  name: string;
+  value: SldDecimal;
+};
+export type StoneStrategyComInfo = StoneStrategyInfo & {
+  composition: StrategyComposition[];
+};
 export enum StoneProposalType {
   AddStrategy,
   UpdatePortfolio,
@@ -468,12 +475,13 @@ export type OmniTeamMemberMeta = {
   address: string;
   isBoost: boolean;
 };
+export type OmniTeamMemberInfo = OmniTeamMemberMeta & {
+  isSpecialMember: boolean;
+  isSpecialLeader: boolean;
+  special: { id: string; code: string } | null;
+};
+
 export type OmniStoneLocked = {
   primary: SldDecimal;
   boost: SldDecimal;
-};
-
-export type OmniTeamMember = OmniTeamMemberMeta & {
-  primaryLocked: SldDecimal;
-  boostLocked: SldDecimal;
 };

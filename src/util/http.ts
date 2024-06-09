@@ -4,16 +4,29 @@ import { Response } from 'superagent';
 import { catchError, filter, map, take } from 'rxjs/operators';
 
 export type HttpError = { err: any; ok: boolean };
+export const normalChecker = (res: Response) => res.status === 200;
+export const normalTimeout: number = 30000;
 
 export function httpPost(
   url: string,
   param: any,
-  ops?: { isForm?: boolean; withCredentials?: boolean; throwErr?: boolean }
+  ops?: {
+    isForm?: boolean;
+    withCredentials?: boolean;
+    header?: { [k: string]: string };
+    throwErr?: boolean;
+    timeout?: number;
+  }
 ): Observable<any> {
   try {
     const postUrl = ops?.isForm
       ? request.post(url).type('form')
-      : request.post(url).withCredentials(ops?.withCredentials || false);
+      : request
+          .post(url)
+          .timeout(ops?.timeout || normalTimeout)
+          .withCredentials(ops?.withCredentials || false)
+          .set(ops?.header || {});
+
     return from(postUrl.send(param)).pipe(
       catchError(err => {
         console.warn('http post error is', err);
@@ -30,16 +43,19 @@ export function httpPost(
   }
 }
 
-export const normalChecker = (res: Response) => res.status === 200;
-export const normalTimeout = 20000;
-
 export function httpPostDetect(
   url: string,
   param: any,
-  ops: { isForm?: boolean; withCredentials?: boolean; checker: (res: Response) => boolean; timeout?: number }
+  ops: {
+    isForm?: boolean;
+    withCredentials?: boolean;
+    header?: { [k: string]: string };
+    checker: (res: Response) => boolean;
+    timeout?: number;
+  }
 ): Observable<boolean> {
   return httpPost(url, param, { ...ops, throwErr: true }).pipe(
-    timeout(ops.timeout || 30000),
+    timeout(ops.timeout || normalTimeout),
     catchError(err => {
       return of(false);
     }),
@@ -52,7 +68,13 @@ export function httpPostDetect(
 export function httpPostUseRetry(
   urls: string[] | Observable<string[]>,
   param: any,
-  ops?: { isForm?: boolean; withCredentials?: boolean; checker: (res: Response) => boolean; timeout?: number }
+  ops?: {
+    isForm?: boolean;
+    withCredentials?: boolean;
+    header?: { [k: string]: string };
+    checker: (res: Response) => boolean;
+    timeout?: number;
+  }
 ): Observable<any> {
   const urls$ = isObservable(urls) ? urls : of(urls);
 
@@ -87,14 +109,16 @@ export function httpPostUseRetry(
 export function httpGet(
   url: string,
   param: any = {},
-  ops?: { returnError?: boolean; withCredentials?: boolean }
+  ops?: { returnError?: boolean; withCredentials?: boolean; header?: { [k: string]: string }; timeout?: number }
 ): Observable<any> {
   try {
     return from(
       request
         .get(url)
         .withCredentials(ops?.withCredentials || false)
-        .send(param)
+        .set(ops?.header || {})
+        .timeout(ops?.timeout || normalTimeout)
+        .query(param)
     ).pipe(
       catchError(err => {
         console.warn('http get error is', err);

@@ -22,6 +22,8 @@ export const E18 = BigNumber.from('1000000000000000000');
 export const Q192 = BigNumber.from(2).pow(192);
 export const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000';
 export const ZERO = BigNumber.from(0);
+
+export const DAY_DURATION: BigNumber = BigNumber.from(86400);
 export const ETH_DECIMAL = DECIMAL18;
 export const STONE_DECIMAL = DECIMAL18;
 

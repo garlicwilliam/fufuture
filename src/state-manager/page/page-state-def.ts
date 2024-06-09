@@ -14,6 +14,7 @@ import { confirmIsMobile, Size } from '../../util/layout';
 import { EMPTY_ADDRESS, Language } from '../../constant';
 import { getLanguage } from '../../locale/i18n';
 import { SldDecimal } from '../../util/decimal';
+import Bowser from 'bowser';
 
 export const PAGE_STATE = {
   Lang: {
@@ -33,7 +34,7 @@ export const PAGE_STATE = {
       _default: false,
     },
     IsShowWalletModal: {
-      _default: false as boolean,
+      _default: false as boolean | { show: true; autoClose: boolean },
     },
     isLocalTest: {
       _default: window.location?.hostname === 'localhost' || window.location?.hostname === '127.0.0.1',
@@ -42,6 +43,9 @@ export const PAGE_STATE = {
       _default:
         window.location?.hostname === 'alpha.stakestone.io' ||
         window.location?.hostname === 'alpha-carnival.stakestone.io',
+    },
+    OsName: {
+      _default: Bowser.parse(window.navigator.userAgent).os.name as string,
     },
   },
   Wallet: {

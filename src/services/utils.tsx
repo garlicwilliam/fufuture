@@ -3,6 +3,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { maskService } from './mask/mask.service';
 import { I18n } from '../components/i18n/i18n';
 import { i18n } from '../components/i18n/i18n-fn';
+import { ReactNode } from 'react';
 
 export const loadingObs = <T extends boolean | string>(
   obs: Observable<T>,
@@ -33,7 +34,14 @@ export const loadingObs = <T extends boolean | string>(
 
 export const pendingMask = (
   pending$: Observable<any>,
-  opt?: { tipFailed?: string; tipPending?: string; tipSuccess?: string; hide?: boolean; rsJudge?: (rs: any) => boolean }
+  opt?: {
+    tipFailed?: ReactNode;
+    tipPending?: ReactNode;
+    tipSuccess?: ReactNode;
+    hide?: boolean;
+    rsJudge?: (rs: any) => boolean;
+    useBtn?: boolean;
+  }
 ): Observable<any> => {
   maskService.pending(opt?.tipPending || i18n('com-pending'));
   return pending$.pipe(
@@ -44,7 +52,7 @@ export const pendingMask = (
         if (opt?.hide) {
           maskService.hide();
         } else {
-          maskService.success(opt?.tipSuccess || i18n('com-succeed'));
+          maskService.success(opt?.tipSuccess || i18n('com-succeed'), undefined, opt?.useBtn);
         }
       } else {
         maskService.failed(opt?.tipFailed || i18n('com-failed'));

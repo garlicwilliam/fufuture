@@ -17,6 +17,8 @@ import gate from '../../assets/imgs/wallet/gatewallet.svg';
 import safe from '../../assets/imgs/wallet/safe.svg';
 import binance from '../../assets/imgs/wallet/binance.svg';
 import binance2 from '../../assets/imgs/wallet/binance2.svg';
+import onekey from '../../assets/imgs/wallet/one-key.svg';
+import rabby from '../../assets/imgs/wallet/rabby.svg';
 
 import { ReactNode } from 'react';
 import { EthereumProviderName, WalletConnectWalletInfo, WalletConnectWalletName } from '../../wallet/define';
@@ -40,6 +42,8 @@ export {
   safe,
   binance,
   binance2,
+  onekey,
+  rabby
 };
 
 export const WALLET_ICONS_MAP: { [w in EthereumProviderName | WalletConnectWalletName]: string } = {
@@ -59,8 +63,10 @@ export const WALLET_ICONS_MAP: { [w in EthereumProviderName | WalletConnectWalle
   [EthereumProviderName.Coin98]: coin98,
   [EthereumProviderName.GateWallet]: gate,
   [EthereumProviderName.Binance]: binance2,
+  [EthereumProviderName.OneKey]: onekey,
   [WalletConnectWalletName.Binance]: binance,
   [WalletConnectWalletName.WalletConnect]: walletconnect,
+  [EthereumProviderName.Rabby]: rabby,
 };
 
 export const WALLET_NAME_MAP: { [w in EthereumProviderName | WalletConnectWalletName]: string } = {
@@ -80,9 +86,12 @@ export const WALLET_NAME_MAP: { [w in EthereumProviderName | WalletConnectWallet
   [EthereumProviderName.Coin98]: 'Coin98 Wallet',
   [EthereumProviderName.GateWallet]: 'Gate Wallet',
   [EthereumProviderName.Binance]: 'Binance Web3 Wallet',
+  [EthereumProviderName.OneKey]: 'OneKey',
+  [EthereumProviderName.Rabby]: 'Rabby Wallet',
   [WalletConnectWalletName.Binance]:
     WalletConnectWalletInfo[WalletConnectWalletName.Binance]?.name || 'Binance Web3 Wallet',
   [WalletConnectWalletName.WalletConnect]: 'Wallet Connect',
+  [EthereumProviderName.Rabby]: 'Rabby',
 };
 
 export function iconNode(name: EthereumProviderName | WalletConnectWalletName): ReactNode {

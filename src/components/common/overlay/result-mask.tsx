@@ -21,6 +21,7 @@ type IState = {
   title: ReactNode | null;
   text: ReactNode | null;
   status: 'pending' | 'success' | 'failed' | null;
+  useBtn: boolean;
 };
 type IProps = {};
 
@@ -31,6 +32,7 @@ export class ResultMask extends BaseStateComponent<IProps, IState> {
     title: null,
     text: null,
     status: null,
+    useBtn: true,
   };
 
   componentDidMount() {
@@ -45,7 +47,7 @@ export class ResultMask extends BaseStateComponent<IProps, IState> {
               break;
             }
             case 'success': {
-              this.success(event.text, event.title);
+              this.success(event.text, event.title, event.useBtn);
               break;
             }
             case 'pending': {
@@ -67,19 +69,25 @@ export class ResultMask extends BaseStateComponent<IProps, IState> {
   }
 
   pending(pendingText: ReactNode, title?: ReactNode) {
-    this.updateState({ show: true, status: 'pending', text: pendingText, title: title });
+    this.updateState({ show: true, status: 'pending', text: pendingText, title: title, useBtn: true });
   }
 
-  success(successText: ReactNode, title?: ReactNode) {
-    this.updateState({ show: true, status: 'success', text: successText, title: title });
+  success(successText: ReactNode, title?: ReactNode, useBtn?: boolean) {
+    this.updateState({
+      show: true,
+      status: 'success',
+      text: successText,
+      title: title,
+      useBtn: useBtn !== false,
+    });
   }
 
   failed(failText: ReactNode, title?: ReactNode) {
-    this.updateState({ show: true, status: 'failed', text: failText, title: title });
+    this.updateState({ show: true, status: 'failed', text: failText, title: title, useBtn: true });
   }
 
   hide() {
-    this.updateState({ status: null, text: null, title: null, show: false });
+    this.updateState({ status: null, text: null, title: null, show: false, useBtn: true });
   }
 
   render() {
@@ -111,7 +119,7 @@ export class ResultMask extends BaseStateComponent<IProps, IState> {
 
             <p className={styleMr(styles.descText, fontCss.medium)}>{this.state.text}</p>
 
-            <Visible when={this.state.status !== 'pending'}>
+            <Visible when={this.state.status !== 'pending' && this.state.useBtn}>
               <SldButton
                 size={this.state.isMobile ? 'small' : 'large'}
                 type={'none'}

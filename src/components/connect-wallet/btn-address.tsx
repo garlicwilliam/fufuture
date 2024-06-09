@@ -14,17 +14,20 @@ type IProps = {
 };
 
 type IState = {
+  isMobile: boolean;
   account: string | null;
   connected: boolean;
 };
 
 export class AddressButton extends BaseStateComponent<IProps, IState> {
   state: IState = {
+    isMobile: false,
     account: null,
     connected: true,
   };
 
   componentDidMount() {
+    this.registerIsMobile('isMobile');
     this.registerObservable('account', walletState.USER_ADDR);
     this.registerObservable('connected', walletState.IS_CONNECTED);
   }
@@ -45,7 +48,7 @@ export class AddressButton extends BaseStateComponent<IProps, IState> {
       <Visible when={hasAccount}>
         <CopyToClipboard onCopy={this.onCopyAddress.bind(this)} text={this.state.account || ''}>
           <div className={copyCss}>
-            {shortAddress(this.state.account || '', true)} <CopyOutlined />
+            {this.state.isMobile ? shortAddress(this.state.account, true) : this.state.account || ''} <CopyOutlined />
           </div>
         </CopyToClipboard>
       </Visible>

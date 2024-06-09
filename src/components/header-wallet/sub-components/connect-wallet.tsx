@@ -27,7 +27,7 @@ export class ConnectWallet extends BaseStateComponent<IProps, IState> {
   }
 
   onConnect() {
-    P.Layout.IsShowWalletModal.set(true);
+    P.Layout.IsShowWalletModal.set({ show: true, autoClose: true });
   }
 
   render() {

@@ -126,7 +126,6 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
 
     return httpPost(url, param).pipe(
       map(res => {
-        console.log(res);
         const ids: { id: string; makerID: string }[] = res.body.data.privatePoolOrders;
         const len: number = ids.length;
 
@@ -209,13 +208,10 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
     const all: Set<string> = new Set<string>(opens.map(one => one.makerID));
     const del: Set<string> = new Set<string>(close.map(one => one.makerID));
 
-    console.log('del', del);
-
     del.forEach(mid => {
       all.delete(mid);
     });
 
-    console.log('all', all);
     return Array.from(all).map(one => Number(one));
   }
 }

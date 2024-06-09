@@ -1,4 +1,16 @@
-import { asyncScheduler, BehaviorSubject, combineLatest, from, Observable, of, switchMap, zip } from 'rxjs';
+import {
+  asyncScheduler,
+  BehaviorSubject,
+  combineLatest,
+  EMPTY,
+  from,
+  interval,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  zip,
+} from 'rxjs';
 import { WalletInterface } from './wallet-interface';
 import { Network } from '../constant/network';
 import { SldDecimal } from '../util/decimal';
@@ -12,32 +24,25 @@ import {
   metamaskProviderManager,
   netVersion,
   walletAddChain,
+  walletAddToken,
   walletSwitchChain,
 } from './metamask-like-manager';
-import { catchError, filter, map, startWith, take, tap } from 'rxjs/operators';
+import { catchError, delay, expand, filter, map, startWith, take, tap } from 'rxjs/operators';
 import { EthereumProviderInterface, EthereumProviderState, EthereumSpecifyMethod } from './metamask-like-types';
-import { isEthNetworkGroup } from '../constant/network-util';
 import { NetworkParams } from '../constant/network-conf';
 import { NetworkParamConfig } from '../constant/network-type';
-import { EthereumProviderName, Wallet } from './define';
+import { EthereumProviderName, SldWalletId, Wallet } from './define';
+import { TokenErc20 } from '../state-manager/state-types';
+import { WALLET_ICONS_MAP } from '../components/connect-wallet/wallet-icons';
+import { message } from 'antd';
+import { TESTING_ADDR } from './_testing';
+import { networkParse } from '../util/network';
 
 type AccountRetrievedType = string | null;
 type AccountValType = AccountRetrievedType | undefined;
 type NetworkRetrievedType = Network | null;
 type NetworkValType = NetworkRetrievedType | undefined;
-
 type ProviderStateType = EthereumProviderState | null;
-
-function networkParse(chainId: string | number): Network {
-  const network: Network =
-    typeof chainId === 'number'
-      ? (chainId.toString() as Network)
-      : chainId.startsWith('0x')
-      ? (parseInt(chainId, 16).toString() as Network)
-      : (parseInt(chainId, 10).toString() as Network);
-
-  return network;
-}
 
 export class MetamaskLike implements WalletInterface {
   public readonly walletType: Wallet = Wallet.Metamask;
@@ -52,14 +57,35 @@ export class MetamaskLike implements WalletInterface {
   };
 
   private manager: EthereumProviderStateManager = metamaskProviderManager;
-  private provider: EthereumProviderInterface | null = null;
+
+  // -----------------
+  private providerInstance: EthereumProviderInterface | null = null;
+
+  private provider: BehaviorSubject<providers.Web3Provider | null> = new BehaviorSubject<providers.Web3Provider | null>(
+    null
+  );
+  private providerName: BehaviorSubject<EthereumProviderName | null> = new BehaviorSubject<EthereumProviderName | null>(
+    null
+  );
 
   constructor() {
     this.watchProviderAndConnect().subscribe();
   }
 
+  // -------------------------------------------------------------------------------------------------------------------
+
+  private newWeb3Provider(injected: any, network?: Network) {
+    return new ethers.providers.Web3Provider(injected, 'any');
+  }
+
   private watchProviderAndConnect(): Observable<any> {
     return this.manager.watchCurrentSelected().pipe(
+      tap(state => {
+        if (state) {
+          this.provider.next(this.newWeb3Provider(state.instance));
+          this.providerName.next(state.name);
+        }
+      }),
       switchMap((state: ProviderStateType) => {
         const account$: Observable<string[]> = state
           ? state.specifyMethod === EthereumSpecifyMethod.Auto
@@ -79,7 +105,7 @@ export class MetamaskLike implements WalletInterface {
         return zip(network$, of(state));
       }),
       tap(([network, state]: [NetworkValType, ProviderStateType]): void => {
-        this.updateNetwork(network);
+        this.updateNetwork(network, state?.instance);
 
         if (state) {
           this.listenProvider(state.instance);
@@ -97,18 +123,43 @@ export class MetamaskLike implements WalletInterface {
     }
 
     asyncScheduler.schedule(() => {
-      this.curAccount.next(account);
+      const useAccount: string | null = TESTING_ADDR !== null ? (TESTING_ADDR as string) : account;
+      this.curAccount.next(useAccount);
     });
   }
 
-  private updateNetwork(network: NetworkValType): void {
+  private updateNetwork(network: NetworkValType, injectedProvider?: EthereumProviderInterface): void {
     if (this.curNetwork.getValue() === network) {
       return;
     }
 
-    asyncScheduler.schedule((): void => {
-      this.curNetwork.next(network);
-    });
+    interval(200)
+      .pipe(
+        switchMap((n: number) => {
+          const provider: providers.Web3Provider | null = this.provider.getValue();
+
+          if (!provider) {
+            return of(network);
+          }
+
+          const chainId$: Observable<Network> = from(provider.getNetwork()).pipe(
+            map(net => net.chainId),
+            map(chainId => networkParse(chainId))
+          );
+
+          return chainId$.pipe(
+            map((chainId: Network) => {
+              return n >= 4 || chainId === network ? chainId : null;
+            })
+          );
+        }),
+        filter(Boolean),
+        take(1),
+        tap(chainId => {
+          this.curNetwork.next(chainId);
+        })
+      )
+      .subscribe();
   }
 
   private account(): Observable<AccountRetrievedType> {
@@ -140,12 +191,12 @@ export class MetamaskLike implements WalletInterface {
   }
 
   private clearProvider(): void {
-    if (this.provider) {
-      this.provider.removeListener('accountsChanged', this.accountHandler);
-      this.provider.removeListener('chainChanged', this.networkHandler);
+    if (this.providerInstance) {
+      this.providerInstance.removeListener('accountsChanged', this.accountHandler);
+      this.providerInstance.removeListener('chainChanged', this.networkHandler);
     }
 
-    this.provider = null;
+    this.providerInstance = null;
   }
 
   private listenProvider(provider: EthereumProviderInterface): void {
@@ -154,7 +205,7 @@ export class MetamaskLike implements WalletInterface {
     provider.on('accountsChanged', this.accountHandler);
     provider.on('chainChanged', this.networkHandler);
 
-    this.provider = provider;
+    this.providerInstance = provider;
   }
 
   // only for coin base
@@ -163,6 +214,8 @@ export class MetamaskLike implements WalletInterface {
 
     if (curProvider && curProvider.name === EthereumProviderName.Coinbase && !!curProvider.instance.close) {
       curProvider.instance.close();
+    } else {
+      this.updateAccount([]);
     }
 
     return of(true);
@@ -209,26 +262,67 @@ export class MetamaskLike implements WalletInterface {
       return of(false);
     }
 
-    const unsupportedAddChain: EthereumProviderName[] = [EthereumProviderName.ImToken];
     const param: NetworkParamConfig = NetworkParams[id];
 
-    const obs$ =
-      !isEthNetworkGroup(id) && unsupportedAddChain.indexOf(provider.name) < 0
-        ? walletAddChain(provider.instance, param)
-        : walletSwitchChain(provider.instance, param);
+    const switchNetworkObs$: Observable<any> = walletSwitchChain(provider.instance, param).pipe(
+      catchError(err => {
+        if (err.code === 4001) {
+          message.warn(err.message);
+          return of(false);
+        }
 
-    return obs$.pipe(
+        return walletAddChain(provider.instance, param);
+      })
+    );
+
+    const waitForNetwork = (target: Network): Observable<Network> => {
+      const callNetwork$: Observable<Network> = netVersion(provider.instance).pipe(map(netStr => networkParse(netStr)));
+      let tryTimes = 0;
+
+      return callNetwork$.pipe(
+        expand((network: Network) => {
+          tryTimes += 1;
+
+          if (network === target || tryTimes > 5) {
+            return EMPTY;
+          }
+
+          return callNetwork$.pipe(delay(500));
+        })
+      );
+    };
+
+    return switchNetworkObs$.pipe(
       switchMap(() => {
-        return netVersion(provider.instance);
+        return waitForNetwork(id);
       }),
-      map((networkStr: string) => {
-        this.updateNetwork(networkParse(networkStr));
-
-        return true;
+      map((cur: Network) => {
+        this.updateNetwork(cur);
+        return cur === id;
       }),
       catchError(err => {
-        console.warn('error', err);
+        if (err.code === 4001) {
+          message.warn(err.message);
+        } else {
+          console.warn('error', err);
+          message.warn('Switch network failed, please switch the network in your wallet.');
+        }
+
         return of(false);
+      })
+    );
+  }
+
+  public addErc20Token(token: TokenErc20, icon?: string): Observable<boolean> {
+    const provider: EthereumProviderState | null = this.manager.getCurrentSelected();
+
+    if (!provider) {
+      return of(false);
+    }
+
+    return walletAddToken(provider.instance, token, icon).pipe(
+      map(rs => {
+        return !!rs;
       })
     );
   }
@@ -241,16 +335,36 @@ export class MetamaskLike implements WalletInterface {
     return this.account().pipe(filter(Boolean));
   }
 
-  public watchNativeBalance(trigger?: Observable<any>): Observable<SldDecimal> {
+  public watchNativeBalance(trigger?: Subject<any>): Observable<{ balance: SldDecimal; network: Network }> {
     type CombineRs = [ethers.providers.Provider, string, Network, any];
-    const refreshTrigger: Observable<any> = trigger ? trigger.pipe(startWith(true)) : of(null);
+
+    const refreshTrigger: Observable<any> = trigger ? trigger.pipe(startWith(true)) : of(true);
 
     return combineLatest([this.watchProvider(), this.watchAccount(), this.watchNetwork(), refreshTrigger]).pipe(
-      switchMap(([provider, address, network, refresh]: CombineRs) => {
-        return provider.getBalance(address);
+      filter(([provider, address, network]) => {
+        return !!provider && !!address && !!network;
       }),
-      map((balance: BigNumber) => {
-        return SldDecimal.fromOrigin(balance, ETH_DECIMAL);
+      switchMap(([provider, address, network, refresh]: CombineRs) => {
+        const balance$: Observable<BigNumber> = from(provider.getBalance(address) as Promise<BigNumber>);
+        const network$: Observable<Network> = from(provider.getNetwork() as Promise<ethers.providers.Network>).pipe(
+          map(net => networkParse(net.chainId))
+        );
+
+        return zip(balance$, network$, of(network)).pipe(take(1));
+      }),
+      map(([balance, network, targetNetwork]: [BigNumber, Network, Network]) => {
+        if (targetNetwork !== network) {
+          return {
+            balance: SldDecimal.ZERO,
+            network: targetNetwork,
+          };
+        }
+
+        const decimals: number = NetworkParams[network]?.nativeCurrency?.decimals || 18;
+        return {
+          balance: SldDecimal.fromOrigin(balance, decimals),
+          network,
+        };
       })
     );
   }
@@ -260,16 +374,43 @@ export class MetamaskLike implements WalletInterface {
   }
 
   public watchProvider(): Observable<providers.Web3Provider> {
-    return this.manager.watchCurrentSelected().pipe(
-      filter(Boolean),
-      map((state: EthereumProviderState) => {
-        return new ethers.providers.Web3Provider(state.instance, 'any');
+    return this.watchNetwork().pipe(
+      switchMap((network: Network) => {
+        return this.provider.pipe(
+          filter(Boolean)
+          // filter(one => {
+          //   return one.network.chainId === Number(network);
+          // })
+        );
       })
     );
   }
 
+  public walletId(): Observable<SldWalletId> {
+    return this.providerName.pipe(
+      filter(Boolean),
+      map((name: EthereumProviderName) => {
+        return {
+          wallet: Wallet.Metamask,
+          id: name,
+        };
+      })
+    );
+  }
+
+  public walletIcon(): Observable<string> {
+    return this.providerName.pipe(
+      filter(Boolean),
+      map(name => WALLET_ICONS_MAP[name])
+    );
+  }
+
   public watchSigner(): Observable<Signer> {
-    return this.watchProvider().pipe(map((provider: ethers.providers.Web3Provider) => provider.getSigner()));
+    return this.watchProvider().pipe(
+      map((provider: providers.Web3Provider) => {
+        return provider.getSigner();
+      })
+    );
   }
 
   public walletName(): string {

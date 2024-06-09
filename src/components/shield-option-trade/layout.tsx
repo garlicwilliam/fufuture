@@ -1,6 +1,6 @@
 import { BaseStateComponent } from '../../state-manager/base-state-component';
 import { P } from '../../state-manager/page/page-state-parser';
-import { bindStyleMerger } from '../../util/string';
+import {bindStyleMerger, StyleMerger} from '../../util/string';
 import styles from './layout.module.less';
 import { EmptyProps, LocationProps, withLocation } from '../common/utils/location-wrapper';
 import { Outlet } from 'react-router-dom';
@@ -52,10 +52,10 @@ class ShieldOptionAppImp extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
-    const mobileCss = this.state.isMobile ? styles.mobile : '';
-    const styleMr = bindStyleMerger(mobileCss);
+    const mobileCss: string = this.state.isMobile ? styles.mobile : '';
+    const styleMr: StyleMerger = bindStyleMerger(mobileCss);
 
-    const isPoster = this.props.location.pathname.indexOf(RouteKey.poster) >= 0;
+    const isPoster: boolean = this.props.location.pathname.indexOf(RouteKey.poster) >= 0;
 
     return (
       <>

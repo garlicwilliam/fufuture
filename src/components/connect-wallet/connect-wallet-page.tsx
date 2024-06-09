@@ -23,7 +23,6 @@ import {
 } from '../../wallet/define';
 
 type IProps = {
-  styleType?: WalletButtonStyleType;
   disableConnection?: boolean;
 };
 type IState = {
@@ -71,18 +70,20 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
       .pipe(
         finalize(() => {
           this.updateState({ isClosing: false });
+          P.Layout.IsShowWalletModal.set(false);
         })
       )
       .subscribe();
   }
 
   useDisconnect() {
-    return (
-      (this.state.curWalletType === Wallet.WalletConnect && this.state.isWalletConnected) ||
-      (this.state.curWalletType === Wallet.Metamask &&
-        this.state.ethereumProviderCurrent === EthereumProviderName.Coinbase &&
-        !this.state.isMobile)
-    );
+    return true;
+    // return (
+    //   (this.state.curWalletType === Wallet.WalletConnect && this.state.isWalletConnected) ||
+    //   (this.state.curWalletType === Wallet.Metamask &&
+    //     this.state.ethereumProviderCurrent === EthereumProviderName.Coinbase &&
+    //     !this.state.isMobile)
+    // );
   }
 
   getWalletProviderList(): { wallets: EthereumProviderName[]; existsSize: number } {
@@ -95,10 +96,12 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
       EthereumProviderName.TokenPocket,
       EthereumProviderName.Coin98,
       EthereumProviderName.GateWallet,
+      EthereumProviderName.Rabby,
+      EthereumProviderName.OneKey,
     ];
 
     if (getAppName() === AppName.ShieldTrade) {
-      wallets.push(...[EthereumProviderName.Onto, EthereumProviderName.MathWallet, EthereumProviderName.SafePal]);
+      wallets.push(...[EthereumProviderName.SafePal]);
     }
 
     if (this.state.ethereumProviderExists.size > 0) {
@@ -128,8 +131,8 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
     });
 
     const wcIds: SldWalletId[] = [
-      { wallet: Wallet.WalletConnect, id: WalletConnectWalletName.WalletConnect },
       { wallet: Wallet.WalletConnect, id: WalletConnectWalletName.Binance },
+      { wallet: Wallet.WalletConnect, id: WalletConnectWalletName.WalletConnect },
     ];
 
     walletIds.splice(existsSize, 0, ...wcIds);
@@ -139,8 +142,11 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
 
   confirmMobileProvider(): EthereumProviderName | null {
     let mobileDefaultProvider: EthereumProviderName | null = null;
-    if (this.state.ethereumProviderExists.size > 0) {
-      const exists = Array.from(this.state.ethereumProviderExists.values());
+
+    if (this.state.ethereumProviderCurrent) {
+      mobileDefaultProvider = this.state.ethereumProviderCurrent;
+    } else if (this.state.ethereumProviderExists.size > 0) {
+      const exists: EthereumProviderName[] = Array.from(this.state.ethereumProviderExists.values());
       mobileDefaultProvider = exists.find(one => one !== EthereumProviderName.MetaMaskLike) || exists[0];
     }
 
@@ -148,42 +154,44 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
-    const useDisconnect: boolean = this.useDisconnect();
     // mobile display
     const mobileDefaultProvider: EthereumProviderName | null = this.confirmMobileProvider();
 
-    const wrapperCss = this.props.styleType === 'popup' && !this.state.isMobile ? styles.wrapperPop : styles.wrapper;
-    const gapCss = this.props.styleType === 'union' ? styles.moreGap : '';
-    const buttonType: WalletButtonStyleType =
-      this.props.styleType === 'popup'
-        ? this.state.isMobile
-          ? 'normal'
-          : 'popup'
-        : (this.props.styleType as WalletButtonStyleType);
-
+    const wrapperCss: string = !this.state.isMobile ? styles.wrapperPop : styles.wrapper;
+    const buttonType: WalletButtonStyleType = this.state.isMobile ? 'normal' : 'popup';
     const wallets: SldWalletId[] = this.getWalletLists();
 
     return (
-      <div className={styleMerge(styles.wrapper, gapCss)}>
-        <div className={styleMerge(wrapperCss, gapCss)}>
+      <div className={styleMerge(styles.wrapper)}>
+        <div className={styleMerge(wrapperCss)}>
           {this.state.isMobile ? (
             <>
               {mobileDefaultProvider ? (
-                <MetamaskButton
-                  targetProvider={mobileDefaultProvider}
-                  styleType={buttonType}
-                  disabled={this.props.disableConnection}
-                />
+                <Visible
+                  when={
+                    !this.state.isWalletConnected ||
+                    this.state.curWalletType === Wallet.Metamask ||
+                    this.state.curWalletType === Wallet.SafeWallet
+                  }
+                >
+                  <MetamaskButton
+                    targetProvider={mobileDefaultProvider}
+                    styleType={buttonType}
+                    disabled={this.props.disableConnection}
+                  />
+                </Visible>
               ) : (
-                <>
+                <Visible when={!this.state.isWalletConnected}>
                   <DeeplinkButton name={EthereumProviderName.MetaMask} />
                   <Visible when={getAppName() === AppName.Stone || getAppName() === AppName.StoneOmni}>
                     <DeeplinkButton name={WalletConnectWalletName.Binance} />
                   </Visible>
-                </>
+                </Visible>
               )}
 
-              <WalletConnectButton styleType={buttonType} disabled={this.props.disableConnection} />
+              <Visible when={!this.state.isWalletConnected || this.state.curWalletType === Wallet.WalletConnect}>
+                <WalletConnectButton styleType={buttonType} disabled={this.props.disableConnection} />
+              </Visible>
             </>
           ) : (
             <>
@@ -216,10 +224,10 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
           )}
         </div>
 
-        <div className={styleMerge(styles.wrapper, gapCss)}>
+        <div className={styleMerge(styles.wrapper)}>
           <AddressButton styleType={buttonType} />
 
-          <Visible when={useDisconnect}>
+          <Visible when={this.state.isWalletConnected}>
             <DisconnectButton
               styleType={buttonType}
               pending={this.state.isClosing}

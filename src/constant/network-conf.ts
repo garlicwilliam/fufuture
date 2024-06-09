@@ -3,8 +3,10 @@ import {
   NET_ARBITRUM_GOERLI,
   NET_ARBITRUM_SEPOLIA,
   NET_ASTAR_ZK_EVM,
+  NET_B2,
   NET_BASE,
   NET_BASE_GOERLI,
+  NET_BEVM,
   NET_BNB,
   NET_BNB_TEST,
   NET_ETHEREUM,
@@ -15,6 +17,9 @@ import {
   NET_MANTA_PACIFIC_TEST,
   NET_MANTLE,
   NET_MANTLE_TEST,
+  NET_MERLIN,
+  NET_MERLIN_TEST,
+  NET_METER,
   NET_MODE_MAINNET,
   NET_OPT_ETH,
   NET_POLYGON,
@@ -36,6 +41,10 @@ import mantle from '../assets/imgs/chains/mantle.svg';
 import manta from '../assets/imgs/chains/manta-pacific.svg';
 import mode from '../assets/imgs/chains/mode.svg';
 import astar from '../assets/imgs/chains/astar.svg';
+import merlin from '../assets/imgs/chains/merlin.svg';
+import b2 from '../assets/imgs/chains/b2.svg';
+import meter from '../assets/imgs/chains/meter.svg';
+import bevm from '../assets/imgs/chains/bevm.svg';
 import * as _ from 'lodash';
 
 import { NetworkConfMap, NetworkParamConfig } from './network-type';
@@ -62,6 +71,11 @@ export const NetworkNames: NetworkConfMap<Network, string> = {
   [NET_MODE_MAINNET]: 'Mode Mainnet' as const,
   [NET_ASTAR_ZK_EVM]: 'Astar zkEVM' as const,
   [NET_SCROLL]: 'Scroll' as const,
+  [NET_MERLIN]: 'Merlin Mainnet' as const,
+  [NET_MERLIN_TEST]: 'Merlin Testnet' as const,
+  [NET_B2]: 'B2 Mainnet' as const,
+  [NET_METER]: 'Meter Mainnet' as const,
+  [NET_BEVM]: 'BEVM Mainnet' as const,
 };
 export const NetworkCurrency: NetworkConfMap<Network, string> = {
   [NET_BNB_TEST]: 'BNB',
@@ -85,6 +99,11 @@ export const NetworkCurrency: NetworkConfMap<Network, string> = {
   [NET_MODE_MAINNET]: 'ETH',
   [NET_ASTAR_ZK_EVM]: 'ETH',
   [NET_SCROLL]: 'ETH',
+  [NET_MERLIN]: 'BTC',
+  [NET_MERLIN_TEST]: 'BTC',
+  [NET_B2]: 'BTC',
+  [NET_METER]: 'MTR',
+  [NET_BEVM]: 'BTC',
 };
 export const NetworkLabels: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: 'Ethereum' as const,
@@ -108,6 +127,11 @@ export const NetworkLabels: NetworkConfMap<Network, string> = {
   [NET_MODE_MAINNET]: 'Mode' as const,
   [NET_ASTAR_ZK_EVM]: 'Astar zkEVM' as const,
   [NET_SCROLL]: 'Scroll' as const,
+  [NET_MERLIN]: 'Merlin' as const,
+  [NET_MERLIN_TEST]: 'Merlin Testnet' as const,
+  [NET_B2]: 'B2' as const,
+  [NET_METER]: 'Meter' as const,
+  [NET_BEVM]: 'BEVM' as const,
 };
 export const NetworkIcons: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: eth,
@@ -131,6 +155,11 @@ export const NetworkIcons: NetworkConfMap<Network, string> = {
   [NET_MODE_MAINNET]: mode,
   [NET_ASTAR_ZK_EVM]: astar,
   [NET_SCROLL]: scroll,
+  [NET_MERLIN]: merlin,
+  [NET_MERLIN_TEST]: merlin,
+  [NET_B2]: b2,
+  [NET_METER]: meter,
+  [NET_BEVM]: '',
 };
 export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
   [NET_BNB_TEST]: {
@@ -365,6 +394,61 @@ export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
     nativeCurrency: {
       name: NetworkCurrency[NET_SCROLL],
       symbol: NetworkCurrency[NET_SCROLL],
+      decimals: 18,
+    },
+  },
+  [NET_MERLIN]: {
+    chainId: '0x1068',
+    chainName: NetworkNames[NET_MERLIN],
+    rpcUrls: ['https://rpc.merlinchain.io'],
+    blockExplorerUrls: ['https://scan.merlinchain.io'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_MERLIN],
+      symbol: NetworkCurrency[NET_MERLIN],
+      decimals: 18,
+    },
+  },
+  [NET_MERLIN_TEST]: {
+    chainId: '0xa7b14',
+    chainName: NetworkNames[NET_MERLIN_TEST],
+    rpcUrls: ['https://testnet-rpc.merlinchain.io'],
+    blockExplorerUrls: ['https://testnet-scan.merlinchain.io'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_MERLIN_TEST],
+      symbol: NetworkCurrency[NET_MERLIN_TEST],
+      decimals: 18,
+    },
+  },
+  [NET_B2]: {
+    chainId: '0xdf',
+    chainName: NetworkNames[NET_B2],
+    rpcUrls: ['https://rpc.bsquared.network'],
+    blockExplorerUrls: ['https://explorer.bsquared.network/'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_B2],
+      symbol: NetworkCurrency[NET_B2],
+      decimals: 18,
+    },
+  },
+  [NET_METER]: {
+    chainId: '0x52',
+    chainName: NetworkNames[NET_METER],
+    rpcUrls: ['https://rpc.meter.io'],
+    blockExplorerUrls: ['https://explorer.meter.io'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_METER],
+      symbol: NetworkCurrency[NET_METER],
+      decimals: 18,
+    },
+  },
+  [NET_BEVM]: {
+    chainId: '0x2ced',
+    chainName: NetworkNames[NET_BEVM],
+    rpcUrls: ['https://rpc-mainnet-1.bevm.io', 'https://rpc-mainnet-2.bevm.io'],
+    blockExplorerUrls: ['https://scan-mainnet.bevm.io'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_BEVM],
+      symbol: NetworkCurrency[NET_BEVM],
       decimals: 18,
     },
   },

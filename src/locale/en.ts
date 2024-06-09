@@ -17,6 +17,7 @@ export default {
   'com-succeed': 'Succeed',
   'com-network-wrong': 'Wrong Network',
   'com-insufficient-balance': 'Insufficient balance',
+  'com-switch-to': 'Switch to ${network}',
   'trade-24h-change': '24h Change',
   'trade-24h-volume': '24h Volume',
   'trade-24h-price-low': '24h Low',

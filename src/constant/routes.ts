@@ -33,6 +33,7 @@ export enum RouteKey {
   portfolioVoteList = 'vote-list',
   portfolioVoteDetail = 'vote-detail',
   bridge = 'bridge',
+  stakeBridge = 'stake-bridge',
 
   omniCover = 'cover',
 }

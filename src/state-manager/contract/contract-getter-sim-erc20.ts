@@ -1,7 +1,7 @@
 import { BigNumber, Contract } from 'ethers';
 import { EMPTY, Observable, of, switchMap, zip } from 'rxjs';
 import { TokenErc20 } from '../state-types';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { SldDecimal } from '../../util/decimal';
 import { genContractCallPartial } from './contract-utils';
 import { CACHE_10_SEC, CACHE_3_SEC, CACHE_FOREVER, cacheService } from '../mem-cache/cache-contract';
@@ -89,15 +89,12 @@ export function erc20UserBalanceGetter(
     switchMap((erc20Contract: Contract) => {
       const cacheKey: string = genCacheKey(erc20Contract, 'erc20_balance', userAddress);
 
-      if (isConnectedNetworkChanged(erc20Contract)) {
-        return EMPTY;
-      }
-
       const decimal$ = decimal === undefined ? erc20DecimalGetter(erc20Contract) : of(decimal);
       const balancePromise$ = erc20Contract.balanceOf(userAddress) as Promise<BigNumber>;
       const balanceNum$: Observable<BigNumber> = erc20Call(balancePromise$, `balanceOf(${userAddress})`).pipe(
         catchError(err => {
           console.warn('Read Token Balance Error:', 'Account:', userAddress, 'Token:', erc20Contract.address);
+          console.warn(erc20, userAddress);
           return of(ZERO);
         })
       );
@@ -136,6 +133,10 @@ export function erc20ApprovedAmountGetter(
       const approve$ = zip(decimal$, allowance$).pipe(
         map(([decimal, allowance]) => {
           return SldDecimal.fromOrigin(allowance, decimal);
+        }),
+        catchError(err => {
+          console.warn('Read Token Allowance Error:', err);
+          throw err;
         })
       );
 
