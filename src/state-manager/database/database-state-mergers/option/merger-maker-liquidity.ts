@@ -11,6 +11,7 @@ import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/e
 import { NET_BNB, Network } from '../../../../constant/network';
 import { EMPTY_ADDRESS } from '../../../../constant';
 import { ethers } from 'ethers';
+import { isTheGraphQL } from './utils';
 
 export class MergerMakerLiquidity implements DatabaseStateMerger<ShieldMakerPrivatePoolInfoRs, [string, Network]> {
   mergeWatch(...args: [string, Network]): Observable<ShieldMakerPrivatePoolInfoRs> {
@@ -42,15 +43,21 @@ export class MergerMakerLiquidity implements DatabaseStateMerger<ShieldMakerPriv
       return of(emptyRs);
     }
 
-    return httpPost(url, this.genParam(makerAddress)).pipe(
+    const isTheGraph: boolean = isTheGraphQL(url);
+    const param = isTheGraph ? this.genParam0(makerAddress) : this.genParam1(makerAddress);
+
+    return httpPost(url, param).pipe(
       map(res => {
-        const isOK = _.get(res, 'status', 400) === 200 && _.get(res, 'body.data') !== undefined;
+        const isOK: boolean = _.get(res, 'status', 400) === 200 && _.get(res, 'body.data') !== undefined;
 
         if (!isOK) {
           return [];
         }
 
-        const liquidityArr = _.get(res, 'body.data.addLiquidityPrivates');
+        const liquidityArr: { fromContract: string }[] = isTheGraph
+          ? _.get(res, 'body.data.addLiquidityPrivates', [])
+          : _.get(res, 'body.data.addLiquidityPrivates.nodes', []);
+
         const poolAddress: string[] = liquidityArr.map(one => one.fromContract);
 
         return Array.from(new Set(poolAddress));
@@ -97,10 +104,30 @@ export class MergerMakerLiquidity implements DatabaseStateMerger<ShieldMakerPriv
     );
   }
 
-  private genParam(maker: string): any {
+  private genParam0(maker: string): any {
     return {
       query: `{ addLiquidityPrivates(first: 1000, where:{ account: "${maker}"} ) { fromContract, }}`,
       variables: {},
+    };
+  }
+
+  private genParam1(maker: string): any {
+    maker = maker.toLowerCase();
+    return {
+      query: `{
+        addLiquidityPrivates(
+          first: 1000,
+          filter: {
+            account: {
+              equalTo: "${maker}"
+            }
+          }
+        ){
+           nodes {
+            fromContract
+           }
+        }
+      }`,
     };
   }
 }

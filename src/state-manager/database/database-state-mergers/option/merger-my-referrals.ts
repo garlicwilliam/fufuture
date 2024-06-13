@@ -30,8 +30,8 @@ export class MergerMyReferrals implements DatabaseStateMerger<number, [string, N
       map(res => {
         const isOK = _.get(res, 'status', 400) === 200 && !_.isEmpty(_.get(res, 'body.data'));
         if (isOK) {
-          const referrals = _.get(res, 'body.data.addBrokers') as any[];
-          return referrals.length;
+          const referrals: string = _.get(res, 'body.data.broker.referralCount', '0') as string;
+          return Number(referrals);
         }
 
         return 0;
@@ -40,9 +40,14 @@ export class MergerMyReferrals implements DatabaseStateMerger<number, [string, N
   }
 
   genParam(inviter: string): any {
+    inviter = inviter.toLowerCase();
     return {
-      query: `{ addBrokers(where: {inviter: "${inviter}"}) { inviter }}`,
-      variables: {},
+      query: `{  broker(id: "${inviter}") { referralCount } }`,
     };
+  }
+
+  // Same to The Graph
+  genParam1(inviter: string) {
+    inviter = inviter.toLowerCase();
   }
 }

@@ -54,7 +54,7 @@ export class OrderTabs extends BaseStateComponent<IProps, IState> {
   onRefresh() {
     this.updateState({ refTick: this.state.refTick + 1 });
     if (this.state.curTabId === TabId.History) {
-      D.Option.HistoryOrders.tick();
+      D.Option.ClosedOrders.tick();
     } else {
       S.Option.Order.ActiveList.tick();
     }

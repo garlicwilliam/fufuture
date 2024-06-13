@@ -20,6 +20,8 @@ export const nonMetaMaskFields = [
   'isBinance',
   'isOneKey',
   'isRabby',
+  'isOKExWallet',
+  'isOkxWallet',
 ];
 
 function isGateWalletProvider(provider: any): boolean {
@@ -46,7 +48,7 @@ function metamaskGetter(): Observable<EthereumProviderInterface> {
 }
 
 function providerConfirm(provider: any, checkField: string, not?: string[]): boolean {
-  return provider[checkField] && !(not || []).some(one => !!provider[one]);
+  return provider[checkField] && !(not || []).some(one => !!provider[one] || !!provider.target?.[one]);
 }
 
 function checkEthereum(checkField: string, not?: string[]): boolean {

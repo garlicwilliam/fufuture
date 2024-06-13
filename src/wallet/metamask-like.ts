@@ -37,6 +37,7 @@ import { WALLET_ICONS_MAP } from '../components/connect-wallet/wallet-icons';
 import { message } from 'antd';
 import { TESTING_ADDR } from './_testing';
 import { networkParse } from '../util/network';
+import { maskService, MaskService } from '../services/mask/mask.service';
 
 type AccountRetrievedType = string | null;
 type AccountValType = AccountRetrievedType | undefined;
@@ -149,7 +150,19 @@ export class MetamaskLike implements WalletInterface {
 
           return chainId$.pipe(
             map((chainId: Network) => {
-              return n >= 4 || chainId === network ? chainId : null;
+              if (chainId === network) {
+                return network;
+              } else if (n >= 3 && chainId !== network) {
+                if (this.providerName.getValue() === EthereumProviderName.MetaMask) {
+                  maskService.failed('Network mismatch. Please upgrade your MetaMask to the latest version.');
+                } else {
+                  maskService.failed('Network mismatch!');
+                }
+
+                return network;
+              } else {
+                return null;
+              }
             })
           );
         }),

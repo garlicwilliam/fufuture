@@ -6,6 +6,7 @@ import { httpPost } from '../../../../util/http';
 import { map } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { NET_BNB, Network } from '../../../../constant/network';
+import { isTheGraphQL, SubGraphType, subGraphTypeFromUrl } from './utils';
 
 export class MergerPoolAddress implements DatabaseStateMerger<ShieldPoolAddressList, [Network]> {
   mergeWatch(...args: [Network]): Observable<ShieldPoolAddressList> {
@@ -31,7 +32,10 @@ export class MergerPoolAddress implements DatabaseStateMerger<ShieldPoolAddressL
       });
     }
 
-    return httpPost(url, this.postParam()).pipe(
+    const isTheGraph: boolean = isTheGraphQL(url);
+    const param = isTheGraph ? this.postParam0() : this.postParam1();
+
+    return httpPost(url, param).pipe(
       map(res => {
         const isOK: boolean = _.get(res, 'status', 400) === 200 && !_.isEmpty(_.get(res, 'body.data'));
 
@@ -40,14 +44,17 @@ export class MergerPoolAddress implements DatabaseStateMerger<ShieldPoolAddressL
         }
 
         const body = _.get(res, 'body');
-        const privates: ShieldPoolAddress[] = (body.data.createPrivatePools as any[]).map((one): ShieldPoolAddress => {
+        const privatePools: any[] = isTheGraph ? body.data.createPrivatePools : body.data.createPrivatePools.nodes;
+        const publicPools: any[] = isTheGraph ? body.data.createPublicPools : body.data.createPublicPools.nodes;
+
+        const privates: ShieldPoolAddress[] = privatePools.map((one): ShieldPoolAddress => {
           return {
             tokenAddress: one.tokenAddr,
             poolAddress: one.poolAddr,
             network,
           };
         });
-        const publics: ShieldPoolAddress[] = (body.data.createPublicPools as any[]).map((one): ShieldPoolAddress => {
+        const publics: ShieldPoolAddress[] = publicPools.map((one): ShieldPoolAddress => {
           return {
             tokenAddress: one.tokenAddr,
             poolAddress: one.poolAddr,
@@ -64,7 +71,7 @@ export class MergerPoolAddress implements DatabaseStateMerger<ShieldPoolAddressL
     );
   }
 
-  postParam(): any {
+  private postParam0(): any {
     return {
       query: `{
         createPrivatePools {
@@ -77,6 +84,25 @@ export class MergerPoolAddress implements DatabaseStateMerger<ShieldPoolAddressL
         }
       }`,
       variables: {},
+    };
+  }
+
+  private postParam1(): any {
+    return {
+      query: `{
+          createPrivatePools(first: 1000) {
+            nodes {
+              tokenAddr,
+              poolAddr
+            }
+          },
+          createPublicPools(first: 1000) {
+            nodes {
+              tokenAddr,
+              poolAddr
+            }
+          }
+      }`,
     };
   }
 }

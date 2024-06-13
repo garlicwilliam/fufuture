@@ -32,7 +32,7 @@ export class ShieldOptionTradeContracts extends BaseContractManager<ShieldOption
   }
 }
 
-export const shieldOptionTradeContracts = new ShieldOptionTradeContracts();
+export const shieldOptionTradeContracts: ShieldOptionTradeContracts = new ShieldOptionTradeContracts();
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -74,22 +74,4 @@ export class ShieldUnderlyingContracts extends BaseContractManager<ShieldUnderly
   }
 }
 
-export const shieldUnderlyingContracts = new ShieldUnderlyingContracts();
-
-// ---------------------------------------------------------------------------------------------------------------------
-
-export class ShieldOracleContracts extends BaseContractManager<ShieldUnderlyingType> {
-  getConfigContractNames(): ShieldUnderlyingType[] {
-    return Object.values(ShieldUnderlyingType);
-  }
-
-  getContractAbi(contractName: ShieldUnderlyingType): any[] {
-    return ABI_CHAIN_LINK;
-  }
-
-  getContractAddress(network: Network, contractName: ShieldUnderlyingType): string | undefined {
-    return SLD_ENV_CONF.Supports[network]?.Oracles[contractName]?.address;
-  }
-}
-
-export const shieldOracleContracts = new ShieldOracleContracts();
+export const shieldUnderlyingContracts: ShieldUnderlyingContracts = new ShieldUnderlyingContracts();

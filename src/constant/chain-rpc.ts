@@ -19,8 +19,9 @@ export const RPC_URLS = {
   [NET_ETHEREUM]: [
     'https://rpc.mevblocker.io/noreverts',
     'https://rpc.ankr.com/eth',
-    'https://rpc.payload.de',
+    'https://eth-mainnet.public.blastapi.io',
     'https://rpc.mevblocker.io/fast',
+    'https://ethereum.blockpi.network/v1/rpc/public',
   ],
   [NET_SEPOLIA]: 'https://sepolia.infura.io/v3/abc4c36a4ae54715bc7a4ecedd5a8490',
   [NET_MANTA_PACIFIC]: 'https://pacific-rpc.manta.network/http',

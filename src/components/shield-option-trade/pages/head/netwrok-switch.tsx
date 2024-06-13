@@ -2,7 +2,7 @@ import { BaseStateComponent } from '../../../../state-manager/base-state-compone
 import { P } from '../../../../state-manager/page/page-state-parser';
 import { Network } from '../../../../constant/network';
 import { walletState } from '../../../../state-manager/wallet/wallet-state';
-import { NetworkIcons, NetworkNames } from '../../../../constant/network-conf';
+import { NetworkIcons, NetworkLabels, NetworkNames } from '../../../../constant/network-conf';
 import { ReactNode } from 'react';
 import ModalRender from '../../../modal-render';
 import { I18n } from '../../../i18n/i18n';
@@ -40,6 +40,7 @@ export class ShieldNetworkSwitch extends BaseStateComponent<IProps, IState> {
     return (
       <div className={styleMr(styles.nLabel)}>
         <img src={NetworkIcons[network]} alt={''} height={24} />
+        <div className={styleMr(styles.labelName)}>{NetworkLabels[network]}</div>
       </div>
     );
   }

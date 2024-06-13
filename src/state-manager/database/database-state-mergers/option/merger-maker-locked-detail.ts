@@ -7,11 +7,7 @@ import { makerPriPoolOrdersGetter } from '../../../contract/contract-getter-cpx-
 import { shieldOptionTradeContracts } from '../../../../components/shield-option-trade/contract/shield-option-trade-contract';
 import { BigNumber } from 'ethers';
 import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
-
-type OrderId = {
-  orderID: string;
-  makerID: string;
-};
+import { isTheGraphQL } from './utils';
 
 type InfoResult = ShieldMakerOrderInfoRs | undefined;
 type PoolArgument = ShieldMakerPrivatePoolInfo | null;
@@ -122,11 +118,15 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
     maker: string,
     offset: number
   ): Observable<{ ids: number[]; hasNext: boolean }> {
-    const param = this.genParams(maker, pool, offset);
+    const isSubGraph: boolean = isTheGraphQL(url);
+    const param = isSubGraph ? this.genParams(maker, pool, offset) : this.genParams1(maker, pool, offset);
 
     return httpPost(url, param).pipe(
       map(res => {
-        const ids: { id: string; makerID: string }[] = res.body.data.privatePoolOrders;
+        const ids: { id: string; makerID: string }[] = isSubGraph
+          ? res.body.data.privatePoolOrders
+          : res.body.data.privatePoolOrders.nodes;
+
         const len: number = ids.length;
 
         if (len === 0) {
@@ -161,57 +161,28 @@ export class MergerMakerLockedDetail implements DatabaseStateMerger<InfoResult, 
     };
   }
 
-  private genParam(maker: string, pool: string): any {
+  private genParams1(maker: string, pool: string, offset: number): any {
+    maker = maker.toLowerCase();
+    pool = pool.toLowerCase();
+
     return {
       query: `{
-          matchWithPrivatePools(
-            first: 1000,
-            where: {
-                fromContract: "${pool}",
-                maker: "${maker}"
-            }) {
-              orderID,
-              makerID,
-         },
-         closeInPrivatePools(
-            first: 1000,
-            where:{
-                fromContract: "${pool}",
-                maker: "${maker}"
-            }) {
-              orderID,
-              makerID,
-         },
-         riskInPrivatePools(
-            first: 1000,
-            where:{
-                fromContract: "${pool}",
-                maker: "${maker}"
-            }) {
-              orderID,
-              makerID,
-         }
+        privatePoolOrders(
+          first: 1000,
+          offset: ${offset},
+          orderBy: MAKER_I_D_DESC,
+          filter: {
+            maker: {equalTo : "${maker}"},
+            pool: {equalTo: "${pool}"},
+            isActive: {equalTo: true}
+          }
+        ){
+          nodes {
+            id,
+            makerID
+          }
+        }
       }`,
-      variables: {},
     };
-  }
-
-  private parseMakerOrderIndexes(opens: OrderId[], close: OrderId[], risks: OrderId[]): number[] {
-    opens = opens.map(one => {
-      return {
-        orderID: one.orderID,
-        makerID: (Number(one.makerID) - 1).toString(),
-      };
-    });
-    close = close.concat(risks);
-
-    const all: Set<string> = new Set<string>(opens.map(one => one.makerID));
-    const del: Set<string> = new Set<string>(close.map(one => one.makerID));
-
-    del.forEach(mid => {
-      all.delete(mid);
-    });
-
-    return Array.from(all).map(one => Number(one));
   }
 }

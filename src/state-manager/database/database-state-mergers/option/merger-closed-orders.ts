@@ -19,6 +19,7 @@ import { BigNumber } from 'ethers';
 import { SldDecimal, SldDecPrice } from '../../../../util/decimal';
 import { computeClosedOrderPnl } from '../../../../components/shield-option-trade/utils/compute';
 import { erc20InfoByAddressGetter } from '../../../contract/contract-getter-sim-erc20';
+import { isTheGraphQL } from './utils';
 
 type Args = [string, PageSize, PageIndex, Network];
 type OrderRs = {
@@ -72,14 +73,16 @@ export class MergerClosedOrders implements DatabaseStateMerger<ShieldClosedOrder
       return of(empty);
     }
 
-    const count = (pageIndex + 1) * pageSize;
+    const isTheGraph: boolean = isTheGraphQL(url);
+    const count: number = (pageIndex + 1) * pageSize;
 
     return of(true).pipe(
       tap(() => {
         this.isPending.next(true);
       }),
       switchMap(() => {
-        return httpPost(url, this.genParam(count, taker));
+        const param = isTheGraph ? this.genParam(count, taker) : this.genParam1(count, taker);
+        return httpPost(url, param);
       }),
       switchMap((res: any) => {
         const isOK = _.get(res, 'status', 400) === 200;
@@ -87,7 +90,9 @@ export class MergerClosedOrders implements DatabaseStateMerger<ShieldClosedOrder
           return of(empty);
         }
 
-        const orders: OrderRs[] = _.get(res, 'body.data.orders', []);
+        const orders: OrderRs[] = isTheGraph
+          ? _.get(res, 'body.data.orders', [])
+          : _.get(res, 'body.data.orders.nodes', []);
 
         return from(orders).pipe(
           mergeMap((orderRs: OrderRs) => {
@@ -142,6 +147,50 @@ export class MergerClosedOrders implements DatabaseStateMerger<ShieldClosedOrder
                   }
          }`,
       variables: {},
+    };
+  }
+
+  private genParam1(count: number, taker: string) {
+    taker = taker.toLowerCase();
+    return {
+      query: `{
+        orders(
+          first: ${count},
+          orderBy: CLOSE_TIMESTAMP_DESC,
+          filter: {
+            taker: {equalTo: "${taker}"},
+            status: {greaterThan: 0}
+          }
+        ){
+          nodes {
+            id,
+            name,
+            token,
+            amount,
+            isBuy,
+            tradingFee,
+            fundingFee,
+            openPrice,
+            openTimestamp,
+            closePrice,
+            closeTimestamp,
+            status,
+            positionProfit,id,
+            name,
+            token,
+            amount,
+            isBuy,
+            tradingFee,
+            fundingFee,
+            openPrice,
+            openTimestamp,
+            closePrice,
+            closeTimestamp,
+            status,
+            positionProfit,
+          }
+        }
+      }`,
     };
   }
 

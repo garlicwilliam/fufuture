@@ -9,6 +9,7 @@ import { isSN } from '../../../interface-util';
 import { walletState } from '../../../wallet/wallet-state';
 import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
 import { Network } from '../../../../constant/network';
+import { isTheGraphQL } from './utils';
 
 type Result = ShieldMakerPublicPoolShareRs | undefined;
 type Argument = [string, Network];
@@ -32,7 +33,10 @@ export class MergerMakerShare implements DatabaseStateMerger<Result, Argument> {
       return of(undefined);
     }
 
-    return httpPost(url, this.genParam(maker)).pipe(
+    const isTheGraph: boolean = isTheGraphQL(url);
+    const param = isTheGraph ? this.genParam(maker) : this.genParam1(maker);
+
+    return httpPost(url, param).pipe(
       map(res => {
         const isOK = _.get(res, 'status', 400) === 200 && _.get(res, 'body.data') !== undefined;
 
@@ -40,7 +44,9 @@ export class MergerMakerShare implements DatabaseStateMerger<Result, Argument> {
           return [];
         }
 
-        const liquidityArr = _.get(res, 'body.data.addLiquidityPublics', []);
+        const liquidityArr = isTheGraph
+          ? _.get(res, 'body.data.addLiquidityPublics', [])
+          : _.get(res, 'body.data.addLiquidityPublics.nodes', []);
 
         const addresses: string[] = liquidityArr.map(one => one.fromContract);
 
@@ -77,6 +83,26 @@ export class MergerMakerShare implements DatabaseStateMerger<Result, Argument> {
     return {
       query: `{ addLiquidityPublics(where: {account:"${maker}"}) { fromContract }}`,
       variables: {},
+    };
+  }
+
+  private genParam1(maker: string) {
+    maker = maker.toLowerCase();
+    return {
+      query: `{
+        addLiquidityPublics(
+          first: 1000,
+          filter: {
+            account: {
+              equalTo: "${maker}"
+            }
+          }
+        ){
+          nodes {
+            fromContract
+          }
+        }
+      }`,
     };
   }
 }

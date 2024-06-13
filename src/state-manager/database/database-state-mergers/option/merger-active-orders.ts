@@ -19,6 +19,7 @@ import { erc20InfoByAddressGetter } from '../../../contract/contract-getter-sim-
 import { SldDecimal, SldDecPrice } from '../../../../util/decimal';
 import { orderMigrationInfoListGetter } from '../../../contract/contract-getter-cpx-shield';
 import { shieldOptionTradeContracts } from '../../../../components/shield-option-trade/contract/shield-option-trade-contract';
+import { isTheGraphQL } from './utils';
 
 type Arg = [Network, ShieldUnderlyingType];
 type OrderRs = {
@@ -142,11 +143,14 @@ export class MergerActiveOrders implements DatabaseStateMerger<ShieldActiveOrder
     underlying: ShieldUnderlyingType,
     skip: number
   ): Observable<{ orders: OrderRs[]; next: boolean }> {
-    return httpPost(url, this.genParam(underlying, skip)).pipe(
+    const isTheGraph: boolean = isTheGraphQL(url);
+    const param = isTheGraph ? this.genParam(underlying, skip) : this.genParam1(underlying, skip);
+
+    return httpPost(url, param).pipe(
       map(res => {
         const isOK: boolean = _.get(res, 'status', 400) === 200;
         if (isOK) {
-          const orders = res.body.data.orders as OrderRs[];
+          const orders: OrderRs[] = isTheGraph ? res.body.data.orders : res.body.data.orders.nodes;
           return orders ? orders : [];
         }
 
@@ -182,6 +186,36 @@ export class MergerActiveOrders implements DatabaseStateMerger<ShieldActiveOrder
                       }
               }`,
       variables: {},
+    };
+  }
+
+  private genParam1(underlying: ShieldUnderlyingType, skip: number): any {
+    return {
+      query: `{
+        orders(
+          first: ${batchAmount},
+          offset: ${skip},
+          orderBy: ID_ASC,
+          filter: {
+            status: {equalTo: 0},
+            name: {equalTo: "${underlying}"}
+          }
+        ){
+          nodes {
+            id,
+            name,
+            token,
+            amount,
+            isBuy,
+            taker,
+            amount,
+            openPrice,
+            openTimestamp,
+            tradingFee,
+            fundingFee
+          }
+        }
+      }`,
     };
   }
 

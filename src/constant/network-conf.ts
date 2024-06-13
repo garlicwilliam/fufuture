@@ -21,6 +21,7 @@ import {
   NET_MERLIN_TEST,
   NET_METER,
   NET_MODE_MAINNET,
+  NET_OP_BNB,
   NET_OPT_ETH,
   NET_POLYGON,
   NET_SCROLL,
@@ -52,8 +53,8 @@ import { NetworkConfMap, NetworkParamConfig } from './network-type';
 export const NetworkNames: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: 'Ethereum Mainnet' as const,
   [NET_SEPOLIA]: 'Sepolia' as const,
-  [NET_BNB_TEST]: 'BNB Testnet' as const,
-  [NET_BNB]: 'BNB Chain' as const,
+  [NET_BNB_TEST]: 'BSC Testnet' as const,
+  [NET_BNB]: 'BSC Mainnet' as const,
   [NET_BASE]: 'Base' as const,
   [NET_ARBITRUM]: 'Arbitrum' as const,
   [NET_ARBITRUM_GOERLI]: 'Arbitrum Goerli' as const,
@@ -76,6 +77,7 @@ export const NetworkNames: NetworkConfMap<Network, string> = {
   [NET_B2]: 'B2 Mainnet' as const,
   [NET_METER]: 'Meter Mainnet' as const,
   [NET_BEVM]: 'BEVM Mainnet' as const,
+  [NET_OP_BNB]: 'opBNB Mainnet' as const,
 };
 export const NetworkCurrency: NetworkConfMap<Network, string> = {
   [NET_BNB_TEST]: 'BNB',
@@ -104,12 +106,13 @@ export const NetworkCurrency: NetworkConfMap<Network, string> = {
   [NET_B2]: 'BTC',
   [NET_METER]: 'MTR',
   [NET_BEVM]: 'BTC',
+  [NET_OP_BNB]: 'BNB',
 };
 export const NetworkLabels: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: 'Ethereum' as const,
   [NET_SEPOLIA]: 'Sepolia' as const,
-  [NET_BNB_TEST]: 'BNB Testnet' as const,
-  [NET_BNB]: 'BNB Chain' as const,
+  [NET_BNB_TEST]: 'BSC Testnet' as const,
+  [NET_BNB]: 'BSC' as const,
   [NET_BASE]: 'Base' as const,
   [NET_BASE_GOERLI]: 'Base Goerli' as const,
   [NET_ARBITRUM]: 'Arbitrum' as const,
@@ -132,6 +135,7 @@ export const NetworkLabels: NetworkConfMap<Network, string> = {
   [NET_B2]: 'B2' as const,
   [NET_METER]: 'Meter' as const,
   [NET_BEVM]: 'BEVM' as const,
+  [NET_OP_BNB]: 'opBNB' as const,
 };
 export const NetworkIcons: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: eth,
@@ -160,6 +164,7 @@ export const NetworkIcons: NetworkConfMap<Network, string> = {
   [NET_B2]: b2,
   [NET_METER]: meter,
   [NET_BEVM]: '',
+  [NET_OP_BNB]: bsc,
 };
 export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
   [NET_BNB_TEST]: {
@@ -449,6 +454,17 @@ export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
     nativeCurrency: {
       name: NetworkCurrency[NET_BEVM],
       symbol: NetworkCurrency[NET_BEVM],
+      decimals: 18,
+    },
+  },
+  [NET_OP_BNB]: {
+    chainId: '0xcc',
+    chainName: NetworkNames[NET_OP_BNB],
+    rpcUrls: ['https://opbnb-mainnet-rpc.bnbchain.org', 'https://opbnb.publicnode.com'],
+    blockExplorerUrls: ['https://opbnbscan.com'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_OP_BNB],
+      symbol: NetworkCurrency[NET_OP_BNB],
       decimals: 18,
     },
   },

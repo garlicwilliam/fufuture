@@ -10,6 +10,7 @@ import * as _ from 'lodash';
 import { BigNumber } from 'ethers';
 import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
 import { genDCacheKey } from '../../datebase-cache-key';
+import { isTheGraphQL } from './utils';
 
 type Arg = [ShieldUnderlyingType, Network];
 type Res = ShieldOpenInterest;
@@ -42,21 +43,25 @@ export class MergerOpenInterest implements DatabaseStateMerger<Res, Arg> {
   }
 
   private doGet(underlying: ShieldUnderlyingType, network: Network): Observable<Res> {
-    const url = SLD_ENV_CONF.Supports[network]?.SubGraphUrl;
+    const url: string | undefined = SLD_ENV_CONF.Supports[network]?.SubGraphUrl;
 
     if (!url) {
       return of(EMPTY);
     }
 
-    const param = this.genParam(underlying);
-    const open$ = httpPost(url, param).pipe(
+    const isTheGraph: boolean = isTheGraphQL(url);
+    const param = isTheGraph ? this.genParam(underlying) : this.genParam1(underlying);
+
+    const open$: Observable<ShieldOpenInterest> = httpPost(url, param).pipe(
       map(res => {
         const isOK: boolean = _.get(res, 'status', 400) === 200;
         if (!isOK) {
           return EMPTY;
         }
 
-        const items = _.get(res, 'body.data.underlyingPositions', []);
+        const items: RsItem[] = isTheGraph
+          ? _.get(res, 'body.data.underlyingPositions', [])
+          : _.get(res, 'body.data.underlyingPositions.nodes', []);
 
         return this.convertRes(items, network, underlying);
       })
@@ -76,7 +81,22 @@ export class MergerOpenInterest implements DatabaseStateMerger<Res, Arg> {
                   amount
                 }
               }`,
-      variables: {},
+    };
+  }
+
+  private genParam1(underlying: ShieldUnderlyingType): any {
+    return {
+      query: `{
+        underlyingPositions(
+          filter: {underlying: {equalTo: "${underlying}"}}
+        ){
+          nodes {
+            underlying,
+            token,
+            amount
+          }
+        }
+      }`,
     };
   }
 

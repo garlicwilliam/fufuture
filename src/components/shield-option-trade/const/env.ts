@@ -1,14 +1,11 @@
-import { NET_ARBITRUM, NET_BNB, NET_POLYGON, Network } from '../../../constant/network';
+import { NET_ARBITRUM, NET_BNB, NET_POLYGON, NET_OP_BNB, Network } from '../../../constant/network';
+
 import { ShieldUnderlyingType, TokenErc20 } from '../../../state-manager/state-types';
 import { ShieldOptionTradeContracts, ShieldUnderlyingContracts } from './shield-option-address';
 
 import fufutureLogoDark from '../../../assets/imgs/logo/fufuture/fufuture-1-dark.svg';
 import fufutureLogo from '../../../assets/imgs/logo/fufuture/fufuture-1-light.svg';
 import fufutureMobile from '../../../assets/imgs/logo/fufuture/fufuture-1.svg';
-
-enum OracleType {
-  ChainLink,
-}
 
 type ImgConf = {
   url: string;
@@ -17,10 +14,7 @@ type ImgConf = {
     h: number;
   };
 };
-export type OracleConf = {
-  type: OracleType;
-  address: string;
-};
+
 type EnvNetConfig = {
   CurNetwork: Network;
   DefaultToken: TokenErc20;
@@ -30,7 +24,6 @@ type EnvNetConfig = {
     trade: ShieldOptionTradeContracts;
     underlying: ShieldUnderlyingContracts;
   };
-  Oracles: { [k in ShieldUnderlyingType]?: OracleConf };
   ClosePriceNeedFix: boolean;
 };
 type EnvConfig = {
@@ -81,16 +74,6 @@ const env2: { [k in Env]: EnvConfig } = {
             BTC: '0x5ff1c7Bde624eb694Ff6ab466DF5121Fc0c23949',
           },
         },
-        Oracles: {
-          ETH: {
-            type: OracleType.ChainLink,
-            address: '0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e',
-          },
-          BTC: {
-            type: OracleType.ChainLink,
-            address: '0x264990fbd0A4796A3E3d8E37C4d5F87a3aCa5Ebf',
-          },
-        },
         ClosePriceNeedFix: true,
       },
       [NET_ARBITRUM]: {
@@ -102,7 +85,8 @@ const env2: { [k in Env]: EnvConfig } = {
           network: NET_ARBITRUM,
         },
         SubGraphUrl: 'https://api.studio.thegraph.com/query/77308/fufuture-arb/version/latest',
-        SubGraphOracleUrl: 'https://gateway-arbitrum.network.thegraph.com/api/c7536e819321ccf5b100d72663fe1e2f/subgraphs/id/9997gh5T5sEXs8YpxgRcV8MsyuGekZ7rd215yT27ERE8',
+        SubGraphOracleUrl:
+          'https://gateway-arbitrum.network.thegraph.com/api/c7536e819321ccf5b100d72663fe1e2f/subgraphs/id/9997gh5T5sEXs8YpxgRcV8MsyuGekZ7rd215yT27ERE8',
         Addresses: {
           trade: {
             optionTrade: '0x1e933E0957e6236E519e64CD13f967146Fcb4755',
@@ -113,16 +97,6 @@ const env2: { [k in Env]: EnvConfig } = {
           underlying: {
             ETH: '0xACe3062d01CAc4f2DC588d09D3cb09C71121C8c3',
             BTC: '0x5ff1c7Bde624eb694Ff6ab466DF5121Fc0c23949',
-          },
-        },
-        Oracles: {
-          ETH: {
-            type: OracleType.ChainLink,
-            address: '0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612',
-          },
-          BTC: {
-            type: OracleType.ChainLink,
-            address: '0x6ce185860a4963106506C203335A2910413708e9',
           },
         },
         ClosePriceNeedFix: false,
@@ -136,7 +110,8 @@ const env2: { [k in Env]: EnvConfig } = {
           network: NET_POLYGON,
         },
         SubGraphUrl: 'https://api.studio.thegraph.com/query/77308/fufuture-matic/version/latest',
-        SubGraphOracleUrl: 'https://gateway-arbitrum.network.thegraph.com/api/c7536e819321ccf5b100d72663fe1e2f/subgraphs/id/EA3FYEqMLXg3fATwr2yUdfgyvDz7g3FDssC5pN7Emyra',
+        SubGraphOracleUrl:
+          'https://gateway-arbitrum.network.thegraph.com/api/4e42a7432f2828f4b4617ccd5d3f13b5/subgraphs/id/EA3FYEqMLXg3fATwr2yUdfgyvDz7g3FDssC5pN7Emyra',
         Addresses: {
           trade: {
             optionTrade: '0xe52adac17dcfc9be6975ce99c1637e38336c8931',
@@ -149,17 +124,32 @@ const env2: { [k in Env]: EnvConfig } = {
             BTC: '0x38e11092e0c935db3beed7929ee023acd86ae7c8',
           },
         },
-        Oracles: {
-          ETH: {
-            type: OracleType.ChainLink,
-            address: '0xF9680D99D6C9589e2a93a78A04A279e509205945',
+        ClosePriceNeedFix: false,
+      },
+      [NET_OP_BNB]: {
+        CurNetwork: NET_OP_BNB,
+        DefaultToken: {
+          symbol: 'USDT',
+          address: '0x9e5aac1ba1a2e6aed6b32689dfcf62a509ca96f3',
+          decimal: 18,
+          network: NET_OP_BNB,
+        },
+        SubGraphUrl: 'https://api.subquery.network/sq/graphaccount/fufuture_opbnb_v1',
+        SubGraphOracleUrl:
+          'https://gateway-arbitrum.network.thegraph.com/api/4e42a7432f2828f4b4617ccd5d3f13b5/subgraphs/id/EA3FYEqMLXg3fATwr2yUdfgyvDz7g3FDssC5pN7Emyra',
+        Addresses: {
+          trade: {
+            optionTrade: '0xa5a6B19aDC9e92C1be1720b0e2E2eC03Ac16845d',
+            liquidityManager: '0x755773F8e288Ec4B4c5E9b823F29ebDf84CFA7e2',
+            liquidityFactory: '0x689E95a1D62a2f616c1F540f7463aD4942c4A29D',
+            broker: '0xd3B7E0117487682c6a099CbBB4910c6e209f7061',
           },
-          BTC: {
-            type: OracleType.ChainLink,
-            address: '0xc907E116054Ad103354f2D350FD2514433D57F6f',
+          underlying: {
+            ETH: '0xFe99d4B8941E53a05759a9E545b7d21c58fBa66A',
+            BTC: '0xa8862D494a32b2Def6276bbD00372fF50a7894a8',
           },
         },
-        ClosePriceNeedFix: false,
+        ClosePriceNeedFix: true,
       },
     },
     TokenIcon: 'https://static.fufuture.io/token-icon.json',
@@ -181,4 +171,4 @@ const env2: { [k in Env]: EnvConfig } = {
   },
 };
 
-export const SLD_ENV_CONF = env2[Env.Fufuture];
+export const SLD_ENV_CONF: EnvConfig = env2[Env.Fufuture];

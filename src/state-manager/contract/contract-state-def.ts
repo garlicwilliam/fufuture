@@ -4,10 +4,9 @@ import { ContractState, ContractStateTree, StateReference } from '../interface';
 import _ from 'lodash';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { P } from '../page/page-state-parser';
-import { erc20ApprovedAmountGetter, erc20TotalSupplyGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
+import { erc20ApprovedAmountGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
 import {
   shieldOptionTradeContracts,
-  shieldOracleContracts,
   shieldUnderlyingContracts,
 } from '../../components/shield-option-trade/contract/shield-option-trade-contract';
 import {
@@ -20,7 +19,6 @@ import {
   makerPriPoolInfoByPairGetter,
   makerPubPoolMaxRemoveLpGetter,
   makerPubPoolWithdrawReceiveGetter,
-  oraclePriceGetter,
   orderFundingFeeGetter,
   orderTradingFeeGetter,
   paramBrokerPortionGetter,
@@ -35,18 +33,18 @@ import {
   riskFundBalanceGetter,
   searchTokenGetter,
   tokenPoolInfoGetter0,
+  underlyingPriceGetter,
   userAccountInfoGetter,
   userActiveOrderListGetter,
   userOpenMaxAmount,
 } from './contract-getter-cpx-shield';
 
-import {createChainContract} from "../const/contract-creator";
-import {linkAnswerGetter} from "./contract-getter-sim-link";
-import {NET_ETHEREUM} from "../../constant/network";
-import {getRpcProvider} from "../../constant/chain-rpc";
-import {LINK_PROXY_ABI} from "../../wallet/abi";
-
-
+import { createChainContract } from '../const/contract-creator';
+import { linkAnswerGetter } from './contract-getter-sim-link';
+import { NET_ETHEREUM } from '../../constant/network';
+import { getRpcProvider } from '../../constant/chain-rpc';
+import { LINK_PROXY_ABI } from '../../wallet/abi';
+import { ShieldUnderlyingType } from '../state-types';
 
 class StateHolder implements StateReference {
   private treeRoot: ContractStateTree<any> | null = null;
@@ -133,16 +131,16 @@ export const CONTRACT_STATE = {
     },
     Oracle: {
       ETH: {
-        _depend: [shieldOracleContracts.CONTRACTS.ETH],
-        _getter: oraclePriceGetter,
+        _depend: [shieldUnderlyingContracts.CONTRACTS.ETH, of(ShieldUnderlyingType.ETH)],
+        _getter: underlyingPriceGetter,
       },
       BTC: {
-        _depend: [shieldOracleContracts.CONTRACTS.BTC],
-        _getter: oraclePriceGetter,
+        _depend: [shieldUnderlyingContracts.CONTRACTS.BTC, of(ShieldUnderlyingType.BTC)],
+        _getter: underlyingPriceGetter,
       },
       CurBaseToken: {
         _depend: [Ref(P.Option.Trade.Pair.Base.watch().pipe(map(name => `Option.Oracle.${name}`)))],
-        _getter: oraclePriceGetter,
+        _getter: underlyingPriceGetter,
         _isRef: true,
       },
     },

@@ -21,6 +21,7 @@ import { erc20InfoByAddressGetter } from '../../../contract/contract-getter-sim-
 import { BigNumber } from 'ethers';
 import { SldDecimal } from '../../../../util/decimal';
 import { isSameAddress } from '../../../../util/address';
+import { isTheGraphQL } from './utils';
 
 type Arg = [string, PageSize, PageIndex, Network];
 type ItemRs = {
@@ -256,7 +257,10 @@ export class MergerReferralItems implements DatabaseStateMerger<ShieldBrokerRefe
   // broker
 
   private getBroker(url: string, broker: string, network: Network): Observable<ShieldBrokerInfo | null> {
-    return httpPost(url, this.genBrokerParam(broker)).pipe(
+    const isTheGraph: boolean = isTheGraphQL(url);
+    const param = isTheGraph ? this.genBrokerParam(broker) : this.genBrokerParam1(broker);
+
+    return httpPost(url, param).pipe(
       map(res => {
         const isOK: boolean = _.get(res, 'status', 400) === 200;
         if (!isOK) {
@@ -269,7 +273,9 @@ export class MergerReferralItems implements DatabaseStateMerger<ShieldBrokerRefe
           throw new Error();
         }
 
-        const fees: BrokerFeeRs[] = _.get(res, 'body.data.brokerTradingFees', []);
+        const fees: BrokerFeeRs[] = isTheGraph
+          ? _.get(res, 'body.data.brokerTradingFees', [])
+          : _.get(res, 'body.data.brokerTradingFees.nodes', []);
 
         return { brokerRs, fees };
       }),
@@ -307,7 +313,34 @@ export class MergerReferralItems implements DatabaseStateMerger<ShieldBrokerRefe
               takerTotalPaid
             }
           }`,
-      variables: {},
+    };
+  }
+
+  private genBrokerParam1(broker: string): any {
+    broker = broker.toLowerCase();
+    return {
+      query: `{
+        broker(id: "${broker}") {
+          id,
+          referralCount,
+          referralOrderCount,
+          lastReferralTimestamp,
+          firstReferralTimestamp
+        },
+        brokerTradingFees(
+          filter: {
+            broker: {
+              equalTo: "${broker}"
+            }
+          }
+        ){
+          nodes {
+            broker,
+            token,
+            takerTotalPaid
+          }
+        }
+      }`,
     };
   }
 

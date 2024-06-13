@@ -130,7 +130,7 @@ export abstract class BaseContractManager<F extends string> {
           map((isMatch: boolean) => {
             if (!isMatch) {
               console.error('Network Not Match');
-              //throw new Error('network not match');
+              throw new Error('network not match');
             }
 
             return createChainContract(address.address, abi, signer, address.network);

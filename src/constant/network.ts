@@ -26,6 +26,7 @@ enum EthNetwork {
   b2_mainnet = '223',
   meter_mainnet = '82',
   bevm = '11501',
+  opBnb = '204',
 }
 
 export type Network = EthNetwork;
@@ -59,6 +60,7 @@ export const NET_B2 = EthNetwork.b2_mainnet;
 export const NET_BEVM = EthNetwork.bevm;
 
 export const NET_METER = EthNetwork.meter_mainnet;
+export const NET_OP_BNB = EthNetwork.opBnb;
 
 export const NETWORKS_ETH = [NET_ETHEREUM, NET_SEPOLIA] as const;
 export const NETWORKS_BNB = [NET_BNB, NET_BNB_TEST] as const;

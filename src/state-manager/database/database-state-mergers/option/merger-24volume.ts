@@ -13,6 +13,7 @@ import { ShieldTokenTradingVolume, ShieldTradingVolume, ShieldUnderlyingType } f
 import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
 import { NET_BNB, Network } from '../../../../constant/network';
 import { genDCacheKey } from '../../datebase-cache-key';
+import { SubGraphType, subGraphTypeFromUrl } from './utils';
 
 function emptyRs(name: ShieldUnderlyingType, network: Network): ShieldTradingVolume {
   return {
@@ -66,6 +67,8 @@ export class Merger24volume implements DatabaseStateMerger<ShieldTradingVolume, 
     return of(false);
   }
 
+  // the graph
+
   doGet(name: ShieldUnderlyingType, network: Network): Observable<ShieldTradingVolume> {
     const url: string | undefined = SLD_ENV_CONF.Supports[network]?.SubGraphUrl;
 
@@ -73,43 +76,22 @@ export class Merger24volume implements DatabaseStateMerger<ShieldTradingVolume, 
       return of(emptyRs(name, network));
     }
 
-    const volume$ = httpPost(url, this.genParam(name)).pipe(
+    const graphType: SubGraphType = subGraphTypeFromUrl(url);
+    const param = graphType === SubGraphType.TheGraph ? this.genParam0(name) : this.genParam1(name);
+
+    const volume$: Observable<ShieldTradingVolume> = httpPost(url, param).pipe(
       map((res): ShieldTradingVolume => {
-        const isOK = _.get(res, 'status', 400) === 200 && !_.isEmpty(_.get(res, 'body.data'));
+        const amounts: { close: BigNumber; open: BigNumber; volume: VolumeCache } =
+          graphType === SubGraphType.TheGraph ? this.parseRes0(res) : this.parseRes1(res);
 
-        const volume = new VolumeCache();
+        const totalAmount: BigNumber = amounts.open.add(amounts.close);
 
-        if (isOK) {
-          const data = _.get(res, 'body.data');
-          const open: { number: string; token: string }[] = data.trades;
-          const close: { number: string; token: string }[] = data.closeOrders;
-
-          const openAmount: BigNumber = open
-            .map(one => {
-              volume.add(one.token, one.number);
-              return BigNumber.from(one.number);
-            })
-            .reduce((acc, cur) => acc.add(cur), ZERO);
-
-          const closeAmount: BigNumber = close
-            .map(one => {
-              volume.add(one.token, one.number);
-              return BigNumber.from(one.number);
-            })
-            .reduce((acc, cur) => acc.add(cur), ZERO);
-
-          const amount: BigNumber = openAmount.add(closeAmount);
-          const total = SldDecimal.fromOrigin(amount, IndexUnderlyingDecimal);
-
-          return {
-            indexUnderlying: name,
-            total,
-            tokens: volume.toVolumes(),
-            network,
-          };
-        }
-
-        return emptyRs(name, network);
+        return {
+          indexUnderlying: name,
+          total: SldDecimal.fromOrigin(totalAmount, IndexUnderlyingDecimal),
+          tokens: amounts.volume.toVolumes(),
+          network,
+        };
       })
     );
 
@@ -118,7 +100,7 @@ export class Merger24volume implements DatabaseStateMerger<ShieldTradingVolume, 
     return cacheService.tryUseCache(volume$, cacheKey, CACHE_1_MIN);
   }
 
-  genParam(name: string): any {
+  private genParam0(name: string): any {
     const beginTime: number = curTimestamp() - 24 * 3600;
 
     return {
@@ -136,5 +118,99 @@ export class Merger24volume implements DatabaseStateMerger<ShieldTradingVolume, 
       }`,
       variables: {},
     };
+  }
+
+  private parseRes0(res: any): { open: BigNumber; close: BigNumber; volume: VolumeCache } {
+    const isOK = _.get(res, 'status', 400) === 200 && !_.isEmpty(_.get(res, 'body.data'));
+    const volume = new VolumeCache();
+
+    if (isOK) {
+      const data = _.get(res, 'body.data');
+      const open: { number: string; token: string }[] = data.trades;
+      const close: { number: string; token: string }[] = data.closeOrders;
+
+      const openAmount: BigNumber = open
+        .map(one => {
+          volume.add(one.token, one.number);
+          return BigNumber.from(one.number);
+        })
+        .reduce((acc, cur) => acc.add(cur), ZERO);
+
+      const closeAmount: BigNumber = close
+        .map(one => {
+          volume.add(one.token, one.number);
+          return BigNumber.from(one.number);
+        })
+        .reduce((acc, cur) => acc.add(cur), ZERO);
+
+      return { open: openAmount, close: closeAmount, volume };
+    }
+
+    return { open: ZERO, close: ZERO, volume };
+  }
+
+  private genParam1(name: string): any {
+    const beginTime: number = curTimestamp() - 24 * 3600;
+    return {
+      query: `{
+          trades(
+            first: 1000,
+            filter: {
+              name: {equalTo: "${name}"},
+              blockTimestamp: {greaterThan: "${beginTime}" }
+            }
+          ){
+            nodes {
+              id,
+              name,
+              token,
+              number
+            }
+          },
+          closeOrders(
+            first: 1000,
+            filter: {
+              name: {equalTo: "${name}"},
+              state: {notEqualTo: 0},\
+              blockTimestamp: { greaterThan: "${beginTime}"}
+            }
+          ){
+            nodes {
+              id,
+              name,
+              token,
+              number,
+            }
+          }
+      }`,
+    };
+  }
+
+  private parseRes1(res: any): { open: BigNumber; close: BigNumber; volume: VolumeCache } {
+    if (res.status !== 200 || _.isEmpty(_.get(res, 'body.data'))) {
+      return { open: ZERO, close: ZERO, volume: new VolumeCache() };
+    }
+
+    const data = _.get(res, 'body.data');
+    const open: { number: string; token: string }[] = data.trades.nodes;
+    const close: { number: string; token: string }[] = data.closeOrders.nodes;
+
+    const volume = new VolumeCache();
+
+    const openAmount: BigNumber = open
+      .map(one => {
+        volume.add(one.token, one.number);
+        return BigNumber.from(one.number);
+      })
+      .reduce((acc, cur) => acc.add(cur), ZERO);
+
+    const closeAmount: BigNumber = close
+      .map(one => {
+        volume.add(one.token, one.number);
+        return BigNumber.from(one.number);
+      })
+      .reduce((acc, cur) => acc.add(cur), ZERO);
+
+    return { open: openAmount, close: closeAmount, volume };
   }
 }

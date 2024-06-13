@@ -20,7 +20,7 @@ import {
   orderInfoGetter,
   orderListMigrationInfoGetter,
 } from '../../../state-manager/contract/contract-getter-cpx-shield';
-import { shieldOptionTradeContracts } from '../contract/shield-option-trade-contract';
+import { shieldOptionTradeContracts, shieldUnderlyingContracts } from '../contract/shield-option-trade-contract';
 import { filter, map, take, tap, toArray } from 'rxjs/operators';
 import { shieldOptionMatrixService } from './shield-option-matrix.service';
 import { SldDecimal, SldDecPercent, SldDecPrice } from '../../../util/decimal';
@@ -33,6 +33,7 @@ import { linkAnswerGetter } from '../../../state-manager/contract/contract-gette
 import { SLD_ENV_CONF } from '../const/env';
 import { Network } from '../../../constant/network';
 import * as net from 'net';
+import { getRpcProvider } from '../../../constant/chain-rpc';
 
 export class ShieldOrderService {
   public fillOrdersFundPhaseInfo(ordersRs: ShieldOrderInfoRs): Observable<ShieldOrderInfoRs> {
@@ -123,23 +124,17 @@ export class ShieldOrderService {
   }
 
   public getOrderAssetsPrice(indexUnderlying: ShieldUnderlyingType, network: Network): Observable<SldDecPrice | null> {
-    const contractAddress: string = (
-      indexUnderlying === ShieldUnderlyingType.ETH
-        ? SLD_ENV_CONF.Supports[network]?.Oracles.ETH?.address
-        : SLD_ENV_CONF.Supports[network]?.Oracles.BTC?.address
-    )!;
+    const underlyingContract$: Observable<Contract> = shieldUnderlyingContracts.getReadonlyContract(
+      network,
+      indexUnderlying
+    );
 
-    const provider = getHttpProvider(network);
-    if (!provider) {
-      return of(null);
-    }
-
-    return of(contractAddress).pipe(
-      map(oracleAddress => {
-        return createChainContract(oracleAddress, ABI_CHAIN_LINK, provider, network);
+    return underlyingContract$.pipe(
+      switchMap((underlyingContract: Contract) => {
+        return from(underlyingContract.getPrice() as Promise<BigNumber>);
       }),
-      switchMap((contract: Contract) => {
-        return linkAnswerGetter(contract);
+      map((price: BigNumber) => {
+        return SldDecPrice.fromE18(price);
       })
     );
   }

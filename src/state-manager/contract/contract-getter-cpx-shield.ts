@@ -1494,19 +1494,16 @@ export function riskFundBalanceGetter(optionContract: Contract, token: TokenErc2
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-export function oraclePriceGetter(contract: Contract): Observable<ShieldUnderlyingPrice> {
-  const desc$: Observable<string> = linkDescGetter(contract);
-  const price$: Observable<SldDecPrice> = linkAnswerGetter(contract);
-
-  return zip(price$, desc$).pipe(
-    map(([price, desc]): ShieldUnderlyingPrice => {
-      const underlying = _.trim(desc.split('/')[0]) as ShieldUnderlyingType;
-      const network = contractNetwork(contract) as Network;
-
+export function underlyingPriceGetter(
+  underlyingContract: Contract,
+  underlying: ShieldUnderlyingType
+): Observable<ShieldUnderlyingPrice> {
+  return from(underlyingContract.getPrice() as Promise<BigNumber>).pipe(
+    map((price: BigNumber) => {
       return {
-        price,
-        network,
-        underlying,
+        price: SldDecPrice.fromE18(price),
+        network: contractNetwork(underlyingContract) as Network,
+        underlying: underlying,
       };
     })
   );

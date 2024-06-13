@@ -6,7 +6,6 @@ import { Observable, of } from 'rxjs';
 import { DatabaseState, DatabaseStateRef, DatabaseStateTree } from '../interface';
 import * as _ from 'lodash';
 import { MergerTokenPricesChange } from './database-state-mergers/option/merger-token-prices-change';
-import { MergerHistoryOrders } from './database-state-mergers/option/merger-history-orders';
 import { Merger24volume } from './database-state-mergers/option/merger-24volume';
 import { MergerMyReferrals } from './database-state-mergers/option/merger-my-referrals';
 import { MergerMakerLockedDetail } from './database-state-mergers/option/merger-maker-locked-detail';
@@ -71,15 +70,6 @@ export const DATABASE_STATE = {
     OpenInterest: {
       _depend: [P.Option.Trade.Pair.Base, walletState.NETWORK],
       _merger: new MergerOpenInterest(),
-    },
-    HistoryOrders: {
-      _depend: [
-        walletState.USER_ADDR,
-        P.Option.Trade.OrderHistory.PageSize,
-        P.Option.Trade.OrderHistory.PageIndex,
-        walletState.NETWORK,
-      ],
-      _merger: new MergerHistoryOrders(),
     },
     ClosedOrders: {
       _depend: [

@@ -45,6 +45,7 @@ import { fontCss } from '../../../../../i18n/font-switch';
 import { Visible } from '../../../../../builtin/hidden';
 import { Network } from '../../../../../../constant/network';
 import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
+import { SLD_ENV_CONF } from '../../../../const/env';
 
 type Statistic = {
   amountCall: SldDecimal;
@@ -140,7 +141,16 @@ export class TradeLockedLiquidity extends BaseStateComponent<IProps, IState> {
       key: 'orderAmount',
       align: 'right',
       render: (amount: SldDecimal, row: ShieldMakerOrderInfo) => {
-        return <TokenAmountInline amount={amount} token={row.underlying} symClassName={styles.label} short={true} />;
+        return (
+          <TokenAmountInline
+            amount={amount}
+            token={row.underlying}
+            fix={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
+            precision={SLD_ENV_CONF.FixDigits.Open[row.underlying]}
+            symClassName={styles.label}
+            short={true}
+          />
+        );
       },
     },
     {
