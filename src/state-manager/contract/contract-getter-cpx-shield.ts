@@ -1432,10 +1432,15 @@ export function paramFundingRateGetter(optionContract: Contract, dayIndex: numbe
   return cacheService.tryUseCache(rate$, cacheKey, CACHE_FOREVER);
 }
 
-export function paramTradingFeeRateGetter(underlyingContract: UnderlyingContract) {
-  const rate$ = from(underlyingContract.contract.tradingFeeRate() as Promise<BigNumber>).pipe(
+export function paramTradingFeeRateGetter(underlyingContract: UnderlyingContract): Observable<SldDecPercent> {
+  const rate$: Observable<SldDecPercent> = from(
+    underlyingContract.contract.tradingFeeRate() as Promise<BigNumber>
+  ).pipe(
     map((rate: BigNumber) => {
       return SldDecPercent.fromOrigin(rate, 18);
+    }),
+    catchError(err => {
+      return of(SldDecPercent.ZERO);
     })
   );
 
