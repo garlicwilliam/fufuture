@@ -38,7 +38,7 @@ export function httpPost(
       })
     );
   } catch (err) {
-    console.warn('http post error', err);
+    console.warn(url, err);
     return of({ err, ok: false, body: { code: 500 } } as HttpError);
   }
 }
@@ -130,7 +130,7 @@ export function httpGet(
       })
     );
   } catch (err) {
-    console.warn(err);
+    console.warn(url, err);
     if (ops?.returnError) {
       throw err;
     } else {
@@ -145,7 +145,7 @@ export function httpJson(url: string): Observable<any> {
       return res.body;
     }),
     catchError(err => {
-      console.warn(err);
+      console.warn(url, err);
       return of({});
     })
   );

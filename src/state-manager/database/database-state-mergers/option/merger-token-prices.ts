@@ -6,7 +6,7 @@ import { tokenIdMaps } from '../token-ids';
 import { finalize, map } from 'rxjs/operators';
 import { tokenSymbolFromName } from '../../../../constant/tokens';
 import { httpGet } from '../../../../util/http';
-import { CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
+import { CACHE_1_MIN, CACHE_2_MIN, cacheService } from '../../../mem-cache/cache-contract';
 import { NET_BNB, Network } from '../../../../constant/network';
 
 export class TokenPricesMerger
@@ -16,11 +16,13 @@ export class TokenPricesMerger
   private isPending: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   public mergeWatch(...args: [PriceDuration, ShieldUnderlyingType, Network]): Observable<TokenPriceHistory> {
-    return this.doGet(args[0], args[1]).pipe(
+    const rs$ = this.doGet(args[0], args[1]).pipe(
       map(rs => {
         return Object.assign(rs, { network: args[2] });
       })
     );
+
+    return cacheService.tryUseCache(rs$, `_TokenPrices_${args[1]}-${args[0]}-${args[2]}}`, CACHE_2_MIN);
   }
 
   public pending(): Observable<boolean> {

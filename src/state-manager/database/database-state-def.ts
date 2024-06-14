@@ -52,12 +52,12 @@ function Ref(path: string): DatabaseStateRef {
 export const DATABASE_STATE = {
   Option: {
     PriceChartData: {
-      _depend: [P.Option.Trade.Market.ChartDuration.Price, P.Option.Trade.Pair.Base],
+      _depend: [P.Option.Trade.Market.ChartDuration.Price, P.Option.Trade.Pair.Base, walletState.NETWORK],
       _merger: new TokenPricesMerger(),
     },
     Price24hChange: {
-      _depend: [P.Option.Trade.Pair.Base],
-      _merger: new MergerTokenPricesChange(),
+      _depend: [of('DAY'), P.Option.Trade.Pair.Base, walletState.NETWORK],
+      _merger: new TokenPricesMerger(),
     },
     Price24hRange: {
       _depend: [of('DAY'), P.Option.Trade.Pair.Base, walletState.NETWORK],

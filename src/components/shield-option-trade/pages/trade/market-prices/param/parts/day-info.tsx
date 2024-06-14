@@ -49,9 +49,7 @@ export class DayInfo extends BaseStateComponent<IProps, IState> {
     this.registerState('dayVolume', D.Option.Volume24h);
     this.registerState('openInterest', D.Option.OpenInterest);
 
-    this.tickInterval(120000, D.Option.Volume24h, D.Option.OpenInterest, D.Option.Price24hRange);
-
-    // this.tickInterval(60000, D.Option.Price24hRange);
+    this.tickInterval(180000, D.Option.Volume24h, D.Option.OpenInterest, D.Option.Price24hRange);
   }
 
   componentWillUnmount() {

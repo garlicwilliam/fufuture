@@ -156,7 +156,9 @@ export class MetamaskLike implements WalletInterface {
                 if (this.providerName.getValue() === EthereumProviderName.MetaMask) {
                   maskService.failed('Network mismatch. Please upgrade your MetaMask to the latest version.');
                 } else {
-                  maskService.failed('Network mismatch!');
+                  maskService.failed(
+                    'Network mismatch! Please refresh the page or update your wallet to the latest version to resolve this issue.'
+                  );
                 }
 
                 return network;

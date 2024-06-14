@@ -1,16 +1,17 @@
 import { DatabaseStateMerger } from '../../../interface';
 import { PriceDuration, ShieldUnderlyingType, TokenPriceHistory } from '../../../state-types';
-import {NET_BNB, Network} from '../../../../constant/network';
+import { NET_BNB, Network } from '../../../../constant/network';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
 import { curTimestamp } from '../../../../util/time';
 import { httpPost } from '../../../../util/http';
-import { finalize, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { SldDecimal } from '../../../../util/decimal';
 import { BigNumber } from 'ethers';
-import { CACHE_10_MIN, CACHE_1_MIN, cacheService } from '../../../mem-cache/cache-contract';
+import { CACHE_1_HOUR, CACHE_2_MIN, cacheService } from '../../../mem-cache/cache-contract';
 import { percentageCompute } from '../../../../util/math';
+import { TokenPricesMerger } from './merger-token-prices';
 
 type Arg = [PriceDuration, ShieldUnderlyingType, Network];
 type Res = TokenPriceHistory;
@@ -26,7 +27,8 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
     const rs$ = this.doGet(...args);
 
     const cacheKey = `UnderlyingPrice_${args[2]}-${args[1]}-${args[0]}`;
-    const cacheInterval = args[0] === 'DAY' ? CACHE_1_MIN : CACHE_10_MIN;
+    const cacheInterval = args[0] === 'DAY' ? CACHE_2_MIN : CACHE_1_HOUR;
+
     return cacheService.tryUseCache(rs$, cacheKey, cacheInterval);
   }
 
@@ -89,6 +91,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
       map((rs): Res => {
         const len = rs.data.length;
         const cur = len > 0 ? rs.data[len - 1] : 0;
+
         return {
           underlying,
           network,
@@ -99,6 +102,10 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
           priceChange: rs.percent,
           duration,
         };
+      }),
+      catchError(err => {
+        console.warn(err);
+        return new TokenPricesMerger().mergeWatch(duration, underlying, network);
       }),
       finalize(() => {
         this.isPending.next(false);
