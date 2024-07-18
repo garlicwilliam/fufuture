@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { P } from '../page/page-state-parser';
 import { erc20ApprovedAmountGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
+
 import {
   shieldOptionTradeContracts,
   shieldUnderlyingContracts,
@@ -39,11 +40,13 @@ import {
   userOpenMaxAmount,
 } from './contract-getter-cpx-shield';
 
+
 import { createChainContract } from '../const/contract-creator';
 import { linkAnswerGetter } from './contract-getter-sim-link';
 import { NET_ETHEREUM } from '../../constant/network';
-import { getRpcProvider } from '../../constant/chain-rpc';
 import { LINK_PROXY_ABI } from '../../wallet/abi';
+import { rpcProviderGetter } from '../../constant/chain-rpc';
+
 import { ShieldUnderlyingType } from '../state-types';
 
 class StateHolder implements StateReference {
@@ -99,7 +102,7 @@ export const CONTRACT_STATE = {
           createChainContract(
             '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
             LINK_PROXY_ABI,
-            getRpcProvider(NET_ETHEREUM)!,
+            rpcProviderGetter(NET_ETHEREUM)!,
             NET_ETHEREUM
           )
         ),
@@ -112,7 +115,7 @@ export const CONTRACT_STATE = {
           createChainContract(
             '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c',
             LINK_PROXY_ABI,
-            getRpcProvider(NET_ETHEREUM)!,
+            rpcProviderGetter(NET_ETHEREUM)!,
             NET_ETHEREUM
           )
         ),
@@ -272,6 +275,7 @@ export const CONTRACT_STATE = {
             P.Option.Trade.Pair.Base,
             P.Option.Trade.Pair.Quote,
             P.Option.Trade.Open.OptionType,
+            P.Option.Trade.Open.Amount
           ],
           _getter: userOpenMaxAmount,
         },
@@ -361,5 +365,6 @@ export const CONTRACT_STATE = {
         _getter: inviterGetter,
       },
     },
-  },
+  }
+
 };

@@ -1,7 +1,7 @@
 import { BaseStateComponent } from '../../../state-manager/base-state-component';
 import { P } from '../../../state-manager/page/page-state-parser';
 import { JsonRpcProvider } from '@uniswap/widgets';
-import { getRpcProvider } from '../../../constant/chain-rpc';
+import { rpcProviderGetter } from '../../../constant/chain-rpc';
 import { NET_B2, NET_MANTA_PACIFIC } from '../../../constant/network';
 import { BigNumber, Contract } from 'ethers';
 import { createChainContract } from '../../../state-manager/const/contract-creator';
@@ -36,7 +36,7 @@ export class Layout extends BaseStateComponent<IProps, IState> {
   }
 
   req() {
-    const provider = getRpcProvider(NET_B2)!;
+    const provider = rpcProviderGetter(NET_B2)!;
     const layerBank = createChainContract('0x8b03af6CA293FeE5A64497B8D50A5186a5BEcAA9', layerBankAbi, provider, NET_B2);
 
     from(layerBank.accountSnapshot('0x5B1AA2490E5a0BF1433DA9a050e9ad798405B3e2'))

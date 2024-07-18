@@ -33,7 +33,7 @@ import { linkAnswerGetter } from '../../../state-manager/contract/contract-gette
 import { SLD_ENV_CONF } from '../const/env';
 import { Network } from '../../../constant/network';
 import * as net from 'net';
-import { getRpcProvider } from '../../../constant/chain-rpc';
+import { rpcProviderGetter } from '../../../constant/chain-rpc';
 
 export class ShieldOrderService {
   public fillOrdersFundPhaseInfo(ordersRs: ShieldOrderInfoRs): Observable<ShieldOrderInfoRs> {

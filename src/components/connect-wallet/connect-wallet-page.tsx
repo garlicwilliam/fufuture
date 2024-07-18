@@ -133,6 +133,7 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
     const wcIds: SldWalletId[] = [
       { wallet: Wallet.WalletConnect, id: WalletConnectWalletName.Binance },
       { wallet: Wallet.WalletConnect, id: WalletConnectWalletName.WalletConnect },
+      { wallet: Wallet.WalletConnect, id: WalletConnectWalletName.ImToken },
     ];
 
     walletIds.splice(existsSize, 0, ...wcIds);

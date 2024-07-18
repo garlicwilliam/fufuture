@@ -150,14 +150,18 @@ export class MetamaskLike implements WalletInterface {
 
           return chainId$.pipe(
             map((chainId: Network) => {
-              if (chainId === network) {
+              if (!network) {
+                return null;
+              } else if (chainId === network) {
                 return network;
-              } else if (n >= 3 && chainId !== network) {
+              } else if (n >= 5 && chainId !== network) {
                 if (this.providerName.getValue() === EthereumProviderName.MetaMask) {
-                  maskService.failed('Network mismatch. Please upgrade your MetaMask to the latest version.');
+                  maskService.failed(
+                    'Network mismatch. Please refresh the page and upgrade your MetaMask to the latest version.'
+                  );
                 } else {
                   maskService.failed(
-                    'Network mismatch! Please refresh the page or update your wallet to the latest version to resolve this issue.'
+                    'Network mismatch! Please refresh the page or update your wallet to the latest version.'
                   );
                 }
 

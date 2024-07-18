@@ -1,5 +1,6 @@
 import { WcWalletInfo } from '../services/wc-modal/wc-modal.service';
 import binance from '../assets/imgs/wallet/binance.svg';
+import imtoken from '../assets/imgs/wallet/imtoken.svg';
 
 export enum Wallet {
   Metamask = 'Metamask',
@@ -32,6 +33,7 @@ export enum EthereumProviderName {
 export enum WalletConnectWalletName {
   WalletConnect = 'WalletConnect',
   Binance = 'BinanceWeb3Wallet',
+  ImToken = 'imToken',
 }
 
 export type SldWalletId = {
@@ -67,6 +69,20 @@ export const WalletConnectWalletInfo: { [w in WalletConnectWalletName]: WcWallet
     peer: {
       name: 'Binance',
       url: 'binance.com',
+    },
+  },
+  [WalletConnectWalletName.ImToken]: {
+    name: 'imToken Wallet',
+    nameShort: 'imToken',
+    icon: imtoken,
+    download: {
+      ios: 'https://apps.apple.com/us/app/imtoken-btc-eth-wallet/id1384798940',
+      android: 'https://play.google.com/store/apps/details?id=im.token.app&pli=1',
+    },
+    uri: '',
+    peer: {
+      name: 'imToken Wallet',
+      url: 'https://token.im',
     },
   },
 };

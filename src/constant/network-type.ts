@@ -13,3 +13,8 @@ export type NetworkTypeBNB = typeof NETWORKS_BNB[number];
 
 export type NetworkConfMap<A extends Network, T> = { [k in A]: T };
 export type NetworkConfPartialMap<T> = { [k in Network]?: T };
+
+export type NetworkAddress = {
+  network: Network;
+  address: string;
+};

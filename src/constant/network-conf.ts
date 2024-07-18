@@ -26,7 +26,10 @@ import {
   NET_POLYGON,
   NET_SCROLL,
   NET_SEPOLIA,
+  NET_BLAST,
   Network,
+  NET_X_LAYER,
+  NET_SEI,
 } from './network';
 import eth from '../assets/imgs/chains/eth.svg';
 import eth_f from '../assets/imgs/chains/eth-f.svg';
@@ -46,6 +49,10 @@ import merlin from '../assets/imgs/chains/merlin.svg';
 import b2 from '../assets/imgs/chains/b2.svg';
 import meter from '../assets/imgs/chains/meter.svg';
 import bevm from '../assets/imgs/chains/bevm.svg';
+import blast from '../assets/imgs/chains/blast.svg';
+import xLayer from '../assets/imgs/chains/x-layer.svg';
+import sei from '../assets/imgs/chains/sei.svg';
+
 import * as _ from 'lodash';
 
 import { NetworkConfMap, NetworkParamConfig } from './network-type';
@@ -54,13 +61,13 @@ export const NetworkNames: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: 'Ethereum Mainnet' as const,
   [NET_SEPOLIA]: 'Sepolia' as const,
   [NET_BNB_TEST]: 'BSC Testnet' as const,
-  [NET_BNB]: 'BSC Mainnet' as const,
+  [NET_BNB]: 'BNB Smart Chain Mainnet' as const,
   [NET_BASE]: 'Base' as const,
-  [NET_ARBITRUM]: 'Arbitrum' as const,
+  [NET_ARBITRUM]: 'Arbitrum One' as const,
   [NET_ARBITRUM_GOERLI]: 'Arbitrum Goerli' as const,
   [NET_ARBITRUM_SEPOLIA]: 'Arbitrum Sepolia' as const,
   [NET_POLYGON]: 'Polygon' as const,
-  [NET_OPT_ETH]: 'Optimistic Ethereum' as const,
+  [NET_OPT_ETH]: 'Op Mainnet' as const,
   [NET_LINEA_GOERLI]: 'Linea Testnet' as const,
   [NET_LINEA]: 'Linea Mainnet' as const,
   [NET_MANTLE_TEST]: 'Mantle Testnet' as const,
@@ -78,6 +85,9 @@ export const NetworkNames: NetworkConfMap<Network, string> = {
   [NET_METER]: 'Meter Mainnet' as const,
   [NET_BEVM]: 'BEVM Mainnet' as const,
   [NET_OP_BNB]: 'opBNB Mainnet' as const,
+  [NET_BLAST]: 'Blast' as const,
+  [NET_X_LAYER]: 'X Layer mainnet' as const,
+  [NET_SEI]: 'Sei' as const,
 };
 export const NetworkCurrency: NetworkConfMap<Network, string> = {
   [NET_BNB_TEST]: 'BNB',
@@ -90,7 +100,7 @@ export const NetworkCurrency: NetworkConfMap<Network, string> = {
   [NET_ARBITRUM]: 'ETH',
   [NET_ARBITRUM_GOERLI]: 'AGOR',
   [NET_ARBITRUM_SEPOLIA]: 'ETH',
-  [NET_OPT_ETH]: 'OETH',
+  [NET_OPT_ETH]: 'ETH',
   [NET_LINEA]: 'ETH',
   [NET_LINEA_GOERLI]: 'ETH',
   [NET_MANTLE]: 'MNT',
@@ -107,6 +117,9 @@ export const NetworkCurrency: NetworkConfMap<Network, string> = {
   [NET_METER]: 'MTR',
   [NET_BEVM]: 'BTC',
   [NET_OP_BNB]: 'BNB',
+  [NET_BLAST]: 'ETH',
+  [NET_X_LAYER]: 'OKB',
+  [NET_SEI]: 'SEI',
 };
 export const NetworkLabels: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: 'Ethereum' as const,
@@ -136,6 +149,9 @@ export const NetworkLabels: NetworkConfMap<Network, string> = {
   [NET_METER]: 'Meter' as const,
   [NET_BEVM]: 'BEVM' as const,
   [NET_OP_BNB]: 'opBNB' as const,
+  [NET_BLAST]: 'Blast' as const,
+  [NET_X_LAYER]: 'X Layer' as const,
+  [NET_SEI]: 'Sei' as const,
 };
 export const NetworkIcons: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: eth,
@@ -165,6 +181,9 @@ export const NetworkIcons: NetworkConfMap<Network, string> = {
   [NET_METER]: meter,
   [NET_BEVM]: '',
   [NET_OP_BNB]: bsc,
+  [NET_BLAST]: blast,
+  [NET_X_LAYER]: xLayer,
+  [NET_SEI]: sei,
 };
 export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
   [NET_BNB_TEST]: {
@@ -186,7 +205,7 @@ export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
       symbol: NetworkCurrency[NET_BNB],
       decimals: 18,
     },
-    rpcUrls: ['https://bsc-dataseed.binance.org'],
+    rpcUrls: ['https://bsc-dataseed3.bnbchain.org'],
     blockExplorerUrls: ['https://bscscan.com'],
   },
   [NET_BASE]: {
@@ -468,17 +487,56 @@ export const NetworkParams: NetworkConfMap<Network, NetworkParamConfig> = {
       decimals: 18,
     },
   },
+  [NET_BLAST]: {
+    chainId: '0x13e31',
+    chainName: NetworkNames[NET_BLAST],
+    rpcUrls: [
+      'https://rpc.blast.io',
+      'https://rpc.ankr.com/blast',
+      'https://blastl2-mainnet.public.blastapi.io',
+      'https://blast.din.dev/rpc',
+      'https://blast.blockpi.network/v1/rpc/public',
+    ],
+    blockExplorerUrls: ['https://blastscan.io/'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_BLAST],
+      symbol: NetworkCurrency[NET_BLAST],
+      decimals: 18,
+    },
+  },
+  [NET_X_LAYER]: {
+    chainId: '0xc4',
+    chainName: NetworkNames[NET_X_LAYER],
+    rpcUrls: ['https://rpc.xlayer.tech', 'https://xlayerrpc.okx.com'],
+    blockExplorerUrls: ['https://www.okx.com/web3/explorer/xlayer'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_X_LAYER],
+      symbol: NetworkCurrency[NET_X_LAYER],
+      decimals: 18,
+    },
+  },
+  [NET_SEI]: {
+    chainId: '0x531',
+    chainName: NetworkNames[NET_SEI],
+    rpcUrls: ['https://evm-rpc.sei-apis.com'],
+    blockExplorerUrls: ['https://seitrace.com'],
+    nativeCurrency: {
+      name: NetworkCurrency[NET_SEI],
+      symbol: NetworkCurrency[NET_SEI],
+      decimals: 18,
+    },
+  },
 };
 
 export function chainScanAddressExploreUrl(network: Network, address: string): string {
-  let host = NetworkParams[network].blockExplorerUrls[0];
+  let host: string = NetworkParams[network].blockExplorerUrls[0];
   host = _.trimEnd(host, '/');
 
   return host + '/address/' + address;
 }
 
 export function chainScanTxExploreUrl(network: Network, txHash: string): string {
-  let host = NetworkParams[network].blockExplorerUrls[0];
+  let host: string = NetworkParams[network].blockExplorerUrls[0];
   host = _.trimEnd(host, '/');
 
   return host + '/tx/' + txHash;

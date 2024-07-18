@@ -118,7 +118,6 @@ export class WalletConnect implements WalletInterface {
     let accounts$: Observable<string[]>;
     if (provider.session) {
       provider.setDefaultChain(defChain);
-
       accounts$ = from(provider.request({ method: 'eth_requestAccounts' }) as Promise<string[]>);
     } else {
       this.modal.subscribeModal((state: { open: boolean }) => {

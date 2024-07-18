@@ -182,6 +182,13 @@ export enum StoneBgImgType {
   Normal,
   Blank,
 }
+export type StoneBalance = {
+  network: Network;
+  balance: SldDecimal;
+};
+export type StoneBalanceExt = StoneBalance & {
+  token: TokenErc20;
+};
 // ---------------------------------------------------------------------------------------------------------------------
 
 export enum ShieldUnderlyingType {

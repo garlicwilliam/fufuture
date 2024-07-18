@@ -135,6 +135,7 @@ export class WalletManager2 {
     } else if (wallet === Wallet.SafeWallet) {
       this.safeWallet.doConnect().subscribe();
     } else {
+      // Wallet Connect
       this.walletConnect.doConnect(op?.walletInfo).subscribe((done: boolean) => {
         if (done) {
           this.userSelected.next(Wallet.WalletConnect);

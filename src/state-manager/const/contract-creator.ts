@@ -2,7 +2,7 @@ import * as ethers from 'ethers';
 import { Contract, providers, Signer } from 'ethers';
 import * as _ from 'lodash';
 import { Network } from '../../constant/network';
-import { from, Observable, of, zip } from 'rxjs';
+import { from, isObservable, Observable, of, zip } from 'rxjs';
 import { walletState } from '../wallet/wallet-state';
 import { map, take } from 'rxjs/operators';
 import { ERC20 } from '../../wallet/abi';
@@ -76,6 +76,24 @@ export function createChainContract(
     console.warn('error', err);
     throw err;
   }
+}
+
+export function createChainContractAsync(
+  address: string | Observable<string>,
+  abi: any[],
+  provider: providers.Provider | Signer | Observable<providers.Provider | Signer>,
+  network: Network | Observable<Network>,
+  version: number = 0
+): Observable<Contract> {
+  const address$ = isObservable(address) ? address : of(address);
+  const provider$ = isObservable(provider) ? provider : of(provider);
+  const network$ = isObservable(network) ? network : of(network);
+
+  return zip(address$, provider$, network$).pipe(
+    map(([addr, prov, net]) => {
+      return createChainContract(addr, abi, prov, net, version);
+    })
+  );
 }
 
 export function isValidContract(contract: any): boolean {

@@ -1,8 +1,6 @@
-import { NET_ARBITRUM, NET_BNB, NET_POLYGON, NET_OP_BNB, Network } from '../../../constant/network';
-
+import { NET_ARBITRUM, NET_BNB, NET_POLYGON, NET_OP_BNB, Network, NET_BASE } from '../../../constant/network';
 import { ShieldUnderlyingType, TokenErc20 } from '../../../state-manager/state-types';
 import { ShieldOptionTradeContracts, ShieldUnderlyingContracts } from './shield-option-address';
-
 import fufutureLogoDark from '../../../assets/imgs/logo/fufuture/fufuture-1-dark.svg';
 import fufutureLogo from '../../../assets/imgs/logo/fufuture/fufuture-1-light.svg';
 import fufutureMobile from '../../../assets/imgs/logo/fufuture/fufuture-1.svg';
@@ -147,6 +145,31 @@ const env2: { [k in Env]: EnvConfig } = {
           underlying: {
             ETH: '0xFe99d4B8941E53a05759a9E545b7d21c58fBa66A',
             BTC: '0xa8862D494a32b2Def6276bbD00372fF50a7894a8',
+          },
+        },
+        ClosePriceNeedFix: true,
+      },
+      [NET_BASE]: {
+        CurNetwork: NET_BASE,
+        DefaultToken: {
+          symbol: 'USDC',
+          address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+          decimal: 6,
+          network: NET_BASE,
+        },
+        SubGraphUrl: 'https://api.studio.thegraph.com/query/77308/fufuture-base/v0.0.1',
+        SubGraphOracleUrl:
+          'https://gateway-arbitrum.network.thegraph.com/api/4e42a7432f2828f4b4617ccd5d3f13b5/subgraphs/id/EA3FYEqMLXg3fATwr2yUdfgyvDz7g3FDssC5pN7Emyra',
+        Addresses: {
+          trade: {
+            optionTrade: '0xB78356C8030A76b355C752B76225e19892982fC7',
+            liquidityManager: '0xB711ba37Fa74b99E70C27E82DEF0B15A50AC7A9e',
+            liquidityFactory: '0x95Fd2771a95Caf4A89E83D744C8f28E1d041da4E',
+            broker: '0x502c7c64692b94C6c8F4D755878cc50E768566cE',
+          },
+          underlying: {
+            ETH: '0x0e1E15b77DE5924650dA76F9E1ae46B07F493AEc',
+            BTC: '0x76739E2c513a68b70f6E6E8AD20CfCa485940659',
           },
         },
         ClosePriceNeedFix: true,

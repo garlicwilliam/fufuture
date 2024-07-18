@@ -721,6 +721,14 @@ export class SldDecPercent {
     return SldDecimal.fromE18(rs, multiplicand.getOriginDecimal());
   }
 
+  public deriveBaseVal(curPartial: SldDecimal): SldDecimal {
+    if (this.isZero() || curPartial.isZero()) {
+      return SldDecimal.ZERO;
+    }
+
+    return curPartial.mul(E18).div(this.toE18());
+  }
+
   public add(percent: SldDecPercent): SldDecPercent {
     const e18: BigNumber = percent.toE18().add(this.toE18());
     const ori = SldDecimal.fromE18(e18, this.originDecObj.getOriginDecimal());

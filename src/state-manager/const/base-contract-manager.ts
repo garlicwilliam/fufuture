@@ -5,7 +5,7 @@ import { catchError, distinctUntilChanged, filter, map, switchMap } from 'rxjs/o
 import { Contract, ethers, providers, Signer } from 'ethers';
 import { createChainContract } from './contract-creator';
 import { isValidAddress } from '../../util/address';
-import { getRpcProvider } from '../../constant/chain-rpc';
+import { rpcProviderGetter, rpcProviderWithCacheGetter } from '../../constant/chain-rpc';
 import { WalletInterface } from '../../wallet/wallet-interface';
 import { networkParse } from '../../util/network';
 
@@ -14,7 +14,7 @@ export type ContractAddress = { address: string; network: Network };
 export class ContractCache {
   private readonly cache: Map<string, Contract> = new Map<string, Contract>();
 
-  public genKey(address: string, network: Network, providerSrc: 'wallet' | 'rpc'): string {
+  public genKey(address: string, network: Network, providerSrc: 'wallet' | 'rpc' | 'cacheRpc'): string {
     return `${address}-${network}-${providerSrc}`;
   }
 
@@ -29,7 +29,7 @@ export class ContractCache {
   public tryGetContract(
     address: string,
     network: Network,
-    providerSrc: 'wallet' | 'rpc',
+    providerSrc: 'wallet' | 'rpc' | 'cacheRpc',
     create: () => Contract
   ): Contract {
     const key = this.genKey(address, network, providerSrc);
@@ -64,7 +64,7 @@ export abstract class BaseContractManager<F extends string> {
     }
 
     const abi: any[] = this.getContractAbi(name);
-    const provider: providers.JsonRpcProvider | undefined = getRpcProvider(network);
+    const provider: providers.JsonRpcProvider | undefined = rpcProviderGetter(network);
     if (!provider) {
       return EMPTY;
     }
@@ -75,12 +75,38 @@ export abstract class BaseContractManager<F extends string> {
     return of(contract);
   }
 
+  public getReadonlyContractWithCache(network: Network, name: F): Observable<Contract> {
+    const address: string | undefined = this.getContractAddress(network, name);
+    if (!address) {
+      return EMPTY;
+    }
+
+    const abi: any[] = this.getContractAbi(name);
+    const provider: providers.JsonRpcProvider | undefined = rpcProviderWithCacheGetter(network);
+    if (!provider) {
+      return EMPTY;
+    }
+
+    const creator = () => createChainContract(address, abi, provider, network);
+    const contract: Contract = this.contractCache.tryGetContract(address, network, 'cacheRpc', creator);
+
+    return of(contract);
+  }
+
   public createReadonlyContract(network: Network, address: string, abi: any[]): Contract {
-    const provider: providers.JsonRpcProvider = getRpcProvider(network)!;
+    const provider: providers.JsonRpcProvider = rpcProviderGetter(network)!;
 
     const creator = () => createChainContract(address, abi, provider, network);
 
     return this.contractCache.tryGetContract(address, network, 'rpc', creator);
+  }
+
+  public createReadonlyContractWithCache(network: Network, address: string, abi: any[]): Contract {
+    const provider: providers.JsonRpcProvider = rpcProviderWithCacheGetter(network)!;
+
+    const creator = () => createChainContract(address, abi, provider, network);
+
+    return this.contractCache.tryGetContract(address, network, 'cacheRpc', creator);
   }
 
   // -------------------------------------------------------------------------------------------------------------------

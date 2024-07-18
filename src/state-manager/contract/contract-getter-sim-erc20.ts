@@ -5,12 +5,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { SldDecimal } from '../../util/decimal';
 import { genContractCallPartial } from './contract-utils';
 import { CACHE_10_SEC, CACHE_3_SEC, CACHE_FOREVER, cacheService } from '../mem-cache/cache-contract';
-import {
-  contractNetwork,
-  createErc20Contract,
-  isConnectedNetworkChanged,
-  isValidContract,
-} from '../const/contract-creator';
+import { contractNetwork, createErc20Contract, isValidContract } from '../const/contract-creator';
 import { shortAddress } from '../../util';
 import { Network } from '../../constant/network';
 import { ZERO } from '../../constant';

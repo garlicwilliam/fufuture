@@ -1,6 +1,6 @@
 import { BaseStateComponent } from '../../state-manager/base-state-component';
 import { SelectButton } from '../common/buttons/select-btn';
-import { combineLatest, Observable, of, switchMap } from 'rxjs';
+import { combineLatest, Observable, of, switchMap, zip } from 'rxjs';
 import { walletState } from '../../state-manager/wallet/wallet-state';
 import { map, take, tap } from 'rxjs/operators';
 import walletConnect from '../../assets/imgs/wallet/wallet-connect.svg';
@@ -14,6 +14,7 @@ import { WcWalletInfo } from '../../services/wc-modal/wc-modal.service';
 import { checkIsMatchWalletInfo, checkRegisteredWalletConnectPeer, Wallet } from '../../wallet/define';
 import { px } from '../common/svg/util-function';
 import { Visible } from '../builtin/hidden';
+import { P } from '../../state-manager/page/page-state-parser';
 
 type IProps = {
   onClick?: (wallet: Wallet) => void;
@@ -22,19 +23,24 @@ type IProps = {
   walletInfo?: WcWalletInfo | null;
 };
 type IState = {
+  isMobile: boolean;
   isWalletConnectActivate: boolean;
   isWalletConnectSelected: boolean;
   peerName?: string;
+  peerIcon?: string;
 };
 
 export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
   state: IState = {
+    isMobile: P.Layout.IsMobile.get(),
     isWalletConnectActivate: false,
     isWalletConnectSelected: false,
     peerName: undefined,
+    peerIcon: undefined,
   };
 
   componentDidMount() {
+    this.registerIsMobile('isMobile');
     this.registerObservable('isWalletConnectActivate', this.mergeWalletConnectActive());
   }
 
@@ -51,17 +57,20 @@ export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
         if (isActive) {
           return walletState.watchWalletInstance().pipe(
             take(1),
-            map((wallet: WalletInterface) => {
-              return wallet.walletName() as { url: string; name: string };
+            switchMap((wallet: WalletInterface) => {
+              const icon$ = wallet.walletIcon().pipe(take(1));
+              const peer$ = of(wallet.walletName() as { url: string; name: string });
+
+              return zip(icon$, peer$);
             }),
-            tap((peer: { url: string; name: string }) => {
-              this.updateState({ peerName: peer.name });
+            tap(([icon, peer]) => {
+              this.updateState({ peerName: peer.name, peerIcon: icon });
             }),
-            map((peer): boolean => {
+            map(([icon, peer]): boolean => {
               if (this.props.walletInfo) {
                 return checkIsMatchWalletInfo(peer, this.props.walletInfo);
               } else {
-                return !checkRegisteredWalletConnectPeer(peer);
+                return this.state.isMobile ? isActive : !checkRegisteredWalletConnectPeer(peer);
               }
             })
           );
@@ -73,6 +82,9 @@ export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
   }
 
   private onClickBtn() {
+    if (this.state.isWalletConnectActivate) {
+      return;
+    }
     walletState.connectToWallet(Wallet.WalletConnect, { walletInfo: this.props.walletInfo || undefined });
   }
 
@@ -90,7 +102,13 @@ export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
       >
         <img
           alt={''}
-          src={this.props.walletInfo ? this.props.walletInfo.icon : walletConnect}
+          src={
+            this.props.walletInfo
+              ? this.props.walletInfo.icon
+              : this.state.peerIcon && this.state.isMobile
+              ? this.state.peerIcon
+              : walletConnect
+          }
           style={{ maxWidth: '20px', maxHeight: '20px' }}
         />
       </div>
@@ -112,7 +130,13 @@ export class WalletConnectButton extends BaseStateComponent<IProps, IState> {
       >
         <img
           alt={''}
-          src={this.props.walletInfo ? this.props.walletInfo.icon : walletConnect}
+          src={
+            this.props.walletInfo
+              ? this.props.walletInfo.icon
+              : this.state.peerIcon && this.state.isMobile
+              ? this.state.peerIcon
+              : walletConnect
+          }
           style={{ maxWidth: px(iconSize), maxHeight: px(iconSize), borderRadius: '4px' }}
         />
       </div>
