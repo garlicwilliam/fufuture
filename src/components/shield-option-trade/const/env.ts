@@ -102,9 +102,9 @@ const env2: { [k in Env]: EnvConfig } = {
       [NET_POLYGON]: {
         CurNetwork: NET_POLYGON,
         DefaultToken: {
-          symbol: 'POT',
-          address: '0x4Cbfcb5772A79E8f08A0D9eaE06279176392FbC3',
-          decimal: 18,
+          symbol: 'FUU',
+          address: '0x0333fa6cd82d5b4537db93750c13842ebbf01590',
+          decimal: 6,
           network: NET_POLYGON,
         },
         SubGraphUrl: 'https://api.studio.thegraph.com/query/77308/fufuture-matic/version/latest',
