@@ -27,6 +27,7 @@ type IProps = {
   maxDisplay?: SldDecimal | SldUsdValue | SldDecPrice | number;
   useMinDispaly?: boolean;
   pending?: boolean | { isPending: boolean; width?: number; height?: number; useIcon?: boolean };
+  debug?: boolean;
 };
 
 export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
@@ -89,6 +90,7 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
       short: this.props.short,
       sign: this.props.sign,
       precision: precision,
+      debug: this.props.debug,
     };
 
     let prefix = '';

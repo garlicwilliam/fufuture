@@ -92,6 +92,10 @@ export function numStrFormat(num: string, opt?: FormatOption): string {
 
   let numStr = num + abb;
 
+  if (opt?.debug) {
+    console.log('numStr', numStr);
+  }
+
   if (opt?.sign && !numStr.startsWith('-')) {
     numStr = '+' + numStr;
   }
@@ -131,26 +135,36 @@ function numInsertSep(num: string): string {
   }
 }
 
-function numPrecision(num: string, precision: number, strategy: 'ceil' | 'round' | 'floor'): string {
+function numPrecision(
+  num: string,
+  precision: number,
+  strategy: 'ceil' | 'round' | 'floor',
+  opt?: { debug?: boolean }
+): string {
   if (precision <= 0) {
     return num;
+  }
+
+  function rsStr(numStr: string, sign: -1 | 1): string {
+    return sign < 0 ? '-' + numStr : numStr;
   }
 
   const { int: int1, dec } = numToDec(num);
   const sign: 1 | -1 = int1.startsWith('-') ? -1 : 1;
   const int2 = sign === -1 ? _.trimStart(int1, '-') : int1;
-
   const isInt0: boolean = int2 === '0';
 
   const intStr: string = isInt0 ? '0' : _.trimStart(int2, '0');
   const intLen: number = isInt0 ? 0 : intStr.length;
 
   if (intLen >= precision) {
-    return _.padEnd(intStr.substring(0, precision), intLen, '0');
+    const str: string = _.padEnd(intStr.substring(0, precision), intLen, '0');
+    return rsStr(str, sign);
   }
 
   function digitIndex(decimal: string): number {
     const arr = decimal.split('');
+
     for (let i = 0; i < arr.length; i++) {
       if (arr[i] !== '0') {
         return i;
@@ -159,9 +173,9 @@ function numPrecision(num: string, precision: number, strategy: 'ceil' | 'round'
     return -1;
   }
 
-  const decStart = isInt0 ? digitIndex(dec) : 0;
+  const decStart: number = isInt0 ? digitIndex(dec) : 0;
   if (decStart === -1) {
-    return intStr;
+    return rsStr(intStr, sign);
   }
 
   const decTargetLen: number = decStart + (precision - intLen);
@@ -169,23 +183,17 @@ function numPrecision(num: string, precision: number, strategy: 'ceil' | 'round'
 
   if (decLen <= decTargetLen) {
     const decStr = _.padEnd(dec, decTargetLen, '0');
-    return [intStr, decStr].join('.');
+    return rsStr([intStr, decStr].join('.'), sign);
   }
 
   const decStr = dec.substring(0, decTargetLen);
   const needCarry = carrySign(dec.substring(decTargetLen), strategy);
-
   let numStr = [intStr, decStr].join('.');
-
   if (needCarry) {
     numStr = doCarry(numStr);
   }
 
-  if (sign === -1) {
-    numStr = '-' + numStr;
-  }
-
-  return numStr;
+  return rsStr(numStr, sign);
 }
 
 function numFixed(
