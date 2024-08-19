@@ -19,6 +19,7 @@ import binance from '../../assets/imgs/wallet/binance.svg';
 import binance2 from '../../assets/imgs/wallet/binance2.svg';
 import onekey from '../../assets/imgs/wallet/one-key.svg';
 import rabby from '../../assets/imgs/wallet/rabby.svg';
+import tomo from '../../assets/imgs/wallet/tomo.svg';
 
 import { ReactNode } from 'react';
 import { EthereumProviderName, WalletConnectWalletInfo, WalletConnectWalletName } from '../../wallet/define';
@@ -43,7 +44,8 @@ export {
   binance,
   binance2,
   onekey,
-  rabby
+  rabby,
+  tomo,
 };
 
 export const WALLET_ICONS_MAP: { [w in EthereumProviderName | WalletConnectWalletName]: string } = {
@@ -67,6 +69,7 @@ export const WALLET_ICONS_MAP: { [w in EthereumProviderName | WalletConnectWalle
   [WalletConnectWalletName.Binance]: binance,
   [WalletConnectWalletName.WalletConnect]: walletconnect,
   [EthereumProviderName.Rabby]: rabby,
+  [EthereumProviderName.Tomo]: tomo,
 };
 
 export const WALLET_NAME_MAP: { [w in EthereumProviderName | WalletConnectWalletName]: string } = {
@@ -92,6 +95,7 @@ export const WALLET_NAME_MAP: { [w in EthereumProviderName | WalletConnectWallet
     WalletConnectWalletInfo[WalletConnectWalletName.Binance]?.name || 'Binance Web3 Wallet',
   [WalletConnectWalletName.WalletConnect]: 'Wallet Connect',
   [EthereumProviderName.Rabby]: 'Rabby',
+  [EthereumProviderName.Tomo]: 'TOMO',
 };
 
 export function iconNode(name: EthereumProviderName | WalletConnectWalletName): ReactNode {

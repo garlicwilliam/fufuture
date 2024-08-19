@@ -37,7 +37,12 @@ import {
   erc20TotalSupplyGetter,
   erc20UserBalanceGetter,
 } from './contract-getter-sim-erc20';
-import { contractNetwork, createContractByEnv, createContractByProvider } from '../const/contract-creator';
+import {
+  contractNetwork,
+  createChainContract,
+  createContractByEnv,
+  createContractByProvider,
+} from '../const/contract-creator';
 import {
   ABI_OPTION_TRADE_Copy,
   ABI_PRIVATE_POOL,
@@ -56,6 +61,7 @@ import { ERC20 } from '../../wallet/abi';
 import { UnderlyingContract } from '../../components/shield-option-trade/contract/shield-contract-types';
 import { linkAnswerGetter, linkDescGetter } from './contract-getter-sim-link';
 import { SLD_ENV_CONF } from '../../components/shield-option-trade/const/env';
+import { getShieldRpcProviderCache } from '../../components/shield-option-trade/const/http-rpc';
 
 type Caller<T> = (promise: Promise<T>, method: string) => Observable<T>;
 const optionCall: Caller<any> = genContractCallPartial('ShieldOption');
@@ -767,7 +773,10 @@ export function privatePoolLiquidityGetter(
   poolContractAddress: string,
   token: TokenErc20
 ): Observable<SldDecimal> {
-  return of(createContractByEnv(token.address, ERC20, managerContract)).pipe(
+  const network = contractNetwork(managerContract)!;
+  const contract = createChainContract(token.address, ERC20, getShieldRpcProviderCache(network), network);
+
+  return of(contract).pipe(
     switchMap((erc20Contract: Contract) => {
       return erc20UserBalanceGetter(erc20Contract, poolContractAddress, token.decimal);
     })

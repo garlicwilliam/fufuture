@@ -5,15 +5,15 @@ import { AppendBody } from './append-body';
 import styles from './result-mask.module.less';
 import { CloseOutlined } from '@ant-design/icons';
 import { fontCss } from '../../i18n/font-switch';
-import pending from '../../../assets/imgs/mask/pending.svg';
-import fail from '../../../assets/imgs/mask/failed.svg';
-import success from '../../../assets/imgs/mask/success.svg';
 import { I18n } from '../../i18n/i18n';
 import { Visible } from '../../builtin/hidden';
 import { SldButton } from '../buttons/sld-button';
 import { ReactNode } from 'react';
 import { MaskEvent, maskService } from '../../../services/mask/mask.service';
 import { tap } from 'rxjs/operators';
+import { StatusPending } from '../status/pending';
+import { StatusSuccess } from '../status/success';
+import { StatusFailed } from '../status/failed';
 
 type IState = {
   isMobile: boolean;
@@ -94,14 +94,16 @@ export class ResultMask extends BaseStateComponent<IProps, IState> {
     const mobileCss = this.state.isMobile ? styles.mobile : '';
     const styleMr = bindStyleMerger(mobileCss);
 
-    const imgSrc =
-      this.state.status === 'pending'
-        ? pending
-        : this.state.status === 'success'
-        ? success
-        : this.state.status === 'failed'
-        ? fail
-        : pending;
+    const status =
+      this.state.status === 'pending' ? (
+        <StatusPending />
+      ) : this.state.status === 'success' ? (
+        <StatusSuccess />
+      ) : this.state.status === 'failed' ? (
+        <StatusFailed />
+      ) : (
+        <StatusPending />
+      );
 
     return (
       <AppendBody>
@@ -113,9 +115,7 @@ export class ResultMask extends BaseStateComponent<IProps, IState> {
 
             {this.state.title ? <div className={styleMr(styles.title)}>{this.state.title}</div> : null}
 
-            <div className={styleMr(styles.imgContent)}>
-              <img src={imgSrc} alt="" className={this.state.status === 'pending' ? styles.loading : ''} />
-            </div>
+            {status}
 
             <p className={styleMr(styles.descText, fontCss.medium)}>{this.state.text}</p>
 

@@ -318,11 +318,6 @@ export type ShieldOrderInfoRs = {
   taker: string;
   orders: ShieldOrderInfo[];
 };
-export type ShieldHistoryOrderRs = {
-  orders: ShieldOrderInfo[];
-  taker: string;
-  network: Network;
-};
 
 export type ShieldActiveOrderInfo = ShieldOrderBase & {
   migrationInfo: ShieldOrderMigration;
@@ -485,10 +480,5 @@ export type OmniTeamMemberMeta = {
 export type OmniTeamMemberInfo = OmniTeamMemberMeta & {
   isSpecialMember: boolean;
   isSpecialLeader: boolean;
-  special: { id: string; code: string } | null;
-};
-
-export type OmniStoneLocked = {
-  primary: SldDecimal;
-  boost: SldDecimal;
+  specialKind: number;
 };

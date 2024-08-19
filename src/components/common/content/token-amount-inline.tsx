@@ -1,6 +1,6 @@
 import { BaseStateComponent } from '../../../state-manager/base-state-component';
 import { P } from '../../../state-manager/page/page-state-parser';
-import { bindStyleMerger } from '../../../util/string';
+import { bindStyleMerger, StyleMerger } from '../../../util/string';
 import { SldDecimal, SldDecPrice, SldUsdValue } from '../../../util/decimal';
 import styles from './token-amount-inline.module.less';
 import { FormatOption, numString } from '../../../util/math';
@@ -17,7 +17,7 @@ type IProps = {
   className?: string;
   numClassName?: string;
   symClassName?: string;
-  fix?: number;
+  fix?: number | { min: number; fix: number };
   precision?: number;
   rmZero?: boolean; // default true
   split?: boolean;
@@ -25,7 +25,7 @@ type IProps = {
   short?: boolean;
   sign?: boolean;
   maxDisplay?: SldDecimal | SldUsdValue | SldDecPrice | number;
-  useMinDispaly?: boolean;
+  useMinDisplay?: boolean;
   pending?: boolean | { isPending: boolean; width?: number; height?: number; useIcon?: boolean };
   debug?: boolean;
 };
@@ -59,16 +59,23 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
   }
 
   private confirmFix(): number {
-    return this.props.fix || 2;
+    if (this.props.fix === undefined) {
+      return 2;
+    } else if (typeof this.props.fix === 'number') {
+      return this.props.fix;
+    } else if (typeof this.props.fix === 'object') {
+      return this.props.fix.fix;
+    }
+
+    return 2;
   }
 
   private amountString(): string {
-    const ceil = this.props.round === 1;
-    const floor = this.props.round === -1;
-    const fix = this.confirmFix();
+    const ceil: boolean = this.props.round === 1;
+    const floor: boolean = this.props.round === -1;
+    const fix: number = this.confirmFix();
 
     let precision = this.props.precision;
-
     if (this.props.amount) {
       const strnum: string =
         typeof this.props.amount === 'number' ? numString(this.props.amount) : this.props.amount.toNumeric(true);
@@ -93,7 +100,7 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
       debug: this.props.debug,
     };
 
-    let prefix = '';
+    let prefix: string = '';
     let amount: SldDecimal = this.normalizeAmount(this.props.amount || 0);
 
     const minDisplay: SldDecimal = this.genMinDisplay();
@@ -102,12 +109,24 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
     if (maxDisplay && amount.gt(maxDisplay)) {
       prefix = '> ';
       amount = maxDisplay;
-    } else if (amount.gtZero() && minDisplay.gt(amount) && this.props.useMinDispaly !== false) {
+    } else if (amount.gtZero() && minDisplay.gt(amount) && this.props.useMinDisplay !== false) {
       prefix = '< ';
       amount = minDisplay;
     }
 
-    const numStr = amount.format(option);
+    let numStr: string = amount.format(option);
+
+    if (this.props.rmZero && this.props.fix && this.props.fix?.['min'] > 0) {
+      const minFix: number = (this.props.fix as { min: number }).min;
+      const [intPart, dec] = numStr.split('.');
+      let decPart: string = dec || '';
+
+      if (decPart.length < minFix) {
+        decPart = decPart + _.repeat('0', minFix - decPart.length);
+      }
+
+      numStr = intPart + '.' + decPart;
+    }
 
     return prefix + numStr;
   }
@@ -125,8 +144,8 @@ export class TokenAmountInline extends BaseStateComponent<IProps, IState> {
   }
 
   render() {
-    const mobileCss = this.state.isMobile ? styles.mobile : '';
-    const styleMr = bindStyleMerger(mobileCss);
+    const mobileCss: string = this.state.isMobile ? styles.mobile : '';
+    const styleMr: StyleMerger = bindStyleMerger(mobileCss);
 
     const tokenSymbol: string =
       typeof this.props.token === 'symbol' ? this.props.token.description || '' : this.props.token;

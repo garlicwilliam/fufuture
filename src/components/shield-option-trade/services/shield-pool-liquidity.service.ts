@@ -5,12 +5,16 @@ import {
   ShieldUnderlyingType,
   TokenErc20,
 } from '../../../state-manager/state-types';
-import { filter, map, mergeMap, switchMap, take, tap, toArray } from 'rxjs/operators';
+import { catchError, filter, map, mergeMap, switchMap, take, tap, toArray } from 'rxjs/operators';
 import { walletState } from '../../../state-manager/wallet/wallet-state';
-import { createContractByCurEnv } from '../../../state-manager/const/contract-creator';
+import {
+  createChainContract,
+  createContractByCurEnv,
+  createContractByProvider,
+} from '../../../state-manager/const/contract-creator';
 import { ABI_PRIVATE_POOL, ABI_PUBLIC_POOL } from '../const/shield-option-abi';
-import { asyncScheduler, BehaviorSubject, EMPTY, from, NEVER, Observable, of, Subscription, zip } from 'rxjs';
-import { erc20InfoByAddressGetter } from '../../../state-manager/contract/contract-getter-sim-erc20';
+import { asyncScheduler, BehaviorSubject, EMPTY, from, NEVER, Observable, of, Subscription, timeout, zip } from 'rxjs';
+import { erc20InfoByAddressGetter, erc20InfoGetter } from '../../../state-manager/contract/contract-getter-sim-erc20';
 import {
   privatePoolLiquidityGetter,
   privatePoolUnderlyingGetter,
@@ -20,7 +24,9 @@ import { SLD_ENV_CONF } from '../const/env';
 import * as _ from 'lodash';
 import { SldDecimal } from '../../../util/decimal';
 import { shieldOptionTradeContracts } from '../contract/shield-option-trade-contract';
-import { Network } from '../../../constant/network';
+import { NET_BNB, Network } from '../../../constant/network';
+import { getShieldRpcProviderCache } from '../const/http-rpc';
+import { ERC20 } from '../../../wallet/abi';
 
 type PrivatePool = {
   network: Network;
@@ -115,8 +121,8 @@ export class ShieldPoolLiquidityService {
         return zip(poolsAddress$, of(network));
       }),
       switchMap(([pools, network]: [ShieldPoolAddressList, Network]) => {
-        const privates$: Observable<PrivatePool[]> = this.getPrivatePoolList(pools.private);
-        const publics$: Observable<PublicPool[]> = this.getPublicPoolList(pools.public);
+        const privates$: Observable<PrivatePool[]> = this.getPrivatePoolList(pools.private).pipe();
+        const publics$: Observable<PublicPool[]> = this.getPublicPoolList(pools.public).pipe();
 
         return zip(privates$, publics$, of(network));
       }),
@@ -223,9 +229,18 @@ export class ShieldPoolLiquidityService {
     );
   }
 
+  // optimized
   private getPrivatePool(poolAddress: ShieldPoolAddress): Observable<PrivatePool> {
     const indexUnderlying$: Observable<ShieldUnderlyingType> = this.getPriIndexUnderlying(poolAddress.poolAddress);
-    const token$: Observable<TokenErc20> = erc20InfoByAddressGetter(poolAddress.tokenAddress);
+
+    const token$: Observable<TokenErc20> = erc20InfoGetter(
+      createChainContract(
+        poolAddress.tokenAddress,
+        ERC20,
+        getShieldRpcProviderCache(poolAddress.network),
+        poolAddress.network
+      )
+    );
 
     return zip(indexUnderlying$, token$).pipe(
       map(([indexUnderlying, token]): PrivatePool => {
@@ -239,8 +254,16 @@ export class ShieldPoolLiquidityService {
     );
   }
 
+  // optimized
   private getPriIndexUnderlying(poolAddress: string): Observable<ShieldUnderlyingType> {
-    return createContractByCurEnv(poolAddress, ABI_PRIVATE_POOL).pipe(
+    return walletState.watchNetwork().pipe(
+      switchMap(network => {
+        const provider = getShieldRpcProviderCache(network);
+        if (!provider) {
+          return NEVER;
+        }
+        return createContractByProvider(poolAddress, ABI_PRIVATE_POOL, provider);
+      }),
       switchMap(contract => {
         return privatePoolUnderlyingGetter(contract);
       })
@@ -261,8 +284,24 @@ export class ShieldPoolLiquidityService {
     );
   }
 
+  // optimized
   private getPublicPool(poolAddress: ShieldPoolAddress): Observable<PublicPool> {
-    const token$: Observable<TokenErc20> = erc20InfoByAddressGetter(poolAddress.tokenAddress);
+    const provider = getShieldRpcProviderCache(poolAddress.network);
+    if (!provider) {
+      return NEVER;
+    }
+
+    const contract = createChainContract(poolAddress.tokenAddress, ERC20, provider, poolAddress.network);
+
+    const token$ = of(contract).pipe(
+      switchMap(erc20Contract => {
+        return erc20InfoGetter(erc20Contract);
+      }),
+      catchError(err => {
+        console.warn('public get error', poolAddress);
+        return EMPTY;
+      })
+    );
 
     return token$.pipe(
       map((token: TokenErc20): PublicPool => {
@@ -275,6 +314,7 @@ export class ShieldPoolLiquidityService {
     );
   }
 
+  // optimized
   private getPrivatePoolLiquidity(pool: PrivatePool): Observable<SldDecimal> {
     return shieldOptionTradeContracts.CONTRACTS.liquidityManager.pipe(
       take(1),
@@ -284,12 +324,26 @@ export class ShieldPoolLiquidityService {
     );
   }
 
+  // optimized
   private getPublicPoolLiquidity(pool: PublicPool): Observable<SldDecimal> {
-    return createContractByCurEnv(pool.poolAddress, ABI_PUBLIC_POOL).pipe(
+    return walletState.watchNetwork().pipe(
+      switchMap((network: Network) => {
+        const provider = getShieldRpcProviderCache(network);
+        if (!provider) {
+          return NEVER;
+        }
+        return of(createChainContract(pool.poolAddress, ABI_PUBLIC_POOL, provider, network));
+      }),
       switchMap(poolContract => {
         return publicPoolLiquidityGetter(poolContract, pool.token);
       })
     );
+
+    // return createContractByCurEnv(pool.poolAddress, ABI_PUBLIC_POOL).pipe(
+    //   switchMap(poolContract => {
+    //     return publicPoolLiquidityGetter(poolContract, pool.token);
+    //   })
+    // );
   }
 
   private updateLiquidity(pool: PrivatePool | PublicPool) {

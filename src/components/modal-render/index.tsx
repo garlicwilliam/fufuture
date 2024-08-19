@@ -5,6 +5,7 @@ import { DrawerProps } from 'antd/lib/drawer';
 import { ReactNode } from 'react';
 import { fontCss } from '../i18n/font-switch';
 import { styleMerge } from '../../util/string';
+import * as _ from 'lodash';
 
 type IState = { isMobile: boolean };
 type IProps = {
@@ -56,7 +57,7 @@ export default class ModalRender extends BaseStateComponent<IProps, IState> {
     ) : (
       <Modal
         open={visible}
-        {...this.props}
+        {..._.omit({ ...this.props }, 'height')}
         closable={closable}
         maskClosable={maskClosable}
         title={realTitle}

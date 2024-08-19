@@ -1,0 +1,25 @@
+.boxWrapper {
+  position: fixed;
+  z-index: 1100;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  border-radius: 32px;
+}
+
+.mask {
+  display: block;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  z-index: 99;
+  background-color: rgb(0 0 0 / 45%);
+  //backdrop-filter: blur(10px);
+}
+
+:global {
+  .sld_modal_box {
+    overflow-y: hidden;
+  }
+}

@@ -84,7 +84,6 @@ export const RPC_URLS = {
   [NET_SEI]: ['https://evm-rpc.sei-apis.com', 'https://sei.public-rpc.com'],
 };
 
-
 export const RPC_CACHE_URLS = {
   [NET_ETHEREUM]: ['https://points.stakestone.io/contract/eth'],
   [NET_BNB]: ['https://points.stakestone.io/contract/bsc'],

@@ -757,17 +757,17 @@ export class SldOverlay extends BaseStateComponent<IProps, IState> {
   genArrowDirCss(dir: Side): string {
     switch (dir) {
       case 'left': {
-        return styles.toLeft;
+        return styleMerge(styles.toLeft, 'sld-overlay-arrow-left');
       }
       case 'right': {
-        return styles.toRight;
+        return styleMerge(styles.toRight, 'sld-overlay-arrow-right');
       }
 
       case 'top': {
-        return styles.toTop;
+        return styleMerge(styles.toTop, 'sld-overlay-arrow-top');
       }
       case 'bottom': {
-        return styles.toBottom;
+        return styleMerge(styles.toBottom, 'sld-overlay-arrow-bottom');
       }
       default: {
         return '';
@@ -887,8 +887,8 @@ export class SldOverlay extends BaseStateComponent<IProps, IState> {
   render() {
     const overlayStyleCss: CSSProperties = this.genFloatStyles();
     const arrowStyleCss: CSSProperties = this.genArrowStyles();
-    const overlayClassName = styles.overlayBaseLight;
-    const arrowWrapperClassName = styles.arrowLight;
+    const overlayClassName: string = styles.overlayBaseLight;
+    const arrowWrapperClassName: string = styles.arrowLight;
 
     const arrowClassName: string = this.genArrowClassName();
     const aniClassName: string = this.genAnimationCss(this.props.placement);

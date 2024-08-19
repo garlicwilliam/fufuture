@@ -14,7 +14,7 @@ export default {
   'com-one-day': '${num} day',
   'com-pending': 'Pending...',
   'com-some-days': '${num} days',
-  'com-succeed': 'Succeed',
+  'com-succeed': 'Succeeded',
   'com-network-wrong': 'Wrong Network',
   'com-insufficient-balance': 'Insufficient balance',
   'com-switch-to': 'Switch to ${network}',

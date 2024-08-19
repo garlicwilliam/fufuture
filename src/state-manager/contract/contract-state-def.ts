@@ -4,6 +4,7 @@ import { ContractState, ContractStateTree, StateReference } from '../interface';
 import _ from 'lodash';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { P } from '../page/page-state-parser';
+
 import { erc20ApprovedAmountGetter, erc20UserBalanceGetter } from './contract-getter-sim-erc20';
 
 import {
@@ -40,12 +41,13 @@ import {
   userOpenMaxAmount,
 } from './contract-getter-cpx-shield';
 
-
 import { createChainContract } from '../const/contract-creator';
 import { linkAnswerGetter } from './contract-getter-sim-link';
+
 import { NET_ETHEREUM } from '../../constant/network';
-import { LINK_PROXY_ABI } from '../../wallet/abi';
+import { ERC20, LINK_PROXY_ABI, STONE_VAULT_ABI, WST_ETH_ABI } from '../../wallet/abi';
 import { rpcProviderGetter } from '../../constant/chain-rpc';
+import { stonePriceGetter, wstEthPriceGetter } from './contract-getter-sim-common';
 
 import { ShieldUnderlyingType } from '../state-types';
 
@@ -275,7 +277,7 @@ export const CONTRACT_STATE = {
             P.Option.Trade.Pair.Base,
             P.Option.Trade.Pair.Quote,
             P.Option.Trade.Open.OptionType,
-            P.Option.Trade.Open.Amount
+            P.Option.Trade.Open.Amount,
           ],
           _getter: userOpenMaxAmount,
         },
@@ -365,6 +367,5 @@ export const CONTRACT_STATE = {
         _getter: inviterGetter,
       },
     },
-  }
-
+  },
 };

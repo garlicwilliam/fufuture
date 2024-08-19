@@ -43,6 +43,18 @@ export function delBodyClass(...names: string[]) {
   writeBodyClassName(classSet);
 }
 
+export function setBodyProperty(p: string, v: string): void {
+  document.body.setAttribute(p, v);
+}
+
+export function getBodyProperty(p: string): string | null {
+  return document.body.getAttribute(p);
+}
+
+export function delBodyProperty(p: string) {
+  document.body.removeAttribute(p);
+}
+
 export function initAppVariable<T>(name: string, val: T): BehaviorSubject<T> {
   window[name] = new BehaviorSubject<T>(val);
   return window[name];

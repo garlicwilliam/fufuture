@@ -53,7 +53,9 @@ export class SldTips extends BaseStateComponent<IProps, IState> {
         overlayClassName={this.props.overlayClassName}
         useBorder={true}
       >
-        <span onClick={this.stopClick.bind(this)}>{this.props.icon ? this.props.icon : <InfoCircleOutlined />}</span>
+        <span style={{ cursor: 'pointer' }} onClick={this.stopClick.bind(this)}>
+          {this.props.icon ? this.props.icon : <InfoCircleOutlined />}
+        </span>
       </SldOverlay>
     );
   }

@@ -61,7 +61,7 @@ export const NetworkNames: NetworkConfMap<Network, string> = {
   [NET_ETHEREUM]: 'Ethereum Mainnet' as const,
   [NET_SEPOLIA]: 'Sepolia' as const,
   [NET_BNB_TEST]: 'BSC Testnet' as const,
-  [NET_BNB]: 'BNB Smart Chain Mainnet' as const,
+  [NET_BNB]: 'BNB Smart Chain' as const,
   [NET_BASE]: 'Base' as const,
   [NET_ARBITRUM]: 'Arbitrum One' as const,
   [NET_ARBITRUM_GOERLI]: 'Arbitrum Goerli' as const,

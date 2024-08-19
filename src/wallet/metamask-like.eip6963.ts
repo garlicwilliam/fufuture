@@ -9,6 +9,8 @@ window.addEventListener<'eip6963:announceProvider'>(
   'eip6963:announceProvider',
   (event: EIP6963AnnounceProviderEvent) => {
     if (event.type === 'eip6963:announceProvider') {
+      console.log('event', event);
+
       if (event.detail.info.rdns === 'io.metamask') {
         const hasFilter: boolean = nonMetaMaskFields.some(key => !!event.detail.provider[key]);
         if (hasFilter) {

@@ -98,6 +98,7 @@ export class ConnectWalletPage extends BaseStateComponent<IProps, IState> {
       EthereumProviderName.GateWallet,
       EthereumProviderName.Rabby,
       EthereumProviderName.OneKey,
+      EthereumProviderName.Tomo
     ];
 
     if (getAppName() === AppName.ShieldTrade) {

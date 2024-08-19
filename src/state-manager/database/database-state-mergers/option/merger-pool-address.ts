@@ -3,7 +3,7 @@ import { ShieldPoolAddress, ShieldPoolAddressList } from '../../../state-types';
 import { Observable, of } from 'rxjs';
 import { SLD_ENV_CONF } from '../../../../components/shield-option-trade/const/env';
 import { httpPost } from '../../../../util/http';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { NET_BNB, Network } from '../../../../constant/network';
 import { isTheGraphQL, SubGraphType, subGraphTypeFromUrl } from './utils';
@@ -74,11 +74,11 @@ export class MergerPoolAddress implements DatabaseStateMerger<ShieldPoolAddressL
   private postParam0(): any {
     return {
       query: `{
-        createPrivatePools {
+        createPrivatePools(first: 1000) {
             tokenAddr,
             poolAddr
         },
-        createPublicPools {
+        createPublicPools(first: 1000) {
             tokenAddr,
             poolAddr
         }

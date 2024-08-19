@@ -20,6 +20,7 @@ import {
   rabby,
   safepal,
   tokenPocket,
+  tomo,
   trust,
   WALLET_NAME_MAP,
 } from './wallet-icons';
@@ -51,6 +52,7 @@ const isBitizen: boolean = (window as any).ethereum?.isBitizen || false;
 const isSafePal: boolean = (window as any).ethereum?.isSafePal || false;
 const isBinance: boolean = (window as any).ethereum?.isBinance || false;
 const isOneKey: boolean = !!window['$onekye']?.ethereum || false;
+const isTomo: boolean = (window as any).tomo_evm?.isTomo || false;
 
 type IProps = {
   targetProvider: EthereumProviderName;
@@ -222,6 +224,12 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
       const url: string = browser === 'CHROME' ? chromeUrl : otherUrl;
 
       window.open(url, '_blank');
+    } else if (this.props.targetProvider === EthereumProviderName.Tomo) {
+      const chromeUrl: string = 'https://chromewebstore.google.com/detail/tomo-wallet/pfccjkejcgoppjnllalolplgogenfojk';
+      const otherUrl: string = 'https://tomo.inc/';
+      const browser = this.detectBrowser();
+      const url: string = browser === 'CHROME' ? chromeUrl : otherUrl;
+      window.open(url, '_blank');
     }
   }
 
@@ -271,6 +279,8 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
         return { icon: onekey, name: 'OneKey' };
       } else if (this.props.targetProvider === EthereumProviderName.Rabby) {
         return { icon: rabby, name: 'Rabby' };
+      } else if (this.props.targetProvider === EthereumProviderName.Tomo) {
+        return { icon: tomo, name: 'TOMO' };
       }
     }
 
@@ -309,6 +319,8 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
       return { icon: onekey, name: 'OneKey' };
     } else if (this.props.targetProvider === EthereumProviderName.Rabby) {
       return { icon: rabby, name: 'Rabby Wallet' };
+    } else if (this.props.targetProvider === EthereumProviderName.Tomo) {
+      return { icon: tomo, name: 'TOMO' };
     } else if (this.props.targetProvider === EthereumProviderName.MetaMaskLike) {
       if (isBitizen) {
         return { icon: bitizen, name: 'Bitizen' };
@@ -340,6 +352,8 @@ export class MetamaskButton extends BaseStateComponent<IProps, IState> {
         return { icon: trust, name: 'Trust Wallet' };
       } else if (isMetaMask) {
         return { icon: metamask, name: 'MetaMask' };
+      } else if (isTomo) {
+        return { icon: tomo, name: 'TOMO' };
       } else {
         return { icon: '', name: 'Wallet' };
       }

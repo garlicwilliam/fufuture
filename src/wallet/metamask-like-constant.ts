@@ -171,6 +171,9 @@ export const ProviderExistDetectors: { [key in EthereumProviderName]: () => bool
   [EthereumProviderName.Rabby]: () => {
     return false;
   },
+  [EthereumProviderName.Tomo]: () => {
+    return window.tomo_evm && window.tomo_evm.isTomo;
+  },
 };
 
 export const ProviderGetters: { [key in EthereumProviderName]: () => Observable<EthereumProviderInterface> } = {
@@ -225,5 +228,8 @@ export const ProviderGetters: { [key in EthereumProviderName]: () => Observable<
   },
   [EthereumProviderName.Rabby]: () => {
     return EMPTY;
+  },
+  [EthereumProviderName.Tomo]: () => {
+    return of(window.tomo_evm);
   },
 };

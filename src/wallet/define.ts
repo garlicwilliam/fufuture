@@ -26,6 +26,7 @@ export enum EthereumProviderName {
   GateWallet = 'Gate Wallet',
   OneKey = 'OneKey',
   Rabby = 'Rabby',
+  Tomo = 'Tomo',
 
   MetaMaskLike = 'MetaMaskLike', // Not Include bitKeep,
 }
@@ -53,6 +54,7 @@ export const EthereumProviderUUIDtoName: { [k: string]: EthereumProviderName } =
   'com.coinbase.wallet': EthereumProviderName.Coinbase,
   'so.onekey.wallet': EthereumProviderName.OneKey,
   'io.rabby': EthereumProviderName.Rabby,
+  'inc.tomo': EthereumProviderName.Tomo,
 };
 
 export const WalletConnectWalletInfo: { [w in WalletConnectWalletName]: WcWalletInfo | null } = {
