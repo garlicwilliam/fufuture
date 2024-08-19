@@ -180,8 +180,6 @@ export class PoolsTable extends BaseStateComponent<IProps, IState> {
 
     const poolList: TokenPoolList | undefined = this.getSource();
 
-    console.log('poolList', this.state.tableList2);
-
     return this.state.isMobile ? (
       <PoolsList onSelect={this.onSelect2.bind(this)} tokenPools={poolList} maxHeight={scrollY + 50} />
     ) : (
