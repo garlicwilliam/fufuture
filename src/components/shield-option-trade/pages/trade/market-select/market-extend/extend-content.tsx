@@ -9,7 +9,7 @@ import { StringInput } from '../../../../../common/input/string-input';
 import { FixPadding } from '../../../../../common/content/fix-padding';
 import { CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { i18n } from '../../../../../i18n/i18n-fn';
-import {ShieldUnderlyingType} from "../../../../../../state-manager/state-types";
+import { ShieldUnderlyingType } from '../../../../../../state-manager/state-types';
 
 type IState = {
   isMobile: boolean;

@@ -59,7 +59,6 @@ import { isSN, snAssert, snRep } from '../interface-util';
 import { shortAddress } from '../../util';
 import { ERC20 } from '../../wallet/abi';
 import { UnderlyingContract } from '../../components/shield-option-trade/contract/shield-contract-types';
-import { linkAnswerGetter, linkDescGetter } from './contract-getter-sim-link';
 import { SLD_ENV_CONF } from '../../components/shield-option-trade/const/env';
 import { getShieldRpcProviderCache } from '../../components/shield-option-trade/const/http-rpc';
 
@@ -801,17 +800,21 @@ export function poolTokenAddressListGetter(managerContract: Contract): Observabl
 
   const cacheKey: string = genCacheKey(managerContract, 'token_list_address_getter');
 
-  return cacheService.tryUseCache(tokenAddresses$, cacheKey, CACHE_10_SEC);
+  return cacheService.tryUseCache(tokenAddresses$, cacheKey, CACHE_10_MIN);
 }
 
 export function poolTokenErc20ListGetter(managerContract: Contract): Observable<ShieldTokenSearchList> {
+  const network = contractNetwork(managerContract)!;
+  const provider = getShieldRpcProviderCache(network);
+
   const cacheKey: string = genCacheKey(managerContract, 'token_list_info_getter');
   const tokens$ = poolTokenAddressListGetter(managerContract).pipe(
     switchMap((tokenAddresses: string[]) => {
       return from(tokenAddresses);
     }),
     mergeMap((tokenAddress: string) => {
-      return erc20InfoByAddressGetter(tokenAddress);
+      const erc20Contract = createChainContract(tokenAddress, ERC20, provider, network);
+      return erc20InfoGetter(erc20Contract);
     }),
     toArray(),
     map((tokens: TokenErc20[]): ShieldTokenSearchList => {

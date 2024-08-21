@@ -1,7 +1,6 @@
 import { BaseStateComponent } from '../../../../../../state-manager/base-state-component';
 import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger, pxStr } from '../../../../../../util/string';
-import { TokenPool, TokenPoolList } from '../../../../services/shield-pool-liquidity.service';
 import styles from './pools-list.module.less';
 import { TokenIcon } from '../../../common/token-icon';
 import { LiquidityCell } from './liquidity-cell';
@@ -10,6 +9,7 @@ import { fontCss } from '../../../../../i18n/font-switch';
 import { I18n } from '../../../../../i18n/i18n';
 import { PendingHolder } from '../../../../../common/progress/pending-holder';
 import { FixPadding } from '../../../../../common/content/fix-padding';
+import { TokenPool, TokenPoolList } from '../../../../services/types';
 
 type IState = {
   isMobile: boolean;

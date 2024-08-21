@@ -18,12 +18,13 @@ import { map, switchMap } from 'rxjs/operators';
 import { Observable, combineLatest } from 'rxjs';
 import { D } from '../../../../../../state-manager/database/database-state-parser';
 import { isSameAddress } from '../../../../../../util/address';
-import { poolLiquidityService, TokenPool, TokenPoolList } from '../../../../services/shield-pool-liquidity.service';
+import { poolLiquidityService } from '../../../../services/shield-pool-liquidity.service';
 import { LiquidityCell } from './liquidity-cell';
 import { PoolsList } from './pools-list';
 import { walletState } from '../../../../../../state-manager/wallet/wallet-state';
 import { Network } from '../../../../../../constant/network';
 import { isSameToken } from '../../../../../../util/token';
+import { TokenPool, TokenPoolList } from '../../../../services/types';
 
 type IState = {
   isMobile: boolean;

@@ -21,6 +21,7 @@ import { SldEmpty } from '../../../common/content/empty';
 import { Network } from '../../../../constant/network';
 import { walletState } from '../../../../state-manager/wallet/wallet-state';
 import { ShieldLoading } from './loading';
+import { tokenBalanceService } from '../../services/token-balance.service';
 
 type TProps = {
   token: TokenErc20;
@@ -93,8 +94,8 @@ export class SearchToken extends BaseStateComponent<IProps, IState> {
   componentDidMount() {
     this.registerIsMobile('isMobile');
     this.registerObservable('network', walletState.NETWORK);
-    this.registerState('tokenSelectList', S.Option.Token.SelectList);
-    this.registerStatePending('tokenSelectListPending', S.Option.Token.SelectList);
+    this.registerObservable('tokenSelectList', tokenBalanceService.watchTokenList());
+    this.registerObservable('tokenSelectListPending', tokenBalanceService.watchTokenListPending());
     this.registerState('tokenSearchRs', S.Option.Token.Search);
     this.registerState('searchKey', P.Option.Token.Search);
   }

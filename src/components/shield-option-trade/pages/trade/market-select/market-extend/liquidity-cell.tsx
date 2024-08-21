@@ -1,13 +1,14 @@
 import { BaseStateComponent } from '../../../../../../state-manager/base-state-component';
 import { P } from '../../../../../../state-manager/page/page-state-parser';
 import { bindStyleMerger } from '../../../../../../util/string';
-import { poolLiquidityService, TokenPool } from '../../../../services/shield-pool-liquidity.service';
+import { poolLiquidityService } from '../../../../services/shield-pool-liquidity.service';
 import styles from './liquidity-cell.module.less';
 import { SldDecimal } from '../../../../../../util/decimal';
 import { of, combineLatest } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { TokenAmountInline } from '../../../../../common/content/token-amount-inline';
 import { PendingHolder } from '../../../../../common/progress/pending-holder';
+import { TokenPool } from '../../../../services/types';
 
 type IState = {
   isMobile: boolean;

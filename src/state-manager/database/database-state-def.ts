@@ -6,7 +6,6 @@ import { Observable, of } from 'rxjs';
 import { DatabaseState, DatabaseStateRef, DatabaseStateTree } from '../interface';
 import * as _ from 'lodash';
 
-import { MergerTokenPricesChange } from './database-state-mergers/option/merger-token-prices-change';
 import { Merger24volume } from './database-state-mergers/option/merger-24volume';
 import { MergerMyReferrals } from './database-state-mergers/option/merger-my-referrals';
 import { MergerMakerLockedDetail } from './database-state-mergers/option/merger-maker-locked-detail';
@@ -18,7 +17,6 @@ import { MergerReferralItems } from './database-state-mergers/option/merger-refe
 import { MergerOpenInterest } from './database-state-mergers/option/merger-open-interest';
 import { MergerUnderlyingPrice } from './database-state-mergers/option/merger-underlying-price';
 import { MergerActiveOrders } from './database-state-mergers/option/merger-active-orders';
-
 
 class DBStateReference implements DatabaseStateRef {
   private root: DatabaseStateTree<any> | null = null;
@@ -129,5 +127,5 @@ export const DATABASE_STATE = {
         _merger: new MergerPoolAddress(),
       },
     },
-  }
+  },
 };
