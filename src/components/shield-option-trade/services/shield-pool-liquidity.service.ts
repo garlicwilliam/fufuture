@@ -5,21 +5,13 @@ import {
   ShieldUnderlyingType,
   TokenErc20,
 } from '../../../state-manager/state-types';
-import { filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { filter, map, switchMap, tap } from 'rxjs/operators';
 import { walletState } from '../../../state-manager/wallet/wallet-state';
-import { createChainContract } from '../../../state-manager/const/contract-creator';
-import { ABI_PUBLIC_POOL } from '../const/shield-option-abi';
-import { asyncScheduler, BehaviorSubject, EMPTY, NEVER, Observable, of, Subscription, zip } from 'rxjs';
-import {
-  privatePoolLiquidityGetter,
-  publicPoolLiquidityGetter,
-} from '../../../state-manager/contract/contract-getter-cpx-shield';
+import { BehaviorSubject, EMPTY, NEVER, Observable, of, zip } from 'rxjs';
 import { SLD_ENV_CONF } from '../const/env';
 import * as _ from 'lodash';
 import { SldDecimal } from '../../../util/decimal';
-import { shieldOptionTradeContracts } from '../contract/shield-option-trade-contract';
 import { Network } from '../../../constant/network';
-import { getShieldRpcProviderCache } from '../const/http-rpc';
 import { PrivatePool, PrivatePoolRes, PublicPool, TokenPool, TokenPoolList } from './types';
 import {
   batchFetchPoolInfo,
@@ -30,8 +22,6 @@ import {
 } from './batch-fetch.service';
 
 export class ShieldPoolLiquidityService {
-  // token address => token info
-  private tokenCache: Map<string, TokenErc20> = new Map<string, TokenErc20>();
   // pool key => pool info
   private privatePoolCache = new Map<string, PrivatePool>();
   // pool key => pool info
@@ -57,12 +47,10 @@ export class ShieldPoolLiquidityService {
     return rs;
   }
 
-  private sub: Subscription;
-
   // -------------------------------------------------------------------------------------------------------------------
 
   constructor() {
-    this.sub = this.init().subscribe();
+    this.init().subscribe();
   }
   //
   public watchPoolList(underlying: ShieldUnderlyingType, network: Network): Observable<TokenPoolList> {
@@ -222,7 +210,7 @@ export class ShieldPoolLiquidityService {
     const tokens: string[] = Array.from(new Set(privates.map((p: ShieldPoolAddress) => p.tokenAddress)));
     const pools: string[] = Array.from(new Set(privates.map((p: ShieldPoolAddress) => p.poolAddress)));
 
-    return zip(batchFetchTokenInfo(tokens, network), batchFetchPoolInfo(pools, network)).pipe(
+    return zip(batchFetchTokenInfo(tokens, network, 'liq service 213'), batchFetchPoolInfo(pools, network)).pipe(
       map(([tokenMap, poolMap]) => {
         return poolInfoArr.map((poolInfo: ShieldPoolAddress) => {
           const poolAddress: string = poolInfo.poolAddress.toLowerCase();
@@ -247,7 +235,7 @@ export class ShieldPoolLiquidityService {
 
     const tokenList: string[] = pubPoolInfo.map((one: ShieldPoolAddress) => one.tokenAddress);
 
-    return batchFetchTokenInfo(tokenList, network).pipe(
+    return batchFetchTokenInfo(tokenList, network, 'pool liq 238').pipe(
       map(tokenMap => {
         return pubPoolInfo.map(pub => {
           return {
@@ -258,51 +246,6 @@ export class ShieldPoolLiquidityService {
         });
       })
     );
-  }
-
-  private getPrivatePoolLiquidity(pool: PrivatePool): Observable<SldDecimal> {
-    return shieldOptionTradeContracts.CONTRACTS.liquidityManager.pipe(
-      take(1),
-      switchMap(contract => {
-        return privatePoolLiquidityGetter(contract, pool.poolAddress, pool.token);
-      })
-    );
-  }
-
-  private getPublicPoolLiquidity(pool: PublicPool): Observable<SldDecimal> {
-    return walletState.watchNetwork().pipe(
-      switchMap((network: Network) => {
-        const provider = getShieldRpcProviderCache(network);
-        if (!provider) {
-          return NEVER;
-        }
-        return of(createChainContract(pool.poolAddress, ABI_PUBLIC_POOL, provider, network));
-      }),
-      switchMap(poolContract => {
-        return publicPoolLiquidityGetter(poolContract, pool.token);
-      })
-    );
-  }
-
-  private updateLiquidity(pool: PrivatePool | PublicPool): void {
-    this.initLiquidity(pool);
-
-    const key: string = poolCacheKey(pool.poolAddress, pool.network);
-    const isPrivate: boolean = _.has(pool, 'indexUnderlying');
-
-    const get$: Observable<SldDecimal> = isPrivate
-      ? this.getPrivatePoolLiquidity(pool as PrivatePool)
-      : this.getPublicPoolLiquidity(pool as PublicPool);
-
-    const update$: Observable<SldDecimal> = get$.pipe(
-      tap((liq: SldDecimal) => {
-        this.liquidityCache.get(key)?.next(liq);
-      })
-    );
-
-    asyncScheduler.schedule(() => {
-      update$.subscribe();
-    });
   }
 
   private initLiquidity(pool: PrivatePool | PublicPool) {

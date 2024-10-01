@@ -29,7 +29,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
     const cacheKey = `UnderlyingPrice_${args[2]}-${args[1]}-${args[0]}`;
     const cacheInterval = args[0] === 'DAY' ? CACHE_2_MIN : CACHE_1_HOUR;
 
-    return cacheService.tryUseCache(rs$, cacheKey, cacheInterval);
+    return cacheService.tryUseCache(rs$, cacheKey, cacheInterval).pipe();
   }
 
   mock(args?: Arg): Observable<Res> | Res {
@@ -71,7 +71,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
         ? curTimestamp() - 24 * 3600
         : duration === 'WEEK'
         ? curTimestamp() - 7 * 24 * 3600
-        : 30 * 24 * 3600;
+        : curTimestamp() - 30 * 24 * 3600;
 
     const hourIndex: number = Math.floor(begin / 3600);
     const dayIndex: number = Math.floor(begin / (24 * 3600));
@@ -104,7 +104,7 @@ export class MergerUnderlyingPrice implements DatabaseStateMerger<Res, Arg> {
         };
       }),
       catchError(err => {
-        console.warn(err);
+        console.warn('Chain link price error: duration = ', duration, ' - ', err);
         return new TokenPricesMerger().mergeWatch(duration, underlying, network);
       }),
       finalize(() => {

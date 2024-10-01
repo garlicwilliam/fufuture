@@ -1,12 +1,12 @@
 import { BigNumber, Contract } from 'ethers';
 import { Network } from '../../../constant/network';
 import { ShieldTokenSearchList, TokenErc20 } from '../../../state-manager/state-types';
-import { from, Observable } from 'rxjs';
+import { AsyncSubject, BehaviorSubject, from, Observable, Observer, of, switchMap } from 'rxjs';
 import { JsonRpcProvider } from '@uniswap/widgets';
 import { getShieldRpcProviderCache } from '../const/http-rpc';
 import { ERC20 } from '../../../wallet/abi';
 import { fetchJson } from '@ethersproject/web';
-import { map } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 import { ABI_PRIVATE_POOL, ABI_PUBLIC_POOL } from '../const/shield-option-abi';
 import { SldDecimal } from '../../../util/decimal';
 import {
@@ -21,14 +21,111 @@ import {
   UnderlyingRpcRequestMeta,
 } from './types';
 
-export function poolCacheKey(poolAddress: string, network: Network): string {
-  return network + ':' + poolAddress.toLowerCase();
+class Locker {
+  private observers: Map<string, Observer<string>> = new Map<string, Observer<string>>();
+  private current: string | null = null;
+
+  public getLock(): Observable<any> {
+    const key: string = Math.random().toString();
+    const lock = new AsyncSubject();
+    this.observers.set(key, lock);
+
+    if (this.current === null) {
+      this.current = key;
+
+      const lock = this.observers.get(key)!;
+      lock.next(key);
+      lock.complete();
+    }
+
+    return lock;
+  }
+
+  public releaseLock(key: string): void {
+    if (!key) {
+      return;
+    }
+
+    const lock = this.observers.get(key);
+    if (lock) {
+      lock.complete();
+    }
+    this.observers.delete(key);
+
+    //
+    if (this.current === key) {
+      this.current = null;
+
+      if (this.observers.size > 0) {
+        const nextKey: string = Array.from(this.observers.keys())[0];
+        this.current = nextKey;
+
+        const nextLock = this.observers.get(nextKey)!;
+        nextLock.next(nextKey);
+        nextLock.complete();
+      }
+    }
+  }
 }
 
-export function batchFetchTokenInfo(
-  tokenAddresses: string[],
-  network: Network
-): Observable<{ [p: string]: TokenErc20 }> {
+// --------------------------------
+
+type TokenInfoMap = { [p: string]: TokenErc20 };
+class TokenInfoCache {
+  private cacheMap: Map<Network, Map<string, TokenErc20>> = new Map();
+
+  public getTokenInfoCache(network: Network, tokens: string[]): { cache: TokenInfoMap; miss: string[] } {
+    tokens = tokens.map(one => one.toLowerCase());
+
+    if (this.cacheMap.has(network)) {
+      const cacheRs = this.cacheMap.get(network)!;
+      const cached: TokenInfoMap = {};
+      const missed: string[] = [];
+
+      tokens.forEach(token => {
+        const erc20 = cacheRs.get(token);
+        if (erc20) {
+          cached[token] = erc20;
+        } else {
+          missed.push(token);
+        }
+      });
+
+      return { cache: cached, miss: missed };
+    } else {
+      return {
+        cache: {},
+        miss: tokens,
+      };
+    }
+  }
+
+  public setTokenInfoCache(network: Network, info: TokenInfoMap): void {
+    if (!this.cacheMap.has(network)) {
+      this.cacheMap.set(network, new Map());
+    }
+
+    const cacheRs = this.cacheMap.get(network)!;
+
+    Object.keys(info).forEach(token => {
+      cacheRs.set(token, info[token]);
+    });
+  }
+}
+const tokenInfoCacheService: TokenInfoCache = new TokenInfoCache();
+const tokenInfoLocker: Locker = new Locker();
+
+function mergeTokenInfoMap(info1: TokenInfoMap, info2: TokenInfoMap): TokenInfoMap {
+  return Object.assign({}, info1, info2);
+}
+function batchFetchTokenInfo_real(tokenAddresses: string[], network: Network): Observable<TokenInfoMap> {
+  const { cache, miss } = tokenInfoCacheService.getTokenInfoCache(network, tokenAddresses);
+  if (miss.length === 0) {
+    return of(cache);
+  }
+
+  tokenAddresses = miss;
+
   const rpcProvider: JsonRpcProvider = getShieldRpcProviderCache(network);
   const metas: TokenRpcRequestMeta[] = [];
   const tokenReqData: Call[] = tokenAddresses
@@ -98,7 +195,7 @@ export function batchFetchTokenInfo(
 
   metas.sort((a, b) => a.id - b.id);
 
-  return from(fetchJson(rpcProvider.connection, JSON.stringify(tokenReqData))).pipe(
+  const rs$ = from(fetchJson(rpcProvider.connection, JSON.stringify(tokenReqData))).pipe(
     map(res => {
       return res.map((data, index): { data: any; meta: TokenRpcRequestMeta } => {
         const meta: TokenRpcRequestMeta = metas[data.id];
@@ -127,7 +224,36 @@ export function batchFetchTokenInfo(
       return erc20Tokens;
     })
   );
+
+  return rs$.pipe(
+    map((fetched: TokenInfoMap) => {
+      const merged: TokenInfoMap = mergeTokenInfoMap(cache, fetched);
+      tokenInfoCacheService.setTokenInfoCache(network, merged);
+
+      return merged;
+    })
+  );
 }
+
+export function batchFetchTokenInfo(
+  tokenAddresses: string[],
+  network: Network,
+  debug?: string
+): Observable<TokenInfoMap> {
+  let thisKey: string;
+
+  return tokenInfoLocker.getLock().pipe(
+    switchMap((key: string) => {
+      thisKey = key;
+      return batchFetchTokenInfo_real(tokenAddresses, network);
+    }),
+    finalize(() => {
+      tokenInfoLocker.releaseLock(thisKey);
+    })
+  );
+}
+
+// ------------------------------
 
 export function batchFetchPoolInfo(
   poolAddresses: string[],
@@ -406,4 +532,8 @@ export function batchFetchTokenBalance(tokens: ShieldTokenSearchList, user: stri
       return balances;
     })
   );
+}
+
+export function poolCacheKey(poolAddress: string, network: Network): string {
+  return network + ':' + poolAddress.toLowerCase();
 }

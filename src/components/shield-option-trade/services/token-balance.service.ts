@@ -1,29 +1,13 @@
 import { ShieldTokenSearchList, TokenErc20 } from '../../../state-manager/state-types';
-import {
-  Observable,
-  of,
-  switchMap,
-  combineLatest,
-  Subject,
-  from,
-  mergeMap,
-  zip,
-  BehaviorSubject,
-  Subscription,
-} from 'rxjs';
+import { Observable, of, switchMap, combineLatest, Subject, zip, BehaviorSubject, Subscription } from 'rxjs';
 import { SldDecimal } from '../../../util/decimal';
 import { walletState } from '../../../state-manager/wallet/wallet-state';
 import { Contract } from 'ethers';
-import { erc20InfoGetter, erc20UserBalanceGetter } from '../../../state-manager/contract/contract-getter-sim-erc20';
-import { filter, finalize, map, startWith, tap, toArray } from 'rxjs/operators';
-import {
-  contractNetwork,
-  createChainContract,
-  createErc20Contract,
-} from '../../../state-manager/const/contract-creator';
+import { erc20UserBalanceGetter } from '../../../state-manager/contract/contract-getter-sim-erc20';
+import { filter, finalize, map, startWith, tap } from 'rxjs/operators';
+import { contractNetwork, createChainContract } from '../../../state-manager/const/contract-creator';
 import { ERC20 } from '../../../wallet/abi';
 import { getShieldRpcProviderCache } from '../const/http-rpc';
-import { CACHE_10_SEC, cacheService } from '../../../state-manager/mem-cache/cache-contract';
 import { poolTokenAddressListGetter } from '../../../state-manager/contract/contract-getter-cpx-shield';
 import { shieldOptionTradeContracts } from '../contract/shield-option-trade-contract';
 import { batchFetchTokenBalance, batchFetchTokenInfo } from './batch-fetch.service';
@@ -142,7 +126,7 @@ export class TokenBalanceService {
 
     return zip(poolTokenAddressListGetter(manager), of(network)).pipe(
       switchMap(([tokenAddressList, network]) => {
-        const info$ = batchFetchTokenInfo(tokenAddressList, network);
+        const info$ = batchFetchTokenInfo(tokenAddressList, network, 'token balance 145');
         return zip(info$, of(network));
       }),
       map(([tokens, network]) => {
